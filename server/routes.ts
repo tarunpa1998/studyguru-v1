@@ -10,6 +10,10 @@ import {
   insertMenuSchema
 } from "@shared/schema";
 
+// Import MongoDB API routes
+import apiRoutes from './routes/api';
+import swaggerRoutes from './routes/swagger';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to handle errors
   const errorHandler = (fn: (req: Request, res: Response) => Promise<void>) => {
@@ -26,7 +30,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
   };
 
-  // Menu routes
+  // Register MongoDB API routes when MongoDB is available
+  app.use('/api', apiRoutes);
+  
+  // Register Swagger documentation
+  app.use('/', swaggerRoutes);
+
+  // Menu routes (fallback to memory storage)
   app.get("/api/menu", errorHandler(async (req, res) => {
     const menuItems = await storage.getMenu();
     res.json(menuItems);
@@ -38,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newMenuItem);
   }));
 
-  // Scholarship routes
+  // Scholarship routes (fallback to memory storage)
   app.get("/api/scholarships", errorHandler(async (req, res) => {
     const scholarships = await storage.getAllScholarships();
     res.json(scholarships);
@@ -58,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newScholarship);
   }));
 
-  // Article routes
+  // Article routes (fallback to memory storage)
   app.get("/api/articles", errorHandler(async (req, res) => {
     const articles = await storage.getAllArticles();
     res.json(articles);
@@ -78,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newArticle);
   }));
 
-  // Country routes
+  // Country routes (fallback to memory storage)
   app.get("/api/countries", errorHandler(async (req, res) => {
     const countries = await storage.getAllCountries();
     res.json(countries);
@@ -98,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newCountry);
   }));
 
-  // University routes
+  // University routes (fallback to memory storage)
   app.get("/api/universities", errorHandler(async (req, res) => {
     const universities = await storage.getAllUniversities();
     res.json(universities);
@@ -118,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newUniversity);
   }));
 
-  // News routes
+  // News routes (fallback to memory storage)
   app.get("/api/news", errorHandler(async (req, res) => {
     const newsItems = await storage.getAllNews();
     res.json(newsItems);
@@ -143,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newNewsItem);
   }));
 
-  // Search route
+  // Search route (fallback to memory storage)
   app.get("/api/search", errorHandler(async (req, res) => {
     const query = req.query.query as string;
     if (!query || query.trim() === "") {
