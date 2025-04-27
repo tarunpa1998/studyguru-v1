@@ -42,19 +42,32 @@ export default function AdminRegister() {
     setError(null);
 
     try {
-      await apiRequest('/api/auth/register', {
+      const response = await apiRequest('/api/setup-admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       
-      toast({
-        title: 'Registration successful',
-        description: 'Admin user created. Please login.',
-      });
-      
-      // Navigate to login page
-      navigate('/admin/login');
+      // Save token directly and go to dashboard
+      if (response.token) {
+        localStorage.setItem('adminToken', response.token);
+        
+        toast({
+          title: 'Registration successful',
+          description: 'Admin user created and logged in.',
+        });
+        
+        // Navigate directly to dashboard
+        navigate('/admin/dashboard');
+      } else {
+        toast({
+          title: 'Registration successful',
+          description: 'Admin user created. Please login.',
+        });
+        
+        // Navigate to login page
+        navigate('/admin/login');
+      }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
       toast({

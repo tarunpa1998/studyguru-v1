@@ -25,6 +25,7 @@ import AdminLogin from "@/pages/admin/Login";
 import AdminRegister from "@/pages/admin/Register";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminArticles from "@/pages/admin/Articles";
+import AdminUniversities from "@/pages/admin/Universities";
 
 import { useEffect } from "react";
 
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/admin/register" component={AdminRegister} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/articles" component={AdminArticles} />
+      <Route path="/admin/universities" component={AdminUniversities} />
       
       <Route component={NotFound} />
     </Switch>
@@ -66,6 +68,9 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  const isAdminRoute = location.startsWith('/admin');
+
   // Seed initial data on first app load
   useEffect(() => {
     const seedData = async () => {
@@ -85,11 +90,11 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <div className="flex flex-col min-h-screen">
-          <Navbar />
+          {!isAdminRoute && <Navbar />}
           <div className="flex-grow">
             <Router />
           </div>
-          <Footer />
+          {!isAdminRoute && <Footer />}
         </div>
       </TooltipProvider>
     </QueryClientProvider>
