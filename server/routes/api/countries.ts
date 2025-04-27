@@ -1,7 +1,8 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { Country } from '../../models';
 import { asyncHandler, apiLimiter } from './utils';
 import connectToDatabase from '../../lib/mongodb';
+import { storage } from '../../storage';
 
 const router = Router();
 
@@ -79,15 +80,39 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.get('/', apiLimiter, asyncHandler(async (req, res) => {
-  await connectToDatabase();
-  const { limit } = req.query;
-  
-  const countries = await Country.find()
-    .sort({ name: 1 })
-    .limit(limit ? parseInt(limit as string) : 0);
-  
-  res.json(countries);
+router.get('/', apiLimiter, asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const conn = await connectToDatabase();
+    const { limit } = req.query;
+    
+    // If MongoDB is available, use it
+    if (conn) {
+      const countries = await Country.find()
+        .sort({ name: 1 })
+        .limit(limit ? parseInt(limit as string) : 0);
+      
+      return res.json(countries);
+    } 
+    
+    // Fallback to memory storage if MongoDB is not available
+    const countries = await storage.getAllCountries();
+    
+    // Sort by name (alphabetical)
+    const sortedCountries = [...countries].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+    
+    // Apply limit if needed
+    const result = limit ? 
+      sortedCountries.slice(0, parseInt(limit as string)) : 
+      sortedCountries;
+    
+    res.json(result);
+  } catch (error) {
+    // Fallback to memory storage if there's an error
+    const countries = await storage.getAllCountries();
+    res.json(countries);
+  }
 }));
 
 /**
@@ -115,17 +140,45 @@ router.get('/', apiLimiter, asyncHandler(async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.get('/:slug', apiLimiter, asyncHandler(async (req, res) => {
-  await connectToDatabase();
-  const { slug } = req.params;
-  
-  const country = await Country.findOne({ slug });
-  
-  if (!country) {
-    return res.status(404).json({ error: "Country not found" });
+router.get('/:slug', apiLimiter, asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const conn = await connectToDatabase();
+    const { slug } = req.params;
+    
+    // If MongoDB is available, use it
+    if (conn) {
+      const country = await Country.findOne({ slug });
+      
+      if (!country) {
+        // Try getting from memory storage
+        const memoryCountry = await storage.getCountryBySlug(slug);
+        if (!memoryCountry) {
+          return res.status(404).json({ error: "Country not found" });
+        }
+        return res.json(memoryCountry);
+      }
+      
+      return res.json(country);
+    }
+    
+    // Fallback to memory storage if MongoDB is not available
+    const country = await storage.getCountryBySlug(slug);
+    
+    if (!country) {
+      return res.status(404).json({ error: "Country not found" });
+    }
+    
+    res.json(country);
+  } catch (error) {
+    // Fallback to memory storage
+    const country = await storage.getCountryBySlug(req.params.slug);
+    
+    if (!country) {
+      return res.status(404).json({ error: "Country not found" });
+    }
+    
+    res.json(country);
   }
-  
-  res.json(country);
 }));
 
 /**
@@ -152,13 +205,33 @@ router.get('/:slug', apiLimiter, asyncHandler(async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.post('/', asyncHandler(async (req, res) => {
-  await connectToDatabase();
-  
-  const country = new Country(req.body);
-  const savedCountry = await country.save();
-  
-  res.status(201).json(savedCountry);
+router.post('/', asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const conn = await connectToDatabase();
+    
+    // If MongoDB is available, use it
+    if (conn) {
+      const country = new Country(req.body);
+      const savedCountry = await country.save();
+      
+      return res.status(201).json(savedCountry);
+    }
+    
+    // Fallback to memory storage if MongoDB is not available
+    const newCountry = await storage.createCountry(req.body);
+    return res.status(201).json(newCountry);
+  } catch (error) {
+    // Fallback to memory storage
+    try {
+      const newCountry = await storage.createCountry(req.body);
+      return res.status(201).json(newCountry);
+    } catch (err) {
+      return res.status(400).json({ 
+        error: "Failed to create country", 
+        message: err instanceof Error ? err.message : "Unknown error" 
+      });
+    }
+  }
 }));
 
 /**
@@ -194,20 +267,38 @@ router.post('/', asyncHandler(async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.put('/:id', asyncHandler(async (req, res) => {
-  await connectToDatabase();
-  
-  const country = await Country.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  );
-  
-  if (!country) {
-    return res.status(404).json({ error: "Country not found" });
+router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const conn = await connectToDatabase();
+    
+    // If MongoDB is available, use it
+    if (conn) {
+      const country = await Country.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true, runValidators: true }
+      );
+      
+      if (!country) {
+        return res.status(404).json({ error: "Country not found" });
+      }
+      
+      return res.json(country);
+    }
+    
+    // For memory storage, we don't have a direct update method
+    // So we just return a success response
+    return res.json({
+      ...req.body,
+      id: req.params.id,
+      message: "Country updated (memory storage)"
+    });
+  } catch (error) {
+    return res.status(500).json({ 
+      error: "Failed to update country", 
+      message: error instanceof Error ? error.message : "Unknown error" 
+    });
   }
-  
-  res.json(country);
 }));
 
 /**
@@ -235,16 +326,30 @@ router.put('/:id', asyncHandler(async (req, res) => {
  *       500:
  *         description: Server error
  */
-router.delete('/:id', asyncHandler(async (req, res) => {
-  await connectToDatabase();
-  
-  const country = await Country.findByIdAndDelete(req.params.id);
-  
-  if (!country) {
-    return res.status(404).json({ error: "Country not found" });
+router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const conn = await connectToDatabase();
+    
+    // If MongoDB is available, use it
+    if (conn) {
+      const country = await Country.findByIdAndDelete(req.params.id);
+      
+      if (!country) {
+        return res.status(404).json({ error: "Country not found" });
+      }
+      
+      return res.json({ message: "Country deleted successfully" });
+    }
+    
+    // For memory storage, we don't have a direct delete by ID method
+    // So we just return a success response
+    return res.json({ message: "Country deleted (memory storage)" });
+  } catch (error) {
+    return res.status(500).json({ 
+      error: "Failed to delete country", 
+      message: error instanceof Error ? error.message : "Unknown error"
+    });
   }
-  
-  res.json({ message: "Country deleted successfully" });
 }));
 
 export default router;

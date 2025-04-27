@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { rateLimit } from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { storage } from '../../storage';
+import mongoose from 'mongoose';
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +17,13 @@ export const asyncHandler = (fn: Function) => {
       await fn(req, res, next);
     } catch (error) {
       console.error("API Error:", error);
+      
+      // Handle specific Mongoose errors
+      if (error instanceof mongoose.Error.MongooseServerSelectionError) {
+        // Connection error - most likely MongoDB is not available
+        return next(new Error("Database connection error. Fallback to memory storage."));
+      }
+      
       res.status(500).json({
         error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error occurred"
