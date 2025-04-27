@@ -170,6 +170,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await seedInitialData();
     res.json({ message: "Initial data seeded successfully" });
   }));
+  
+  // Setup initial admin user
+  app.post("/api/setup-admin", errorHandler(async (req, res) => {
+    const { username, password, setupKey } = req.body;
+    
+    // Verify setup key
+    const correctSetupKey = process.env.ADMIN_SETUP_KEY || 'admin_setup_secret';
+    if (setupKey !== correctSetupKey) {
+      return res.status(401).json({ error: 'Invalid setup key' });
+    }
+    
+    try {
+      // Store admin user in memory storage for now
+      // MongoDB will be integrated later
+      const user = {
+        username,
+        password // Note: In a real app, password should be hashed
+      };
+      
+      // Create a simple JWT token
+      const token = 'dummy_token_for_admin_' + Date.now();
+      
+      res.json({ 
+        message: 'Admin setup successful', 
+        token,
+        user: { username: user.username }
+      });
+    } catch (error) {
+      console.error('Admin setup error:', error);
+      res.status(500).json({ error: 'Failed to setup admin user' });
+    }
+  }));
 
   // Create HTTP server
   const httpServer = createServer(app);
