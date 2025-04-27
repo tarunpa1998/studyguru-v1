@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-// Interface for Menu child item
+// Interface for Menu Child item
 export interface IMenuChild {
   id: number;
   title: string;
