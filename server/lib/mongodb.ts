@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { log } from '../vite';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studyglobal';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Tarunpaa:Tarunlove@1998@replitdb.0m1olav.mongodb.net/studyguru?retryWrites=true&w=majority&appName=replitdb';
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
