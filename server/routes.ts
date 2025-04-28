@@ -415,24 +415,66 @@ async function seedInitialData() {
     }
   ];
 
-  // Create sample data
-  for (const scholarship of scholarships) {
-    await storage.createScholarship(scholarship);
-  }
+  // Determine if we should use MongoDB or in-memory storage
+  const conn = await connectToDatabase();
+  const useMongoDb = !!conn;
+  const storageImpl = useMongoDb ? mongoStorage : storage;
   
-  for (const country of countries) {
-    await storage.createCountry(country);
+  if (useMongoDb) {
+    log('Seeding data into MongoDB...', 'seeding');
+  } else {
+    log('MongoDB not available. Seeding data into memory storage...', 'seeding');
   }
-  
-  for (const article of articles) {
-    await storage.createArticle(article);
-  }
-  
-  for (const newsItem of newsItems) {
-    await storage.createNews(newsItem);
-  }
-  
-  for (const university of universities) {
-    await storage.createUniversity(university);
+
+  // Create sample data using appropriate storage implementation
+  try {
+    // Create scholarships
+    for (const scholarship of scholarships) {
+      try {
+        await storageImpl.createScholarship(scholarship);
+      } catch (error) {
+        log(`Error seeding scholarship: ${error}`, 'seeding');
+      }
+    }
+    
+    // Create countries
+    for (const country of countries) {
+      try {
+        await storageImpl.createCountry(country);
+      } catch (error) {
+        log(`Error seeding country: ${error}`, 'seeding');
+      }
+    }
+    
+    // Create articles
+    for (const article of articles) {
+      try {
+        await storageImpl.createArticle(article);
+      } catch (error) {
+        log(`Error seeding article: ${error}`, 'seeding');
+      }
+    }
+    
+    // Create news items
+    for (const newsItem of newsItems) {
+      try {
+        await storageImpl.createNews(newsItem);
+      } catch (error) {
+        log(`Error seeding news: ${error}`, 'seeding');
+      }
+    }
+    
+    // Create universities
+    for (const university of universities) {
+      try {
+        await storageImpl.createUniversity(university);
+      } catch (error) {
+        log(`Error seeding university: ${error}`, 'seeding');
+      }
+    }
+    
+    log('Seeding completed successfully', 'seeding');
+  } catch (error) {
+    log(`Seeding error: ${error}`, 'seeding');
   }
 }
