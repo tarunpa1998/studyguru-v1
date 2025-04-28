@@ -1,6 +1,12 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { migrateDataToMongoDB } from "./migrate";
+import dotenv from 'dotenv';
+import connectToDatabase from "./lib/mongodb";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 // Enable trust proxy for rate limiter to work correctly
@@ -66,7 +72,21 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Test MongoDB connection
+    const conn = await connectToDatabase();
+    if (conn) {
+      log('Connected to MongoDB successfully', 'mongodb');
+      
+      // Attempt to migrate data from in-memory to MongoDB
+      // but don't block server startup if it fails
+      migrateDataToMongoDB().catch(err => {
+        log(`Data migration error: ${err.message}`, 'migration');
+      });
+    } else {
+      log('Failed to connect to MongoDB, falling back to in-memory storage', 'mongodb');
+    }
   });
 })();

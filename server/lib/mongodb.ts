@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 import { log } from '../vite';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Tarunpaa:Tarunlove@1998@replitdb.0m1olav.mongodb.net/studyguru?retryWrites=true&w=majority&appName=replitdb';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Tarunpaa:Tarunlove%401998@replitdb.0m1olav.mongodb.net/studyguru?retryWrites=true&w=majority&appName=replitdb';
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null } = { conn: null, promise: null };
+let cached: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection | null> | null } = { conn: null, promise: null };
 
 // Add to global scope if needed for persistence
 if (typeof global !== 'undefined') {
@@ -47,7 +47,7 @@ async function connectToDatabase() {
           console.error('API Error:', error);
           // Clear the promise to allow retry later
           cached.promise = null;
-          return null;
+          throw error; // Re-throw to be caught by the outer catch
         });
     }
 
