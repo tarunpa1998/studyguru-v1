@@ -1,147 +1,200 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Button } from '@/components/ui/button';
-import {
-  BarChart3,
-  FileText,
-  Globe,
-  GraduationCap,
-  Home,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Newspaper,
-  X,
-  User
+import { 
+  LayoutDashboard, 
+  BookOpen, 
+  GraduationCap, 
+  Globe, 
+  Building, 
+  Newspaper, 
+  Settings, 
+  LogOut, 
+  Menu, 
+  X 
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title: string;
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const [location, navigate] = useLocation();
+  const [_, navigate] = useLocation();
+  const [location] = useLocation();
+  const { toast } = useToast();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
-  // Navigation items for sidebar
-  const navItems = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Articles', href: '/admin/articles', icon: FileText },
-    { name: 'Scholarships', href: '/admin/scholarships', icon: GraduationCap },
-    { name: 'Countries', href: '/admin/countries', icon: Globe },
-    { name: 'Universities', href: '/admin/universities', icon: GraduationCap },
-    { name: 'News', href: '/admin/news', icon: Newspaper },
-    { name: 'Menu', href: '/admin/menu', icon: Menu },
-    { name: 'Users', href: '/admin/users', icon: User },
-    { name: 'View Site', href: '/', icon: Home },
-  ];
-
-  // Check if user is authenticated
+  // Close sidebar on mobile when navigating
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token && !location.startsWith('/admin/login')) {
-      navigate('/admin/login');
+    if (isMobile) {
+      setSidebarOpen(false);
     }
-  }, [location, navigate]);
+  }, [location, isMobile]);
+
+  // Re-open sidebar when switching to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setSidebarOpen(true);
+    }
+  }, [isMobile]);
+
+  // Navigation items
+  const navItems = [
+    { 
+      title: 'Dashboard', 
+      icon: <LayoutDashboard className="h-5 w-5" />, 
+      href: '/admin/dashboard',
+      active: location === '/admin/dashboard'
+    },
+    { 
+      title: 'Articles', 
+      icon: <BookOpen className="h-5 w-5" />, 
+      href: '/admin/articles',
+      active: location.startsWith('/admin/articles')
+    },
+    { 
+      title: 'Scholarships', 
+      icon: <GraduationCap className="h-5 w-5" />, 
+      href: '/admin/scholarships',
+      active: location.startsWith('/admin/scholarships')
+    },
+    { 
+      title: 'Countries', 
+      icon: <Globe className="h-5 w-5" />, 
+      href: '/admin/countries',
+      active: location.startsWith('/admin/countries')
+    },
+    { 
+      title: 'Universities', 
+      icon: <Building className="h-5 w-5" />, 
+      href: '/admin/universities',
+      active: location.startsWith('/admin/universities')
+    },
+    { 
+      title: 'News', 
+      icon: <Newspaper className="h-5 w-5" />, 
+      href: '/admin/news',
+      active: location.startsWith('/admin/news')
+    },
+    { 
+      title: 'Settings', 
+      icon: <Settings className="h-5 w-5" />, 
+      href: '/admin/settings',
+      active: location.startsWith('/admin/settings')
+    },
+  ];
 
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
+    toast({
+      title: 'Logged out',
+      description: 'You have been logged out successfully',
+    });
     navigate('/admin/login');
   };
 
-  // Toggle sidebar on mobile
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Mobile sidebar toggle */}
-      <div className="fixed top-0 left-0 z-40 md:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="m-2"
-          onClick={toggleSidebar}
-        >
-          {sidebarOpen ? <X /> : <Menu />}
-        </Button>
-      </div>
-
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <div
-        className={`${
+      <div 
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
+        } ${isMobile ? 'lg:translate-x-0' : ''}`}
       >
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center justify-center border-b px-4">
-            <h1 className="text-xl font-bold text-gray-800">StudyGlobal Admin</h1>
+          {/* Sidebar header */}
+          <div className="flex h-16 items-center justify-between px-4">
+            <div className="flex items-center">
+              <img src="/logo.svg" alt="StudyGlobal" className="h-8 w-8" />
+              <h1 className="ml-2 text-xl font-bold">StudyGlobal</h1>
+            </div>
+            {isMobile && (
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            )}
           </div>
-          <nav className="flex-1 overflow-y-auto p-4">
-            <ul className="space-y-2">
-              {navItems.map((item) => {
-                const isActive = location === item.href;
-                const ItemIcon = item.icon;
-                return (
-                  <li key={item.name}>
-                    <Button
-                      variant={isActive ? 'default' : 'ghost'}
-                      className={`w-full justify-start ${
-                        isActive ? 'bg-primary text-primary-foreground' : ''
-                      }`}
-                      onClick={() => {
-                        navigate(item.href);
-                        if (isMobile) setSidebarOpen(false);
-                      }}
-                    >
-                      <ItemIcon className="mr-2 h-5 w-5" />
-                      {item.name}
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
+          <Separator />
+
+          {/* Navigation links */}
+          <nav className="flex-1 space-y-1 px-2 py-4">
+            {navItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => navigate(item.href)}
+                className={`flex w-full items-center rounded-md px-3 py-2 text-sm font-medium ${
+                  item.active
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <span className="mr-3 text-gray-500">{item.icon}</span>
+                {item.title}
+              </button>
+            ))}
           </nav>
-          <div className="border-t p-4">
-            <Button
-              variant="outline"
-              className="w-full justify-start text-red-500 hover:bg-red-50 hover:text-red-700"
+
+          {/* Sidebar footer */}
+          <div className="border-t border-gray-200 p-4">
+            <button
               onClick={handleLogout}
+              className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
             >
-              <LogOut className="mr-2 h-5 w-5" />
+              <LogOut className="mr-3 h-5 w-5" />
               Logout
-            </Button>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="bg-white shadow">
-          <div className="flex h-16 items-center justify-between px-4 md:px-6">
-            <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden md:flex"
-                onClick={handleLogout}
+      <div className={`flex-1 ${sidebarOpen ? 'md:ml-64' : ''}`}>
+        {/* Mobile header */}
+        <header className="sticky top-0 z-40 bg-white shadow-sm">
+          <div className="flex h-16 items-center justify-between px-4">
+            <div className="flex items-center">
+              {isMobile && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="mr-2 lg:hidden"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
+              )}
+              <h1 className="text-xl font-bold">{title}</h1>
+            </div>
+            <div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/')}
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                View Website
               </Button>
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
-          {children}
-        </main>
+
+        {/* Page content */}
+        <main className="p-6">{children}</main>
       </div>
+
+      {/* Mobile sidebar backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 }

@@ -4,7 +4,19 @@ import {
   Building2, 
   FileText 
 } from "lucide-react";
+import { motion } from "framer-motion";
 import CategoryCard from "./CategoryCard";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
 
 const CategorySection = () => {
   const categories = [
@@ -35,19 +47,35 @@ const CategorySection = () => {
   ];
 
   return (
-    <section className="py-10 bg-white">
+    <section className="py-10 md:py-16 bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <motion.div
+          className="mb-8 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Explore StudyGlobal</h2>
+          <p className="mt-2 text-slate-600 max-w-2xl mx-auto">Your comprehensive guide to international education opportunities</p>
+        </motion.div>
+        
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {categories.map((category, index) => (
-            <CategoryCard
-              key={index}
-              title={category.title}
-              description={category.description}
-              icon={category.icon}
-              href={category.href}
-            />
+            <div key={index} className="h-full">
+              <CategoryCard
+                title={category.title}
+                description={category.description}
+                icon={category.icon}
+                href={category.href}
+              />
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
