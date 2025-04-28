@@ -1,6 +1,9 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage"; // Keep for fallback
+import { mongoStorage } from "./mongoStorage"; // Import MongoDB storage implementation
+import connectToDatabase from "./lib/mongodb";
+import { log } from "./vite";
 import { 
   insertScholarshipSchema, 
   insertArticleSchema, 
@@ -16,7 +19,7 @@ import swaggerRoutes from './routes/swagger';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to handle errors
-  const errorHandler = (fn: (req: Request, res: Response) => Promise<void>) => {
+  const errorHandler = (fn: (req: Request, res: Response) => Promise<any>) => {
     return async (req: Request, res: Response) => {
       try {
         await fn(req, res);
@@ -36,14 +39,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Swagger documentation
   app.use('/', swaggerRoutes);
 
-  // Menu routes (fallback to memory storage)
+  // Menu routes (with MongoDB or fallback to memory storage)
   app.get("/api/menu", errorHandler(async (req, res) => {
+    // Try to use MongoDB first, fall back to memory storage if MongoDB unavailable
+    const conn = await connectToDatabase();
+    if (conn) {
+      try {
+        const menuItems = await mongoStorage.getMenu();
+        return res.json(menuItems);
+      } catch (error) {
+        log(`MongoDB error: ${error}`, 'mongodb');
+        // Fallback to memory storage
+      }
+    }
+    
+    // Fallback to memory storage
     const menuItems = await storage.getMenu();
     res.json(menuItems);
   }));
 
   app.post("/api/menu", errorHandler(async (req, res) => {
     const validatedData = insertMenuSchema.parse(req.body);
+    
+    // Try to use MongoDB first, fall back to memory storage if MongoDB unavailable
+    const conn = await connectToDatabase();
+    if (conn) {
+      try {
+        const newMenuItem = await mongoStorage.createMenuItem(validatedData);
+        return res.status(201).json(newMenuItem);
+      } catch (error) {
+        log(`MongoDB error: ${error}`, 'mongodb');
+        // Fallback to memory storage
+      }
+    }
+    
+    // Fallback to memory storage
     const newMenuItem = await storage.createMenuItem(validatedData);
     res.status(201).json(newMenuItem);
   }));
