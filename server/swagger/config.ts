@@ -57,6 +57,10 @@ const options = {
         description: 'Navigation menu operations'
       },
       {
+        name: 'Search',
+        description: 'Search operations across all content'
+      },
+      {
         name: 'Administration',
         description: 'Admin operations'
       },
