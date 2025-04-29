@@ -63,24 +63,12 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<{[key: number]: boolean}>({});
 
-  // Use a fallback menu in case the API fails
-  const fallbackMenu = [
-    { id: 1, title: "Home", url: "/", children: [] },
-    { id: 2, title: "Scholarships", url: "/scholarships", children: [] },
-    { id: 3, title: "Countries", url: "/countries", children: [] },
-    { id: 4, title: "Universities", url: "/universities", children: [] },
-    { id: 5, title: "Articles", url: "/articles", children: [] },
-  ];
-
-  // Fetch menu data
-  const { data: apiMenuItems = [], isLoading } = useQuery({
+  // No more fallback menu - we only use the MongoDB data
+  
+  // Fetch menu data from MongoDB
+  const { data: menuItems = [], isLoading } = useQuery({
     queryKey: ['/api/menu'],
   });
-
-  // Use fallback menu if API request is empty
-  const menuItems = Array.isArray(apiMenuItems) && apiMenuItems.length > 0 
-    ? apiMenuItems 
-    : fallbackMenu;
 
   // Close mobile menu when location changes
   useEffect(() => {
