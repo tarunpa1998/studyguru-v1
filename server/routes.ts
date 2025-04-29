@@ -251,6 +251,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Initial data seeded successfully" });
   }));
   
+  // API endpoint to trigger data migration (only when needed)
+  app.post("/api/migrate", errorHandler(async (req, res) => {
+    const { migrateDataToMongoDB } = require('./migrate');
+    await migrateDataToMongoDB();
+    res.json({ message: "Data migration completed" });
+  }));
+  
+  // API endpoint to clean up duplicate menu items
+  app.post("/api/cleanup-menus", errorHandler(async (req, res) => {
+    try {
+      // Import the Menu model directly
+      const Menu = await import('./models/Menu').then(m => m.default);
+      
+      // Get list of menu titles
+      const titles = await Menu.distinct('title');
+      log(`Found ${titles.length} unique menu titles`, 'debug');
+      
+      // For each title, keep one document and delete the rest
+      let deletedCount = 0;
+      for (const title of titles) {
+        // Find all documents with this title
+        const docs = await Menu.find({ title }).lean();
+        
+        if (docs.length > 1) {
+          // Keep the first one, delete the rest
+          const idsToDelete = docs.slice(1).map((doc: any) => doc._id);
+          const result = await Menu.deleteMany({ _id: { $in: idsToDelete } });
+          deletedCount += result.deletedCount || 0;
+          log(`Deleted ${result.deletedCount || 0} duplicate '${title}' menu items`, 'debug');
+        }
+      }
+      
+      return res.json({ 
+        message: "Menu cleanup completed", 
+        deletedCount,
+        uniqueMenus: titles.length
+      });
+    } catch (error: any) {
+      log(`Error cleaning up menu items: ${error}`, 'error');
+      return res.status(500).json({ error: `Failed to clean up menu items: ${error.message}` });
+    }
+  }));
+  
   // Setup initial admin user
   app.post("/api/setup-admin", errorHandler(async (req, res) => {
     const { username, password, setupKey } = req.body;

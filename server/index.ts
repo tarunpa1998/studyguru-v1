@@ -80,11 +80,8 @@ app.use((req, res, next) => {
     if (conn) {
       log('Connected to MongoDB successfully', 'mongodb');
       
-      // Attempt to migrate data from in-memory to MongoDB
-      // but don't block server startup if it fails
-      migrateDataToMongoDB().catch(err => {
-        log(`Data migration error: ${err.message}`, 'migration');
-      });
+      // Migration is now disabled on startup to prevent duplicate data
+      // Only run migration when explicitly requested via API
     } else {
       log('Failed to connect to MongoDB, falling back to in-memory storage', 'mongodb');
     }
