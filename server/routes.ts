@@ -261,35 +261,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint to clean up duplicate menu items
   app.post("/api/cleanup-menus", errorHandler(async (req, res) => {
     try {
-      // Import the Menu model directly
-      const Menu = await import('./models/Menu').then(m => m.default);
+      // Get the Menu model dynamically
+      const connection = await connectToDatabase();
+      if (!connection) {
+        return res.status(500).json({ error: "Failed to connect to MongoDB" });
+      }
+      
+      // Import the model dynamically to avoid 'require' issues
+      const { default: MenuModel } = await import('./models/Menu');
       
       // Get list of menu titles
-      const titles = await Menu.distinct('title');
+      const titles = await MenuModel.distinct('title');
       log(`Found ${titles.length} unique menu titles`, 'debug');
       
-      // For each title, keep one document and delete the rest
-      let deletedCount = 0;
+      let totalDeleted = 0;
+      
+      // For each title, find all duplicates and delete them
       for (const title of titles) {
-        // Find all documents with this title
-        const docs = await Menu.find({ title }).lean();
-        
-        if (docs.length > 1) {
-          // Keep the first one, delete the rest
-          const idsToDelete = docs.slice(1).map((doc: any) => doc._id);
-          const result = await Menu.deleteMany({ _id: { $in: idsToDelete } });
-          deletedCount += result.deletedCount || 0;
-          log(`Deleted ${result.deletedCount || 0} duplicate '${title}' menu items`, 'debug');
+        try {
+          // Find all documents with this title
+          const allWithTitle = await MenuModel.find({ title }).sort({ createdAt: 1 });
+          
+          if (allWithTitle.length <= 1) {
+            log(`No duplicates for menu '${title}'`, 'debug');
+            continue; // No duplicates
+          }
+          
+          // Keep the first one
+          const keepDoc = allWithTitle[0];
+          log(`Keeping menu item '${title}' with ID ${keepDoc._id}`, 'debug');
+          
+          // Delete all others with this title except the one we're keeping
+          const deleteResult = await MenuModel.deleteMany({ 
+            title, 
+            _id: { $ne: keepDoc._id } 
+          });
+          
+          const deleteCount = deleteResult?.deletedCount || 0;
+          totalDeleted += deleteCount;
+          log(`Deleted ${deleteCount} duplicate '${title}' menu items`, 'debug');
+        } catch (titleError: any) {
+          log(`Error processing title ${title}: ${titleError.message}`, 'error');
+          // Continue with next title
         }
       }
       
+      // Return success with count of deleted items
       return res.json({ 
-        message: "Menu cleanup completed", 
-        deletedCount,
-        uniqueMenus: titles.length
+        message: "Menu cleanup completed successfully", 
+        deletedCount: totalDeleted,
+        uniqueMenusRemaining: titles.length
       });
     } catch (error: any) {
-      log(`Error cleaning up menu items: ${error}`, 'error');
+      log(`Error cleaning up menu items: ${error.message}`, 'error');
       return res.status(500).json({ error: `Failed to clean up menu items: ${error.message}` });
     }
   }));
