@@ -9,6 +9,7 @@ import User from '../models/User';
 import Menu from '../models/Menu';
 import { createSlug } from '../../client/src/lib/utils';
 import jwt from 'jsonwebtoken';
+import { populateDatabase } from '../scripts/populateDb';
 
 const router = Router();
 

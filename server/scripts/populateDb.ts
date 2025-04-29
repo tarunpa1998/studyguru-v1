@@ -37,7 +37,7 @@ export async function populateDatabase() {
     
     log('Database population completed successfully', 'populate');
     return { success: true, message: 'Database populated successfully' };
-  } catch (error) {
+  } catch (error: any) {
     log(`Error populating database: ${error}`, 'populate');
     return { success: false, error: error.message };
   }
@@ -53,7 +53,7 @@ async function clearCollections() {
     await News.deleteMany({});
     await University.deleteMany({});
     log('Collections cleared successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error clearing collections: ${error}`, 'populate');
     throw error;
   }
@@ -64,7 +64,7 @@ async function populateMenus() {
     log(`Adding ${menuItems.length} menu items...`, 'populate');
     await Menu.insertMany(menuItems);
     log('Menu items added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding menu items: ${error}`, 'populate');
     throw error;
   }
@@ -75,7 +75,7 @@ async function populateScholarships() {
     log(`Adding ${scholarships.length} scholarships...`, 'populate');
     await Scholarship.insertMany(scholarships);
     log('Scholarships added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding scholarships: ${error}`, 'populate');
     throw error;
   }
@@ -86,7 +86,7 @@ async function populateCountries() {
     log(`Adding ${countries.length} countries...`, 'populate');
     await Country.insertMany(countries);
     log('Countries added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding countries: ${error}`, 'populate');
     throw error;
   }
@@ -97,7 +97,7 @@ async function populateArticles() {
     log(`Adding ${articles.length} articles...`, 'populate');
     await Article.insertMany(articles);
     log('Articles added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding articles: ${error}`, 'populate');
     throw error;
   }
@@ -108,7 +108,7 @@ async function populateNews() {
     log(`Adding ${newsItems.length} news items...`, 'populate');
     await News.insertMany(newsItems);
     log('News items added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding news items: ${error}`, 'populate');
     throw error;
   }
@@ -119,7 +119,7 @@ async function populateUniversities() {
     log(`Adding ${universities.length} universities...`, 'populate');
     await University.insertMany(universities);
     log('Universities added successfully', 'populate');
-  } catch (error) {
+  } catch (error: any) {
     log(`Error adding universities: ${error}`, 'populate');
     throw error;
   }
