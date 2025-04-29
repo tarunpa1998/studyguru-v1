@@ -42,20 +42,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Menu routes (with MongoDB or fallback to memory storage)
   app.get("/api/menu", errorHandler(async (req, res) => {
     // Try to use MongoDB first, fall back to memory storage if MongoDB unavailable
-    const conn = await connectToDatabase();
-    if (conn) {
-      try {
-        const menuItems = await mongoStorage.getMenu();
-        return res.json(menuItems);
-      } catch (error) {
-        log(`MongoDB error: ${error}`, 'mongodb');
-        // Fallback to memory storage
+    try {
+      const conn = await connectToDatabase();
+      if (conn) {
+        try {
+          // First, let's count how many menu items we have in MongoDB
+          const Menu = require('./models/Menu').default;
+          const menuCount = await Menu.countDocuments({});
+          log(`Menu items count in MongoDB: ${menuCount}`, 'debug');
+          
+          if (menuCount > 0) {
+            // There appear to be multiple sets of menu items.
+            // Let's only return one set by using distinct titles.
+            const titles = await Menu.distinct('title');
+            log(`Distinct menu titles: ${titles}`, 'debug');
+            
+            // Get one menu item per title
+            const uniqueMenuItems = [];
+            for (const title of titles) {
+              const item = await Menu.findOne({ title }).lean();
+              if (item) {
+                // Convert MongoDB _id to id
+                const menuItem = {
+                  ...item,
+                  id: item._id.toString(),
+                  _id: undefined
+                };
+                delete menuItem._id;
+                
+                uniqueMenuItems.push(menuItem);
+              }
+            }
+            
+            log(`Returning ${uniqueMenuItems.length} unique menu items`, 'debug');
+            return res.json(uniqueMenuItems);
+          }
+          
+          // If no items, try normal approach
+          const menuItems = await mongoStorage.getMenu();
+          
+          // Remove duplicate entries based on title
+          const uniqueMenuItems = Array.from(
+            new Map(menuItems.map(item => [item.title, item])).values()
+          );
+          
+          return res.json(uniqueMenuItems);
+        } catch (error) {
+          log(`MongoDB error fetching menu: ${error}`, 'mongodb');
+          // Continue to fallback
+        }
       }
+      
+      // Fallback to memory storage
+      const menuItems = await storage.getMenu();
+      
+      // Remove duplicate entries based on title
+      const uniqueMenuItems = Array.from(
+        new Map(menuItems.map(item => [item.title, item])).values()
+      );
+      
+      res.json(uniqueMenuItems);
+    } catch (error) {
+      log(`Error in menu route: ${error}`, 'error');
+      res.status(500).json({ error: 'Failed to fetch menu items' });
     }
-    
-    // Fallback to memory storage
-    const menuItems = await storage.getMenu();
-    res.json(menuItems);
   }));
 
   app.post("/api/menu", errorHandler(async (req, res) => {

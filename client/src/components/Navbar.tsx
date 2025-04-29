@@ -66,7 +66,7 @@ const Navbar = () => {
   // No more fallback menu - we only use the MongoDB data
   
   // Fetch menu data from MongoDB
-  const { data: menuItems = [], isLoading } = useQuery({
+  const { data: menuItems = [] as MenuItem[], isLoading } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu'],
   });
 
