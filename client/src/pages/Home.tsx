@@ -7,6 +7,7 @@ import LatestArticles from "@/components/LatestArticles";
 import EducationNews from "@/components/EducationNews";
 import Testimonials from "@/components/Testimonials";
 import CTASection from "@/components/CTASection";
+import { DevTools } from "@/components/DevTools";
 
 const Home = () => {
   return (
@@ -34,6 +35,11 @@ const Home = () => {
       <EducationNews />
       <Testimonials />
       <CTASection />
+      {import.meta.env.DEV && (
+        <div className="container mx-auto mb-8">
+          <DevTools />
+        </div>
+      )}
     </>
   );
 };
