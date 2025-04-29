@@ -1,38 +1,75 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 
-const swaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: 'StudyGlobal API',
-    version: '1.0.0',
-    description: 'API documentation for StudyGlobal - Education abroad website',
-    contact: {
-      name: 'StudyGlobal',
-      url: 'https://studyglobal.com',
-      email: 'info@studyglobal.com'
-    }
-  },
-  servers: [
-    {
-      url: '/api',
-      description: 'Development server',
-    },
-  ],
-  components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-    },
-  },
-};
-
 const options = {
-  swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
-  apis: ['./server/routes/*.ts'],
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Study Guru API',
+      version: '1.0.0',
+      description: 'API documentation for the Study Guru platform',
+      contact: {
+        name: 'Study Guru Support',
+        email: 'support@studyguru.com'
+      }
+    },
+    servers: [
+      {
+        url: '/api',
+        description: 'Development server'
+      }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    tags: [
+      {
+        name: 'Authentication',
+        description: 'User authentication operations'
+      },
+      {
+        name: 'Scholarships',
+        description: 'Scholarship management operations'
+      },
+      {
+        name: 'Countries',
+        description: 'Country information operations'
+      },
+      {
+        name: 'Universities',
+        description: 'University information operations'
+      },
+      {
+        name: 'Articles',
+        description: 'Article management operations'
+      },
+      {
+        name: 'News',
+        description: 'News management operations'
+      },
+      {
+        name: 'Menu',
+        description: 'Navigation menu operations'
+      },
+      {
+        name: 'Administration',
+        description: 'Admin operations'
+      },
+      {
+        name: 'Development',
+        description: 'Development and testing operations'
+      }
+    ]
+  },
+  apis: [
+    './server/routes/*.ts',
+    './server/swagger/schemas.ts'
+  ]
 };
 
 const swaggerSpec = swaggerJSDoc(options);

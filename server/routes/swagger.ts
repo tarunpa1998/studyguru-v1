@@ -4,12 +4,16 @@ import swaggerSpec from '../swagger/config';
 
 const router = Router();
 
-// Serve Swagger UI at /api-docs
+// Serve swagger documentation at /api-docs
 router.use('/api-docs', swaggerUi.serve);
-router.get('/api-docs', swaggerUi.setup(swaggerSpec));
+router.get('/api-docs', swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Study Guru API Documentation',
+}));
 
-// Serve swagger.json for consumption
-router.get('/swagger.json', (req, res) => {
+// Serve swagger spec as JSON at /api-docs.json
+router.get('/api-docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
