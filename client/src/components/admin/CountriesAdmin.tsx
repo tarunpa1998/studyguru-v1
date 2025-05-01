@@ -142,8 +142,20 @@ const CountriesAdmin = () => {
     clearArrayInputs();
   };
 
-  const handleDelete = async (countryId: string) => {
+  const handleDelete = async (country: Country) => {
     if (!confirm('Are you sure you want to delete this country?')) {
+      return;
+    }
+
+    // Get the appropriate ID regardless of format
+    const countryId = country.id || country._id;
+    
+    if (!countryId) {
+      toast({
+        title: 'Error deleting country',
+        description: 'Country ID not found',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -165,7 +177,9 @@ const CountriesAdmin = () => {
       }
 
       // Update the UI by removing the deleted country
-      setCountries(countries.filter(country => country._id !== countryId));
+      setCountries(countries.filter(c => 
+        (c._id !== countryId) && (c.id !== countryId)
+      ));
       
       toast({
         title: 'Country deleted',
@@ -434,7 +448,7 @@ const CountriesAdmin = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500 hover:text-red-700"
-                                onClick={() => handleDelete(country._id)}
+                                onClick={() => handleDelete(country)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -506,7 +520,7 @@ const CountriesAdmin = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(country._id)}
+                          onClick={() => handleDelete(country)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
