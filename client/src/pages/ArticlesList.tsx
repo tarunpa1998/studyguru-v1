@@ -25,17 +25,22 @@ const ArticlesList = () => {
   const [filterCategory, setFilterCategory] = useState(initialCategory);
 
   const { data: articles = [], isLoading } = useQuery({
-    queryKey: ['/api/articles']
+    queryKey: ['/api/articles', filterCategory],
+    queryFn: async () => {
+      const url = filterCategory 
+        ? `/api/articles?category=${encodeURIComponent(filterCategory)}`
+        : '/api/articles';
+      const response = await fetch(url);
+      return response.json();
+    }
   });
 
-  // Apply filters
+  // Apply search filter only since category is handled by the API
   const filteredArticles = articles.filter((article: any) => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          article.summary.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory = filterCategory ? article.category === filterCategory : true;
-
-    return matchesSearch && matchesCategory;
+    return searchQuery 
+      ? article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        article.summary.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
   });
 
   // Extract unique categories for filters

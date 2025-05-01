@@ -105,41 +105,41 @@ router.get('/', apiLimiter, asyncHandler(async (req: Request, res: Response) => 
   try {
     const conn = await connectToDatabase();
     const { category, limit } = req.query;
-    
+
     // If MongoDB is available, use it
     if (conn) {
       let query = {};
-      
+
       if (category) {
         query = { category: category as string };
       }
-      
+
       const articles = await Article.find(query)
         .sort({ publishDate: -1 })
         .limit(limit ? parseInt(limit as string) : 0);
-      
+
       return res.json(articles);
     } 
-    
+
     // Fallback to memory storage if MongoDB is not available
     const articles = await storage.getAllArticles();
-    
+
     // Filter by category if needed
     let filteredArticles = articles;
     if (category) {
       filteredArticles = articles.filter(a => a.category === category);
     }
-    
+
     // Sort by publish date (newest first)
     filteredArticles.sort((a, b) => {
       return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
     });
-    
+
     // Apply limit if needed
     if (limit) {
       filteredArticles = filteredArticles.slice(0, parseInt(limit as string));
     }
-    
+
     res.json(filteredArticles);
   } catch (error) {
     // Fallback to memory storage if there's an error
@@ -177,11 +177,11 @@ router.get('/:slug', apiLimiter, asyncHandler(async (req: Request, res: Response
   try {
     const conn = await connectToDatabase();
     const { slug } = req.params;
-    
+
     // If MongoDB is available, use it
     if (conn) {
       const article = await Article.findOne({ slug });
-      
+
       if (!article) {
         // Try getting from memory storage
         const memoryArticle = await storage.getArticleBySlug(slug);
@@ -190,26 +190,26 @@ router.get('/:slug', apiLimiter, asyncHandler(async (req: Request, res: Response
         }
         return res.json(memoryArticle);
       }
-      
+
       return res.json(article);
     }
-    
+
     // Fallback to memory storage if MongoDB is not available
     const article = await storage.getArticleBySlug(slug);
-    
+
     if (!article) {
       return res.status(404).json({ error: "Article not found" });
     }
-    
+
     res.json(article);
   } catch (error) {
     // Fallback to memory storage
     const article = await storage.getArticleBySlug(req.params.slug);
-    
+
     if (!article) {
       return res.status(404).json({ error: "Article not found" });
     }
-    
+
     res.json(article);
   }
 }));
@@ -241,15 +241,15 @@ router.get('/:slug', apiLimiter, asyncHandler(async (req: Request, res: Response
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
   try {
     const conn = await connectToDatabase();
-    
+
     // If MongoDB is available, use it
     if (conn) {
       const article = new Article(req.body);
       const savedArticle = await article.save();
-      
+
       return res.status(201).json(savedArticle);
     }
-    
+
     // Fallback to memory storage if MongoDB is not available
     const newArticle = await storage.createArticle(req.body);
     return res.status(201).json(newArticle);
@@ -303,7 +303,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   try {
     const conn = await connectToDatabase();
-    
+
     // If MongoDB is available, use it
     if (conn) {
       const article = await Article.findByIdAndUpdate(
@@ -311,14 +311,14 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
         req.body,
         { new: true, runValidators: true }
       );
-      
+
       if (!article) {
         return res.status(404).json({ error: "Article not found" });
       }
-      
+
       return res.json(article);
     }
-    
+
     // For memory storage, we don't have a direct update method
     // So we just return a success response
     return res.json({
@@ -362,18 +362,18 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   try {
     const conn = await connectToDatabase();
-    
+
     // If MongoDB is available, use it
     if (conn) {
       const article = await Article.findByIdAndDelete(req.params.id);
-      
+
       if (!article) {
         return res.status(404).json({ error: "Article not found" });
       }
-      
+
       return res.json({ message: "Article deleted successfully" });
     }
-    
+
     // For memory storage, we don't have a direct delete by ID method
     // So we just return a success response
     return res.json({ message: "Article deleted (memory storage)" });
