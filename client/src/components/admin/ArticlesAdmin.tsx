@@ -42,7 +42,8 @@ import { Loader2, Plus, Pencil, Trash2, Search, FileText, LayoutGrid } from "luc
 
 // Article interface based on the MongoDB model
 interface Article {
-  _id: string;
+  id: string;
+  _id?: string;  // Support both formats
   title: string;
   content: string;
   summary: string;
@@ -78,7 +79,7 @@ interface Article {
 }
 
 // Initial empty article for creating new articles
-const emptyArticle: Omit<Article, '_id'> = {
+const emptyArticle: Omit<Article, 'id' | '_id'> = {
   title: "",
   content: "",
   summary: "",
@@ -114,7 +115,7 @@ const ArticlesAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [editForm, setEditForm] = useState<Omit<Article, '_id'>>(emptyArticle);
+  const [editForm, setEditForm] = useState<Omit<Article, 'id' | '_id'>>(emptyArticle);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const { toast } = useToast();
@@ -189,7 +190,9 @@ const ArticlesAdmin = () => {
       }
 
       // Update the UI by removing the deleted article
-      setArticles(articles.filter(article => article._id !== articleId));
+      setArticles(articles.filter(article => 
+        (article._id !== articleId && article.id !== articleId)
+      ));
       
       toast({
         title: 'Article deleted',
@@ -219,8 +222,10 @@ const ArticlesAdmin = () => {
         throw new Error('Title, content, and summary are required');
       }
 
+      // Use the appropriate ID field (supporting both formats)
+      const articleId = currentArticle?.id || currentArticle?._id;
       const url = isEditing
-        ? `/api/admin/articles/${currentArticle?._id}`
+        ? `/api/admin/articles/${articleId}`
         : '/api/admin/articles';
       
       const method = isEditing ? 'PUT' : 'POST';
@@ -243,9 +248,11 @@ const ArticlesAdmin = () => {
       
       if (isEditing) {
         // Update existing article in the list
-        setArticles(articles.map(article => 
-          article._id === savedArticle._id ? savedArticle : article
-        ));
+        setArticles(articles.map(article => {
+          // Handle both ID formats by comparing with both
+          const matchesId = article.id === savedArticle.id || article._id === savedArticle._id;
+          return matchesId ? savedArticle : article;
+        }));
       } else {
         // Add new article to the list
         setArticles([...articles, savedArticle]);
@@ -378,7 +385,7 @@ const ArticlesAdmin = () => {
                       </TableRow>
                     ) : (
                       filteredArticles.map((article) => (
-                        <TableRow key={article._id}>
+                        <TableRow key={article.id || article._id}>
                           <TableCell className="font-medium">{article.title}</TableCell>
                           <TableCell>{article.author}</TableCell>
                           <TableCell>{article.category}</TableCell>
@@ -409,7 +416,7 @@ const ArticlesAdmin = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500 hover:text-red-700"
-                                onClick={() => handleDelete(article._id)}
+                                onClick={() => handleDelete(article.id || article._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -465,7 +472,7 @@ const ArticlesAdmin = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(article._id)}
+                          onClick={() => handleDelete(article.id || article._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
