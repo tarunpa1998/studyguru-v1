@@ -139,7 +139,8 @@ const NewsDetail = () => {
     if (newsItem?.relatedArticles && newsItem.relatedArticles.length > 0) {
       const fetchRelatedNews = async () => {
         try {
-          const promises = newsItem.relatedArticles.map(async (relatedSlug) => {
+          const slugs = newsItem.relatedArticles || [];
+          const promises = slugs.map(async (relatedSlug) => {
             const response = await fetch(`/api/news/${relatedSlug}`);
             if (response.ok) {
               return await response.json();
@@ -185,7 +186,9 @@ const NewsDetail = () => {
     if (!newsItem?.tableOfContents) return;
     
     const handleScroll = () => {
-      const sections = newsItem.tableOfContents.map(item => document.getElementById(item.id));
+      // Safely access tableOfContents
+      const tocItems = newsItem.tableOfContents || [];
+      const sections = tocItems.map(item => document.getElementById(item.id));
       
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i];

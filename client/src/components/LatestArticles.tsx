@@ -1,25 +1,48 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { ChevronRight } from "lucide-react";
 import ArticleCard from "./ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
+
+// Define the Article type
+interface Article {
+  id: string | number;
+  title: string;
+  summary: string;
+  slug: string;
+  publishDate: string;
+  author: string;
+  authorTitle?: string;
+  authorImage?: string;
+  image?: string;
+  category: string;
+}
 
 const LatestArticles = () => {
-  const { data: articles = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery<Article[]>({
     queryKey: ['/api/articles']
   });
+  
+  const articles: Article[] = data || [];
+
+  const handleViewAll = () => {
+    window.location.href = '/articles';
+  };
 
   return (
     <section className="py-12 bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Latest Articles</h2>
-          <Link href="/articles">
-            <a className="text-primary-600 hover:text-primary-700 font-medium flex items-center">
-              View all
-              <ChevronRight className="h-5 w-5 ml-1" />
-            </a>
-          </Link>
+          <motion.div 
+            className="text-primary-600 hover:text-primary-700 font-medium flex items-center cursor-pointer"
+            onClick={handleViewAll}
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            View all
+            <ChevronRight className="h-5 w-5 ml-1" />
+          </motion.div>
         </div>
 
         {isLoading ? (
@@ -49,7 +72,7 @@ const LatestArticles = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {articles.slice(0, 3).map((article: any) => (
+            {articles.slice(0, 3).map((article) => (
               <ArticleCard
                 key={article.id}
                 title={article.title}
@@ -57,9 +80,9 @@ const LatestArticles = () => {
                 slug={article.slug}
                 publishDate={article.publishDate}
                 author={article.author}
-                authorTitle={article.authorTitle}
-                authorImage={article.authorImage}
-                image={article.image}
+                authorTitle={article.authorTitle || ''}
+                authorImage={article.authorImage || ''}
+                image={article.image || ''}
                 category={article.category}
               />
             ))}
