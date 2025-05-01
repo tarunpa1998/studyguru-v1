@@ -1,7 +1,6 @@
 import { CalendarClock, MapPin, ChevronRight, GraduationCap, Award, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useLocation } from "wouter";
 
 interface ScholarshipCardProps {
   id: number;
@@ -23,10 +22,8 @@ const ScholarshipCard = ({
   tags,
   slug
 }: ScholarshipCardProps) => {
-  const navigate = useNavigate();
-  
   const goToDetails = () => {
-    navigate(`/scholarships/${slug}`);
+    window.location.href = `/scholarships/${slug}`;
   };
   
   return (

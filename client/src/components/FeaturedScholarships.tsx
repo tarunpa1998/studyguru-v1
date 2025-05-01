@@ -4,8 +4,19 @@ import { motion } from "framer-motion";
 import ScholarshipCard from "./ScholarshipCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface Scholarship {
+  id: number;
+  title: string;
+  description: string;
+  amount: string;
+  deadline: string;
+  country: string;
+  tags: string[];
+  slug: string;
+}
+
 const FeaturedScholarships = () => {
-  const { data: scholarships = [], isLoading } = useQuery({
+  const { data: scholarships = [], isLoading } = useQuery<Scholarship[]>({
     queryKey: ['/api/scholarships']
   });
 
@@ -157,7 +168,7 @@ const FeaturedScholarships = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
           >
-            {scholarships.slice(0, 3).map((scholarship: any, index: number) => (
+            {scholarships.slice(0, 3).map((scholarship, index) => (
               <motion.div key={scholarship.id} variants={itemVariants}>
                 <ScholarshipCard
                   id={scholarship.id}
