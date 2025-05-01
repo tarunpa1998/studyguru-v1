@@ -35,7 +35,8 @@ import { Badge } from "@/components/ui/badge";
 
 // Scholarship interface based on the MongoDB model
 interface Scholarship {
-  _id: string;
+  id: string;
+  _id?: string;  // Support both formats
   title: string;
   slug: string;
   overview: string;
@@ -56,7 +57,7 @@ interface Scholarship {
 }
 
 // Initial empty scholarship for creating new scholarships
-const emptyScholarship: Omit<Scholarship, '_id'> = {
+const emptyScholarship: Omit<Scholarship, 'id' | '_id'> = {
   title: "",
   slug: "",
   overview: "",
@@ -84,7 +85,7 @@ const ScholarshipsAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [editForm, setEditForm] = useState<Omit<Scholarship, '_id'>>(emptyScholarship);
+  const [editForm, setEditForm] = useState<Omit<Scholarship, 'id' | '_id'>>(emptyScholarship);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const { toast } = useToast();
@@ -167,7 +168,9 @@ const ScholarshipsAdmin = () => {
       }
 
       // Update the UI by removing the deleted scholarship
-      setScholarships(scholarships.filter(scholarship => scholarship._id !== scholarshipId));
+      setScholarships(scholarships.filter(scholarship => 
+        (scholarship._id !== scholarshipId && scholarship.id !== scholarshipId)
+      ));
       
       toast({
         title: 'Scholarship deleted',
@@ -197,8 +200,10 @@ const ScholarshipsAdmin = () => {
         throw new Error('Title, description, and amount are required');
       }
 
+      // Use the appropriate ID field (supporting both formats)
+      const scholarshipId = currentScholarship?.id || currentScholarship?._id;
       const url = isEditing
-        ? `/api/admin/scholarships/${currentScholarship?._id}`
+        ? `/api/admin/scholarships/${scholarshipId}`
         : '/api/admin/scholarships';
       
       const method = isEditing ? 'PUT' : 'POST';
@@ -436,7 +441,7 @@ const ScholarshipsAdmin = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500 hover:text-red-700"
-                                onClick={() => handleDelete(scholarship._id)}
+                                onClick={() => handleDelete(scholarship.id || scholarship._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
