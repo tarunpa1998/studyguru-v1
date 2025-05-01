@@ -1,4 +1,3 @@
-import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
 
@@ -49,55 +48,61 @@ const iconVariants = {
 };
 
 const CategoryCard = ({ title, description, icon: Icon, href }: CategoryCardProps) => {
+  const handleNavigate = () => {
+    window.location.href = href;
+  };
+
   return (
-    <Link href={href}>
-      <motion.a 
-        className="block group select-none"
-        initial="initial"
-        animate="animate"
-        whileHover="hover"
-        whileTap="tap"
-        transition={{ duration: 0.3 }}
+    <motion.div 
+      className="block group select-none cursor-pointer"
+      initial="initial"
+      animate="animate"
+      whileHover="hover"
+      whileTap="tap"
+      transition={{ duration: 0.3 }}
+      onClick={handleNavigate}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${title} category`}
+    >
+      <motion.div 
+        className="bg-white p-6 rounded-xl shadow border border-slate-100 flex flex-col items-center text-center h-full"
+        variants={cardVariants}
       >
         <motion.div 
-          className="bg-white p-6 rounded-xl shadow border border-slate-100 flex flex-col items-center text-center h-full"
-          variants={cardVariants}
+          className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-all duration-300"
+          variants={iconVariants}
         >
-          <motion.div 
-            className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-all duration-300"
-            variants={iconVariants}
-          >
-            <Icon className="h-8 w-8 text-primary-600" />
-          </motion.div>
-          
-          <motion.h3 
-            className="font-semibold text-lg text-slate-800 group-hover:text-primary-600 transition-colors duration-300"
-            variants={{
-              hover: { scale: 1.05 }
-            }}
-          >
-            {title}
-          </motion.h3>
-          
-          <motion.p 
-            className="mt-2 text-sm text-slate-600"
-            variants={{
-              initial: { opacity: 0 },
-              animate: { opacity: 1, transition: { delay: 0.2 } }
-            }}
-          >
-            {description}
-          </motion.p>
-          
-          <motion.div 
-            className="mt-4 w-0 h-0.5 bg-primary-500 group-hover:w-1/2 transition-all duration-300"
-            variants={{
-              hover: { width: "50%" }
-            }}
-          />
+          <Icon className="h-8 w-8 text-primary-600" />
         </motion.div>
-      </motion.a>
-    </Link>
+        
+        <motion.h3 
+          className="font-semibold text-lg text-slate-800 group-hover:text-primary-600 transition-colors duration-300"
+          variants={{
+            hover: { scale: 1.05 }
+          }}
+        >
+          {title}
+        </motion.h3>
+        
+        <motion.p 
+          className="mt-2 text-sm text-slate-600"
+          variants={{
+            initial: { opacity: 0 },
+            animate: { opacity: 1, transition: { delay: 0.2 } }
+          }}
+        >
+          {description}
+        </motion.p>
+        
+        <motion.div 
+          className="mt-4 w-0 h-0.5 bg-primary-500 group-hover:w-1/2 transition-all duration-300"
+          variants={{
+            hover: { width: "50%" }
+          }}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

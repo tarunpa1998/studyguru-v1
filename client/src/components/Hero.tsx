@@ -1,10 +1,9 @@
-import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { GraduationCap, Globe, BookOpen, Search, ArrowRight, MapPin, School } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white">
+    <section className="relative overflow-hidden bg-primary-600 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
