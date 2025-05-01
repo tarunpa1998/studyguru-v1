@@ -33,7 +33,8 @@ import { Loader2, Plus, Pencil, Trash2, Search, Globe, LayoutGrid } from "lucide
 
 // Country interface based on the MongoDB model
 interface Country {
-  _id: string;
+  _id?: string;
+  id?: string;
   name: string;
   slug: string;
   overview: string;
@@ -54,7 +55,7 @@ interface Country {
 }
 
 // Initial empty country for creating new countries
-const emptyCountry: Omit<Country, '_id'> = {
+const emptyCountry: Omit<Country, '_id' | 'id'> = {
   name: "",
   slug: "",
   overview: "",
@@ -82,7 +83,7 @@ const CountriesAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [editForm, setEditForm] = useState<Omit<Country, '_id'>>(emptyCountry);
+  const [editForm, setEditForm] = useState<Omit<Country, '_id' | 'id'>>(emptyCountry);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const { toast } = useToast();
@@ -195,7 +196,7 @@ const CountriesAdmin = () => {
       }
 
       const url = isEditing
-        ? `/api/admin/countries/${currentCountry?._id}`
+        ? `/api/admin/countries/${currentCountry?.id || currentCountry?._id}`
         : '/api/admin/countries';
       
       const method = isEditing ? 'PUT' : 'POST';
@@ -218,9 +219,15 @@ const CountriesAdmin = () => {
       
       if (isEditing) {
         // Update existing country in the list
-        setCountries(countries.map(country => 
-          country._id === savedCountry._id ? savedCountry : country
-        ));
+        setCountries(countries.map(country => {
+          // Handle both ID formats by comparing with both
+          const matchesId = 
+            (country._id === savedCountry._id) || 
+            (country.id === savedCountry.id) ||
+            (country._id === savedCountry.id) ||
+            (country.id === savedCountry._id);
+          return matchesId ? savedCountry : country;
+        }));
       } else {
         // Add new country to the list
         setCountries([...countries, savedCountry]);
@@ -398,7 +405,7 @@ const CountriesAdmin = () => {
                       </TableRow>
                     ) : (
                       filteredCountries.map((country) => (
-                        <TableRow key={country._id}>
+                        <TableRow key={country.id || country._id}>
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               {country.flag && (
@@ -448,7 +455,7 @@ const CountriesAdmin = () => {
                 </div>
               ) : (
                 filteredCountries.map((country) => (
-                  <Card key={country._id} className="overflow-hidden">
+                  <Card key={country.id || country._id} className="overflow-hidden">
                     <div className="relative h-40">
                       {country.image ? (
                         <img 
