@@ -34,7 +34,8 @@ import { Loader2, Plus, Pencil, Trash2, Search, Newspaper, LayoutGrid } from "lu
 
 // News interface based on the MongoDB model
 interface News {
-  _id: string;
+  id: string;
+  _id?: string;  // Support both formats
   title: string;
   content: string;
   summary: string;
@@ -67,7 +68,7 @@ interface News {
 }
 
 // Initial empty news for creating new news items
-const emptyNews: Omit<News, '_id'> = {
+const emptyNews: Omit<News, '_id' | 'id'> = {
   title: "",
   content: "",
   summary: "",
@@ -100,7 +101,7 @@ const NewsAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [editForm, setEditForm] = useState<Omit<News, '_id'>>(emptyNews);
+  const [editForm, setEditForm] = useState<Omit<News, '_id' | 'id'>>(emptyNews);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const { toast } = useToast();
@@ -175,7 +176,9 @@ const NewsAdmin = () => {
       }
 
       // Update the UI by removing the deleted news item
-      setNews(news.filter(item => item._id !== newsId));
+      setNews(news.filter(item => 
+        !(item._id === newsId || item.id === newsId)
+      ));
       
       toast({
         title: 'News item deleted',
@@ -229,9 +232,15 @@ const NewsAdmin = () => {
       
       if (isEditing) {
         // Update existing news in the list
-        setNews(news.map(item => 
-          item._id === savedNews._id ? savedNews : item
-        ));
+        setNews(news.map(item => {
+          // Handle both ID formats by comparing with both
+          const matchesId = 
+            (item._id === savedNews._id) || 
+            (item.id === savedNews.id) ||
+            (item._id === savedNews.id) ||
+            (item.id === savedNews._id);
+          return matchesId ? savedNews : item;
+        }));
       } else {
         // Add new news to the list
         setNews([...news, savedNews]);
@@ -393,7 +402,7 @@ const NewsAdmin = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500 hover:text-red-700"
-                                onClick={() => handleDelete(item._id)}
+                                onClick={() => handleDelete(item.id || item._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -449,7 +458,7 @@ const NewsAdmin = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(item._id)}
+                          onClick={() => handleDelete(item.id || item._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -437,7 +437,7 @@ const ArticlesAdmin = () => {
                 </div>
               ) : (
                 filteredArticles.map((article) => (
-                  <Card key={article._id}>
+                  <Card key={article.id || article._id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg text-ellipsis overflow-hidden whitespace-nowrap" title={article.title}>
                         {article.title}
