@@ -201,75 +201,74 @@ const Dashboard = () => {
           </div>
         </aside>
         
-        {/* Mobile Sidebar (Sheet) */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="p-0 w-72">
-            <div className="flex justify-between items-center p-4 border-b border-slate-200">
-              <div className="flex items-center space-x-3">
-                <GraduationCap className="h-6 w-6 text-primary-600" />
-                <span className="font-semibold text-lg">StudyGlobal</span>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setMobileOpen(false)}
-                className="text-slate-500 hover:text-slate-700"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            <ScrollArea className="flex-1 py-4 h-[calc(100vh-8rem)]">
-              <nav className="flex flex-col gap-1 px-2">
-                {navItems.map((item) => (
-                  <Button
-                    key={item.section}
-                    variant={activeSection === item.section ? "secondary" : "ghost"}
-                    className="justify-start h-10"
-                    onClick={() => {
-                      setActiveSection(item.section);
-                      setMobileOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center">
-                      {item.icon}
-                      <span className="ml-3">{item.title}</span>
-                    </span>
-                  </Button>
-                ))}
-              </nav>
-            </ScrollArea>
-            
-            <div className="p-4 border-t border-slate-200">
-              <Button
-                variant="ghost" 
-                className="justify-start w-full text-red-500 hover:text-red-600 hover:bg-red-50"
-                onClick={handleLogout}
-              >
-                <span className="flex items-center">
-                  <LogOut className="h-5 w-5" />
-                  <span className="ml-3">Logout</span>
-                </span>
-              </Button>
-              
-              <div className="mt-4 pt-4 border-t border-slate-200">
-                <div className="text-xs text-slate-500">Logged in as</div>
-                <div className="font-medium truncate">{username || 'Admin'}</div>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-        
         {/* Main Content */}
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           {/* Header */}
           <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4">
             <div className="flex items-center">
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)}>
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
+              {/* Mobile menu button */}
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-72">
+                  <div className="flex justify-between items-center p-4 border-b border-slate-200">
+                    <div className="flex items-center space-x-3">
+                      <GraduationCap className="h-6 w-6 text-primary-600" />
+                      <span className="font-semibold text-lg">StudyGlobal</span>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setMobileOpen(false)}
+                      className="text-slate-500 hover:text-slate-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                  
+                  <ScrollArea className="flex-1 py-4 h-[calc(100vh-8rem)]">
+                    <nav className="flex flex-col gap-1 px-2">
+                      {navItems.map((item) => (
+                        <Button
+                          key={item.section}
+                          variant={activeSection === item.section ? "secondary" : "ghost"}
+                          className="justify-start h-10"
+                          onClick={() => {
+                            setActiveSection(item.section);
+                            setMobileOpen(false);
+                          }}
+                        >
+                          <span className="flex items-center">
+                            {item.icon}
+                            <span className="ml-3">{item.title}</span>
+                          </span>
+                        </Button>
+                      ))}
+                    </nav>
+                  </ScrollArea>
+                  
+                  <div className="p-4 border-t border-slate-200">
+                    <Button
+                      variant="ghost" 
+                      className="justify-start w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={handleLogout}
+                    >
+                      <span className="flex items-center">
+                        <LogOut className="h-5 w-5" />
+                        <span className="ml-3">Logout</span>
+                      </span>
+                    </Button>
+                    
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <div className="text-xs text-slate-500">Logged in as</div>
+                      <div className="font-medium truncate">{username || 'Admin'}</div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
               <h1 className="text-xl font-semibold mx-4">
                 {navItems.find(item => item.section === activeSection)?.title || "Dashboard"}
               </h1>
