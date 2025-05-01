@@ -22,10 +22,7 @@ import NotFound from "@/pages/not-found";
 
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
-import AdminRegister from "@/pages/admin/Register";
 import AdminDashboard from "@/pages/admin/Dashboard";
-import AdminArticles from "@/pages/admin/Articles";
-import AdminUniversities from "@/pages/admin/Universities";
 
 import { useEffect } from "react";
 
@@ -57,10 +54,13 @@ function Router() {
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/register" component={AdminRegister} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
-      <Route path="/admin/articles" component={AdminArticles} />
-      <Route path="/admin/universities" component={AdminUniversities} />
+      <Route path="/admin/articles" component={AdminDashboard} />
+      <Route path="/admin/news" component={AdminDashboard} />
+      <Route path="/admin/scholarships" component={AdminDashboard} />
+      <Route path="/admin/countries" component={AdminDashboard} />
+      <Route path="/admin/universities" component={AdminDashboard} />
       
       <Route component={NotFound} />
     </Switch>

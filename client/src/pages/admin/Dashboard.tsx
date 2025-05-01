@@ -1,190 +1,301 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import AdminLayout from '@/components/admin/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Helmet } from 'react-helmet';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  GraduationCap,
-  BookOpen,
-  Globe,
-  Building,
-  Newspaper,
-  BarChart3,
-  TrendingUp
+  ChevronLeft, 
+  ChevronRight, 
+  FileText, 
+  Newspaper, 
+  BookOpen, 
+  Globe, 
+  GraduationCap, 
+  LogOut, 
+  Menu, 
+  X, 
+  Home,
+  LayoutDashboard
 } from 'lucide-react';
-import { getQueryFn } from '@/lib/queryClient';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import ArticlesAdmin from '@/components/admin/ArticlesAdmin';
+import NewsAdmin from '@/components/admin/NewsAdmin';
+import ScholarshipsAdmin from '@/components/admin/ScholarshipsAdmin';
+import CountriesAdmin from '@/components/admin/CountriesAdmin';
+import UniversitiesAdmin from '@/components/admin/UniversitiesAdmin';
+import AdminHome from '@/components/admin/AdminHome';
 
-export default function AdminDashboard() {
-  const [_, navigate] = useLocation();
+type NavItem = {
+  title: string;
+  icon: React.ReactNode;
+  section: string;
+};
 
-  // Fetch summary data
-  const { data: articles, isLoading: articlesLoading } = useQuery({
-    queryKey: ['/api/articles'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-  });
+const navItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+    section: "dashboard",
+  },
+  {
+    title: "Articles",
+    icon: <FileText className="h-5 w-5" />,
+    section: "articles",
+  },
+  {
+    title: "News",
+    icon: <Newspaper className="h-5 w-5" />,
+    section: "news",
+  },
+  {
+    title: "Scholarships",
+    icon: <BookOpen className="h-5 w-5" />,
+    section: "scholarships",
+  },
+  {
+    title: "Countries",
+    icon: <Globe className="h-5 w-5" />,
+    section: "countries",
+  },
+  {
+    title: "Universities",
+    icon: <GraduationCap className="h-5 w-5" />,
+    section: "universities",
+  },
+];
 
-  const { data: scholarships, isLoading: scholarshipsLoading } = useQuery({
-    queryKey: ['/api/scholarships'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-  });
+const Dashboard = () => {
+  const [, setLocation] = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeSection, setActiveSection] = useState<string>("dashboard");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [username, setUsername] = useState<string>("");
 
-  const { data: countries, isLoading: countriesLoading } = useQuery({
-    queryKey: ['/api/countries'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-  });
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('adminToken');
+    
+    if (!token) {
+      // Redirect to login page if not authenticated
+      setLocation('/admin/login');
+      return;
+    }
+    
+    // Fetch user data
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/admin/auth/auth', {
+          headers: {
+            'x-auth-token': token
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Authentication failed');
+        }
+        
+        const userData = await response.json();
+        setUsername(userData.username);
+      } catch (error) {
+        console.error('Auth error:', error);
+        // Clear token and redirect to login on failure
+        localStorage.removeItem('adminToken');
+        setLocation('/admin/login');
+      }
+    };
+    
+    fetchUserData();
+  }, [setLocation]);
 
-  const { data: universities, isLoading: universitiesLoading } = useQuery({
-    queryKey: ['/api/universities'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-  });
+  const handleLogout = () => {
+    // Clear token and redirect to login
+    localStorage.removeItem('adminToken');
+    setLocation('/admin/login');
+  };
 
-  const { data: news, isLoading: newsLoading } = useQuery({
-    queryKey: ['/api/news'],
-    queryFn: getQueryFn({ on401: 'throw' }),
-  });
-
-  // Dashboard stats
-  const stats = [
-    {
-      title: 'Articles',
-      value: Array.isArray(articles) ? articles.length : 0,
-      icon: BookOpen,
-      link: '/admin/articles',
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Scholarships',
-      value: Array.isArray(scholarships) ? scholarships.length : 0,
-      icon: GraduationCap,
-      link: '/admin/scholarships',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Countries',
-      value: Array.isArray(countries) ? countries.length : 0,
-      icon: Globe,
-      link: '/admin/countries',
-      color: 'bg-yellow-500',
-    },
-    {
-      title: 'Universities',
-      value: Array.isArray(universities) ? universities.length : 0,
-      icon: Building,
-      link: '/admin/universities',
-      color: 'bg-purple-500',
-    },
-    {
-      title: 'News',
-      value: Array.isArray(news) ? news.length : 0,
-      icon: Newspaper,
-      link: '/admin/news',
-      color: 'bg-red-500',
-    },
-  ];
-
-  const isLoading = articlesLoading || scholarshipsLoading || countriesLoading || universitiesLoading || newsLoading;
+  // Render active section content
+  const renderContent = () => {
+    switch (activeSection) {
+      case "articles":
+        return <ArticlesAdmin />;
+      case "news":
+        return <NewsAdmin />;
+      case "scholarships":
+        return <ScholarshipsAdmin />;
+      case "countries":
+        return <CountriesAdmin />;
+      case "universities":
+        return <UniversitiesAdmin />;
+      default:
+        return <AdminHome />;
+    }
+  };
 
   return (
-    <AdminLayout title="Dashboard">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {isLoading ? (
-          // Loading state
-          [...Array(5)].map((_, index) => (
-            <Card key={index} className="overflow-hidden">
-              <CardHeader className="pb-4">
-                <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          // Stats cards
-          stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card 
-                key={index} 
-                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => navigate(stat.link)}
-              >
-                <CardHeader className={`${stat.color} text-white p-4 pb-8 relative`}>
-                  <CardTitle className="flex justify-between items-center text-lg font-medium">
-                    {stat.title}
-                    <Icon className="h-5 w-5" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="-mt-4">
-                  <div className="bg-white rounded-full h-12 w-12 flex items-center justify-center text-2xl font-bold shadow-md">
-                    {stat.value}
-                  </div>
-                  <p className="text-sm text-gray-500 mt-2">Total {stat.title.toLowerCase()}</p>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {/* Recent activity card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <BarChart3 className="mr-2 h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-500">
-                Welcome to the StudyGlobal admin dashboard! Here you can manage all aspects of your education platform.
-              </p>
-              <p className="text-sm text-gray-500">
-                Use the navigation menu on the left to access different sections of the admin panel.
-              </p>
+    <>
+      <Helmet>
+        <title>Admin Dashboard | StudyGlobal</title>
+      </Helmet>
+      <div className="flex h-screen overflow-hidden bg-slate-100">
+        {/* Desktop Sidebar */}
+        <aside 
+          className={`hidden md:flex md:flex-col h-full bg-white shadow-md transition-all duration-300 ${
+            isSidebarOpen ? 'w-64' : 'w-20'
+          }`}
+        >
+          <div className="flex justify-between items-center p-4 border-b border-slate-200">
+            <div className={`flex items-center overflow-hidden ${isSidebarOpen ? 'justify-start space-x-3' : 'justify-center px-1'}`}>
+              <GraduationCap className="h-6 w-6 text-primary-600 flex-shrink-0" />
+              {isSidebarOpen && <span className="font-semibold text-lg">StudyGlobal</span>}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick actions card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="mr-2 h-5 w-5" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <button 
-                onClick={() => navigate('/admin/articles/create')}
-                className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md text-sm font-medium transition-colors"
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-slate-500 hover:text-slate-700"
+            >
+              {isSidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+            </Button>
+          </div>
+          
+          <ScrollArea className="flex-1 py-4">
+            <nav className="flex flex-col gap-1 px-2">
+              {navItems.map((item) => (
+                <Button
+                  key={item.section}
+                  variant={activeSection === item.section ? "secondary" : "ghost"}
+                  className={`justify-start h-10 px-3 ${
+                    isSidebarOpen ? '' : 'justify-center px-0'
+                  }`}
+                  onClick={() => setActiveSection(item.section)}
+                >
+                  <span className="flex items-center">
+                    {item.icon}
+                    {isSidebarOpen && <span className="ml-3">{item.title}</span>}
+                  </span>
+                </Button>
+              ))}
+            </nav>
+          </ScrollArea>
+          
+          <div className="p-4 border-t border-slate-200">
+            <Button
+              variant="ghost" 
+              className={`justify-start w-full text-red-500 hover:text-red-600 hover:bg-red-50 ${
+                isSidebarOpen ? '' : 'justify-center px-0'
+              }`}
+              onClick={handleLogout}
+            >
+              <span className="flex items-center">
+                <LogOut className="h-5 w-5" />
+                {isSidebarOpen && <span className="ml-3">Logout</span>}
+              </span>
+            </Button>
+            
+            {isSidebarOpen && (
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="text-xs text-slate-500">Logged in as</div>
+                <div className="font-medium truncate">{username || 'Admin'}</div>
+              </div>
+            )}
+          </div>
+        </aside>
+        
+        {/* Mobile Sidebar (Sheet) */}
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="p-0 w-72">
+            <div className="flex justify-between items-center p-4 border-b border-slate-200">
+              <div className="flex items-center space-x-3">
+                <GraduationCap className="h-6 w-6 text-primary-600" />
+                <span className="font-semibold text-lg">StudyGlobal</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setMobileOpen(false)}
+                className="text-slate-500 hover:text-slate-700"
               >
-                New Article
-              </button>
-              <button 
-                onClick={() => navigate('/admin/scholarships/create')}
-                className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-md text-sm font-medium transition-colors"
-              >
-                New Scholarship
-              </button>
-              <button 
-                onClick={() => navigate('/admin/universities/create')}
-                className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-md text-sm font-medium transition-colors"
-              >
-                New University
-              </button>
-              <button 
-                onClick={() => navigate('/admin/news/create')}
-                className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-md text-sm font-medium transition-colors"
-              >
-                New News
-              </button>
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+            
+            <ScrollArea className="flex-1 py-4 h-[calc(100vh-8rem)]">
+              <nav className="flex flex-col gap-1 px-2">
+                {navItems.map((item) => (
+                  <Button
+                    key={item.section}
+                    variant={activeSection === item.section ? "secondary" : "ghost"}
+                    className="justify-start h-10"
+                    onClick={() => {
+                      setActiveSection(item.section);
+                      setMobileOpen(false);
+                    }}
+                  >
+                    <span className="flex items-center">
+                      {item.icon}
+                      <span className="ml-3">{item.title}</span>
+                    </span>
+                  </Button>
+                ))}
+              </nav>
+            </ScrollArea>
+            
+            <div className="p-4 border-t border-slate-200">
+              <Button
+                variant="ghost" 
+                className="justify-start w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={handleLogout}
+              >
+                <span className="flex items-center">
+                  <LogOut className="h-5 w-5" />
+                  <span className="ml-3">Logout</span>
+                </span>
+              </Button>
+              
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="text-xs text-slate-500">Logged in as</div>
+                <div className="font-medium truncate">{username || 'Admin'}</div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+        
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-full overflow-hidden">
+          {/* Header */}
+          <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4">
+            <div className="flex items-center">
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)}>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <h1 className="text-xl font-semibold mx-4">
+                {navItems.find(item => item.section === activeSection)?.title || "Dashboard"}
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-sm" 
+                onClick={() => setLocation('/')}
+              >
+                <Home className="h-4 w-4 mr-2" />
+                View Site
+              </Button>
+            </div>
+          </header>
+          
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto p-6">
+            {renderContent()}
+          </div>
+        </main>
       </div>
-    </AdminLayout>
+    </>
   );
-}
+};
+
+export default Dashboard;

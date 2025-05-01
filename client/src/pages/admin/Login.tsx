@@ -1,68 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Helmet } from 'react-helmet';
 import { z } from 'zod';
-import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { GraduationCap, LogIn, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 
-// Login form schema
-const loginSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+// Form schema
+const loginFormSchema = z.object({
+  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-export default function AdminLogin() {
-  const [_, navigate] = useLocation();
-  const { toast } = useToast();
+const Login = () => {
+  const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  // Form setup
+  // Initialize form
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       username: '',
       password: '',
     },
   });
 
-  // Handle form submission
+  // Check if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      setLocation('/admin/dashboard');
+    }
+  }, [setLocation]);
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    setError(null);
-
     try {
-      // For demo purposes, just approve any login
-      // In a real app, this would verify credentials against the server
-      const fakeResponse = {
-        token: 'demo_admin_token_' + Date.now(),
-        user: { username: data.username }
-      };
-      
-      // Save token to localStorage
-      localStorage.setItem('adminToken', fakeResponse.token);
-      
-      toast({
-        title: 'Login successful',
-        description: 'Welcome to the admin dashboard',
+      const response = await fetch('/api/admin/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
-      
-      // Navigate to admin dashboard
-      navigate('/admin/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Invalid username or password');
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Login failed');
+      }
+
+      localStorage.setItem('adminToken', responseData.token);
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome to the StudyGlobal admin dashboard',
+      });
+      setLocation('/admin/dashboard');
+    } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Login failed',
-        description: err.message || 'Invalid username or password',
+        title: 'Login Failed',
+        description: error instanceof Error ? error.message : 'Invalid username or password',
       });
     } finally {
       setIsLoading(false);
@@ -70,63 +77,89 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials to access the dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="admin" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Need an account?{' '}
-            <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/admin/register')}>
-              Register here
-            </Button>
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+    <>
+      <Helmet>
+        <title>Admin Login | StudyGlobal</title>
+      </Helmet>
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1 flex flex-col items-center text-center">
+            <div className="bg-primary-100 p-3 rounded-full mb-2">
+              <GraduationCap className="h-10 w-10 text-primary-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold">StudyGlobal Admin</CardTitle>
+            <CardDescription>Sign in to access the admin dashboard</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your username"
+                          {...field}
+                          disabled={isLoading}
+                          data-testid="login-username"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Enter your password"
+                          {...field}
+                          disabled={isLoading}
+                          data-testid="login-password"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="mr-2 h-4 w-4" /> Sign In
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex flex-col">
+            <div className="text-sm text-center text-muted-foreground mt-2">
+              This area is restricted to authorized administrators only.
+            </div>
+          </CardFooter>
+        </Card>
+        <Button
+          variant="link"
+          className="mt-4 text-slate-500"
+          onClick={() => setLocation('/')}
+        >
+          Return to StudyGlobal
+        </Button>
+      </div>
+    </>
   );
-}
+};
+
+export default Login;

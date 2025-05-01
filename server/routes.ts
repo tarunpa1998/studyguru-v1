@@ -16,6 +16,7 @@ import {
 // Import MongoDB API routes
 import apiRoutes from './routes/api';
 import swaggerRoutes from './routes/swagger';
+import adminRoutes from './admin';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to handle errors
@@ -35,6 +36,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register MongoDB API routes when MongoDB is available
   app.use('/api', apiRoutes);
+  
+  // Register Admin routes
+  app.use('/api/admin', adminRoutes);
   
   // Register Swagger documentation
   app.use('/', swaggerRoutes);
