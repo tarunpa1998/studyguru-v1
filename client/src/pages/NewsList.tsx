@@ -82,7 +82,7 @@ const NewsList = () => {
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
                   {uniqueCategories.map((category) => (
                     <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
