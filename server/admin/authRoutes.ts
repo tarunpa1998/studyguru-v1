@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { auth } from '../middleware/auth';
+import User from '../models/User';
 
 const router = Router();
 
@@ -15,8 +15,8 @@ router.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    // Check for existing user
-    const user = await storage.getUserByUsername(username);
+    // Check for existing user in MongoDB
+    const user = await User.findOne({ username });
     
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -27,8 +27,8 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
     }
 
-    // Validate password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Validate password using User model method
+    const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -67,14 +67,14 @@ router.get('/auth', auth, async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'No authenticated user' });
     }
     
-    const user = await storage.getUser(req.user.id);
+    // Fetch user from MongoDB by ID
+    const user = await User.findById(req.user.id).select('-password');
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     
-    // Return user data without password
-    const { password, ...userData } = user;
-    res.json(userData);
+    res.json(user);
   } catch (err) {
     console.error('Error getting auth user:', err);
     res.status(500).json({ message: 'Server error' });

@@ -1,60 +1,41 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Interface for User document
 export interface IUser extends Document {
   username: string;
   password: string;
+  isAdmin: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// Interface for User model
-interface IUserModel extends Model<IUser> {
-  findByUsername(username: string): Promise<IUser | null>;
-}
-
-// Define User schema
-const UserSchema = new Schema<IUser>(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true
-    },
-    password: {
-      type: String,
-      required: true,
-      minlength: 6
-    }
+// Create User Schema
+const UserSchema = new Schema<IUser>({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
   },
-  {
-    timestamps: true
+  password: {
+    type: String,
+    required: true,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
   }
-);
-
-// Hash password before saving
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error: any) {
-    next(error);
-  }
+}, {
+  timestamps: true
 });
 
-// Method to compare passwords
+// Method to compare password
 UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password);
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    return false;
+  }
 };
 
-// Static method to find user by username
-UserSchema.statics.findByUsername = function(username: string) {
-  return this.findOne({ username });
-};
-
-// Create and export User model
-export default mongoose.models.User || mongoose.model<IUser, IUserModel>('User', UserSchema);
+// Create and export the model
+export default mongoose.model<IUser>('User', UserSchema);
