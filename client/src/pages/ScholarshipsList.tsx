@@ -77,7 +77,7 @@ const ScholarshipsList = () => {
                   <SelectValue placeholder="All Countries" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Countries</SelectItem>
+                  <SelectItem value="all">All Countries</SelectItem>
                   {uniqueCountries.map((country) => (
                     <SelectItem key={country} value={country}>{country}</SelectItem>
                   ))}
