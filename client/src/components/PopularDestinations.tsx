@@ -1,25 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { ChevronRight } from "lucide-react";
 import CountryCard from "./CountryCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
+
+// Define the Country type
+interface Country {
+  id: string | number;
+  name: string;
+  image: string;
+  universities: number;
+  acceptanceRate: string;
+  slug: string;
+}
 
 const PopularDestinations = () => {
-  const { data: countries = [], isLoading } = useQuery({
+  const { data: countries = [], isLoading } = useQuery<Country[]>({
     queryKey: ['/api/countries']
   });
+
+  const handleViewAll = () => {
+    window.location.href = '/countries';
+  };
 
   return (
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Popular Study Destinations</h2>
-          <Link href="/countries">
-            <a className="text-primary-600 hover:text-primary-700 font-medium flex items-center">
-              View all
-              <ChevronRight className="h-5 w-5 ml-1" />
-            </a>
-          </Link>
+          <motion.div 
+            className="text-primary-600 hover:text-primary-700 font-medium flex items-center cursor-pointer"
+            onClick={handleViewAll}
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            View all
+            <ChevronRight className="h-5 w-5 ml-1" />
+          </motion.div>
         </div>
 
         {isLoading ? (
@@ -40,7 +57,7 @@ const PopularDestinations = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {countries.map((country: any) => (
+            {countries.map((country) => (
               <CountryCard
                 key={country.id}
                 name={country.name}
