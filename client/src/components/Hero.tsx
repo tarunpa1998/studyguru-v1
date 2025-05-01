@@ -1,159 +1,296 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { GraduationCap, Globe, BookOpen } from "lucide-react";
+import { GraduationCap, Globe, BookOpen, Search, ArrowRight, MapPin, School } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+    <section className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div 
+          className="absolute top-0 right-0 w-full h-full opacity-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1 }}
+        >
+          <div className="absolute -top-20 left-10 w-40 h-40 border-4 border-white rounded-full"></div>
+          <div className="absolute bottom-10 left-1/4 w-60 h-60 border-4 border-white rounded-full"></div>
+          <div className="absolute top-1/4 right-10 w-80 h-80 border-4 border-white rounded-full"></div>
+        </motion.div>
+        
+        <motion.div 
+          className="absolute top-10 right-10 w-72 h-72 bg-primary-400 rounded-full opacity-20 filter blur-3xl"
+          animate={{ 
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.3, 0.2]
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            repeatType: "reverse" 
+          }}
+        />
+        
+        <motion.div 
+          className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary-400 rounded-full opacity-20 filter blur-3xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.25, 0.2]
+          }}
+          transition={{ 
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse" 
+          }}
+        />
+      </div>
+
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-xl"
           >
-            <motion.h1 
-              className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
-              initial={{ opacity: 0, y: -20 }}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="mb-3 inline-flex items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 backdrop-blur-sm"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wider">Education Abroad Magazine</span>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
             >
               Your Journey to Global Education Starts Here
             </motion.h1>
+            
             <motion.p 
-              className="mt-4 text-lg text-primary-100 max-w-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
+              className="mt-4 text-lg text-primary-50 max-w-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
             >
               Discover scholarships, universities, and expert advice for studying abroad. Join thousands of students who found their path with StudyGlobal.
             </motion.p>
+            
+            {/* Search box */}
+            <motion.div
+              className="mt-8 relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <div className="relative max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search scholarships, countries, universities..."
+                  className="block w-full rounded-2xl border-0 bg-white py-3 pl-12 pr-16 text-slate-900 shadow-lg placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+                <motion.div 
+                  className="absolute inset-y-0 right-1 flex items-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <button type="button" className="rounded-xl p-2 mr-1 bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-200">
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+            
+            {/* Popular searches */}
+            <motion.div
+              className="mt-4 flex flex-wrap gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+            >
+              <span className="text-sm text-primary-100 font-medium">Popular:</span>
+              <motion.div
+                onClick={() => window.location.href = "/scholarships?tag=Fully+Funded"}
+                className="text-sm text-primary-50 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 cursor-pointer transition-colors duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Fully Funded
+              </motion.div>
+              <motion.div
+                onClick={() => window.location.href = "/countries/usa"}
+                className="text-sm text-primary-50 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 cursor-pointer transition-colors duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                USA
+              </motion.div>
+              <motion.div
+                onClick={() => window.location.href = "/universities?country=UK"}
+                className="text-sm text-primary-50 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 cursor-pointer transition-colors duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                UK Universities
+              </motion.div>
+            </motion.div>
+            
+            {/* CTA buttons */}
             <motion.div 
               className="mt-8 flex flex-col sm:flex-row gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
             >
-              <Link href="/scholarships">
-                <motion.a 
-                  className="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50 focus:outline-none shadow-sm"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <GraduationCap className="mr-2 h-5 w-5" />
-                  Find Scholarships
-                </motion.a>
-              </Link>
-              <Link href="/countries">
-                <motion.a 
-                  className="inline-flex justify-center items-center px-6 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-primary-700 focus:outline-none"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Globe className="mr-2 h-5 w-5" />
-                  Explore Countries
-                </motion.a>
-              </Link>
+              <motion.div 
+                onClick={() => window.location.href = "/scholarships"}
+                className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-2xl text-primary-700 bg-white hover:bg-primary-50 focus:outline-none shadow-lg transition-colors duration-200 cursor-pointer"
+                whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <GraduationCap className="mr-2 h-5 w-5" />
+                Find Scholarships
+              </motion.div>
+              <motion.div 
+                onClick={() => window.location.href = "/countries"}
+                className="inline-flex justify-center items-center px-6 py-3.5 border border-white/30 text-base font-medium rounded-2xl text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm focus:outline-none transition-colors duration-200 cursor-pointer"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Globe className="mr-2 h-5 w-5" />
+                Explore Countries
+              </motion.div>
             </motion.div>
             
-            {/* Mobile stats badges */}
+            {/* Stats badges - visible on all screens */}
             <motion.div 
-              className="mt-8 flex flex-wrap gap-3 lg:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              className="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.5 }}
             >
-              <div className="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg px-4 py-2 flex items-center">
-                <GraduationCap className="h-5 w-5 text-white mr-2" />
-                <span className="text-sm font-medium">5000+ Scholarships</span>
-              </div>
-              <div className="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg px-4 py-2 flex items-center">
-                <Globe className="h-5 w-5 text-white mr-2" />
-                <span className="text-sm font-medium">150+ Countries</span>
-              </div>
-              <div className="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg px-4 py-2 flex items-center">
-                <BookOpen className="h-5 w-5 text-white mr-2" />
-                <span className="text-sm font-medium">Expert Guidance</span>
-              </div>
+              <motion.div 
+                className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center shadow-lg border border-white/20"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
+                <GraduationCap className="h-6 w-6 text-white/90 mr-3" />
+                <div>
+                  <div className="text-lg font-bold">5000+</div>
+                  <div className="text-xs text-primary-100">Scholarships</div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center shadow-lg border border-white/20"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
+                <MapPin className="h-6 w-6 text-white/90 mr-3" />
+                <div>
+                  <div className="text-lg font-bold">150+</div>
+                  <div className="text-xs text-primary-100">Countries</div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center shadow-lg border border-white/20 col-span-2 sm:col-span-1"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
+                <School className="h-6 w-6 text-white/90 mr-3" />
+                <div>
+                  <div className="text-lg font-bold">1200+</div>
+                  <div className="text-xs text-primary-100">Universities</div>
+                </div>
+              </motion.div>
             </motion.div>
           </motion.div>
           
-          {/* Desktop image */}
-          <div className="hidden lg:block relative">
-            <motion.div 
-              className="absolute -top-20 -right-20 w-64 h-64 bg-primary-400 rounded-full opacity-20 filter blur-3xl"
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.2, 0.3, 0.2]
-              }}
-              transition={{ 
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "reverse" 
-              }}
-            />
+          {/* Hero image section - shown on larger screens */}
+          <motion.div 
+            className="hidden lg:block relative"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
+              <motion.img
+                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80"
+                alt="Students studying abroad"
+                className="w-full h-full object-cover"
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1 }}
+              />
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent"></div>
+            </div>
             
-            <motion.img
-              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80"
-              alt="Students studying abroad"
-              className="rounded-lg shadow-xl relative z-10"
-              width="600"
-              height="400"
-              initial={{ rotate: -2, scale: 0.95, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8 }}
-            />
-            
+            {/* Floating cards */}
             <motion.div
-              className="absolute -bottom-4 -left-4 bg-white p-4 rounded-lg shadow-lg z-20"
-              initial={{ rotate: 3, opacity: 0, scale: 0.8 }}
-              animate={{ rotate: 0, opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
+              className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                <div className="flex-shrink-0 bg-green-50 p-2 rounded-full">
+                  <GraduationCap className="h-8 w-8 text-green-600" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-slate-900">5000+ Scholarships</p>
+                  <p className="text-sm font-bold text-slate-900">5000+ Scholarships</p>
                   <p className="text-xs text-slate-500">Updated weekly</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div
-              className="absolute -top-4 right-20 bg-white p-3 rounded-lg shadow-lg z-20"
-              initial={{ rotate: -3, opacity: 0, scale: 0.8 }}
-              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              className="absolute -top-6 -right-6 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.6 }}
+              whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Globe className="h-6 w-6 text-primary-500" />
+                <div className="flex-shrink-0 bg-blue-50 p-2 rounded-full">
+                  <Globe className="h-7 w-7 text-blue-600" />
                 </div>
-                <div className="ml-2">
-                  <p className="text-sm font-medium text-slate-900">150+ Countries</p>
+                <div className="ml-3">
+                  <p className="text-sm font-bold text-slate-900">150+ Countries</p>
+                  <p className="text-xs text-slate-500">Across 6 continents</p>
                 </div>
               </div>
             </motion.div>
-          </div>
+            
+            <motion.div
+              className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
+            >
+              <div className="flex items-center">
+                <div className="flex-shrink-0 bg-purple-50 p-2 rounded-full">
+                  <School className="h-7 w-7 text-purple-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-bold text-slate-900">1200+ Universities</p>
+                  <p className="text-xs text-slate-500">Top ranked institutions</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-      
-      {/* Background decorative elements */}
-      <motion.div 
-        className="absolute top-0 right-0 w-full h-full overflow-hidden z-0 opacity-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.1 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="absolute top-20 left-10 w-20 h-20 border-4 border-white rounded-full"></div>
-        <div className="absolute bottom-40 left-40 w-32 h-32 border-4 border-white rounded-full"></div>
-        <div className="absolute top-40 right-10 w-40 h-40 border-4 border-white rounded-full"></div>
-      </motion.div>
     </section>
   );
 };
