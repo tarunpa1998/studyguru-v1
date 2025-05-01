@@ -32,9 +32,9 @@ const ArticlesList = () => {
   const filteredArticles = articles.filter((article: any) => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           article.summary.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesCategory = filterCategory ? article.category === filterCategory : true;
-    
+
     return matchesSearch && matchesCategory;
   });
 
