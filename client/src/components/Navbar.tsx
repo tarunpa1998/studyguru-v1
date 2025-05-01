@@ -32,7 +32,7 @@ interface MenuItem {
 const Path = (props: any) => (
   <motion.path
     fill="transparent"
-    strokeWidth="3"
+    strokeWidth="2"
     stroke="currentColor"
     strokeLinecap="round"
     {...props}
@@ -118,34 +118,22 @@ const itemVariants = {
 const mobileMenuVariants = {
   hidden: { 
     opacity: 0,
-    y: -20,
+    height: 0,
     transition: {
-      duration: 0.2,
-      ease: "easeInOut"
+      duration: 0.3,
+      when: "afterChildren"
     }
   },
   visible: { 
     opacity: 1,
-    y: 0,
+    height: "auto",
     transition: {
-      duration: 0.3,
-      ease: "easeOut",
+      duration: 0.4,
       when: "beforeChildren",
-      staggerChildren: 0.05
+      staggerChildren: 0.1
     }
   }
 };
-
-useEffect(() => {
-  if (isMobileMenuOpen) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'unset';
-  }
-  return () => {
-    document.body.style.overflow = 'unset';
-  };
-}, [isMobileMenuOpen]);
 
 const Navbar = () => {
   const [location] = useLocation();
@@ -327,16 +315,11 @@ const Navbar = () => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div 
-              className="md:hidden overflow-y-auto fixed inset-x-0 top-16 bottom-0 bg-white z-50"
+              className="md:hidden overflow-hidden bg-white"
               variants={mobileMenuVariants}
               initial="hidden"
               animate="visible"
               exit="hidden"
-              style={{
-                WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}
             >
               <div className="px-2 pt-3 pb-4 space-y-2">
                 {menuItems.map((item: MenuItem) => (
