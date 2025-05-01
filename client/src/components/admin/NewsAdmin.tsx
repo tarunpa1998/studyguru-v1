@@ -209,7 +209,7 @@ const NewsAdmin = () => {
       }
 
       const url = isEditing
-        ? `/api/admin/news/${currentNews?._id}`
+        ? `/api/admin/news/${currentNews?.id || currentNews?._id}`
         : '/api/admin/news';
       
       const method = isEditing ? 'PUT' : 'POST';
@@ -372,7 +372,7 @@ const NewsAdmin = () => {
                       </TableRow>
                     ) : (
                       filteredNews.map((item) => (
-                        <TableRow key={item._id}>
+                        <TableRow key={item.id || item._id}>
                           <TableCell className="font-medium">{item.title}</TableCell>
                           <TableCell>{item.category}</TableCell>
                           <TableCell>
@@ -423,7 +423,7 @@ const NewsAdmin = () => {
                 </div>
               ) : (
                 filteredNews.map((item) => (
-                  <Card key={item._id}>
+                  <Card key={item.id || item._id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg text-ellipsis overflow-hidden whitespace-nowrap" title={item.title}>
                         {item.title}
