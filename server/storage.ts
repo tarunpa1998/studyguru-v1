@@ -10,39 +10,59 @@ import {
 
 export interface IStorage {
   // Users
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: number | string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number | string, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number | string): Promise<boolean>;
   
   // Scholarships
   getAllScholarships(): Promise<Scholarship[]>;
+  getScholarshipById(id: number | string): Promise<Scholarship | undefined>;
   getScholarshipBySlug(slug: string): Promise<Scholarship | undefined>;
   createScholarship(scholarship: InsertScholarship): Promise<Scholarship>;
+  updateScholarship(id: number | string, scholarship: Partial<InsertScholarship>): Promise<Scholarship | undefined>;
+  deleteScholarship(id: number | string): Promise<boolean>;
   
   // Articles
   getAllArticles(): Promise<Article[]>;
+  getArticleById(id: number | string): Promise<Article | undefined>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
   createArticle(article: InsertArticle): Promise<Article>;
+  updateArticle(id: number | string, article: Partial<InsertArticle>): Promise<Article | undefined>;
+  deleteArticle(id: number | string): Promise<boolean>;
   
   // Countries
   getAllCountries(): Promise<Country[]>;
+  getCountryById(id: number | string): Promise<Country | undefined>;
   getCountryBySlug(slug: string): Promise<Country | undefined>;
   createCountry(country: InsertCountry): Promise<Country>;
+  updateCountry(id: number | string, country: Partial<InsertCountry>): Promise<Country | undefined>;
+  deleteCountry(id: number | string): Promise<boolean>;
   
   // Universities
   getAllUniversities(): Promise<University[]>;
+  getUniversityById(id: number | string): Promise<University | undefined>;
   getUniversityBySlug(slug: string): Promise<University | undefined>;
   createUniversity(university: InsertUniversity): Promise<University>;
+  updateUniversity(id: number | string, university: Partial<InsertUniversity>): Promise<University | undefined>;
+  deleteUniversity(id: number | string): Promise<boolean>;
   
   // News
   getAllNews(): Promise<News[]>;
+  getNewsById(id: number | string): Promise<News | undefined>;
   getNewsBySlug(slug: string): Promise<News | undefined>;
   getFeaturedNews(): Promise<News[]>;
   createNews(news: InsertNews): Promise<News>;
+  updateNews(id: number | string, news: Partial<InsertNews>): Promise<News | undefined>;
+  deleteNews(id: number | string): Promise<boolean>;
   
   // Menu
   getMenu(): Promise<Menu[]>;
+  getMenuItemById(id: number | string): Promise<Menu | undefined>;
   createMenuItem(menuItem: InsertMenu): Promise<Menu>;
+  updateMenuItem(id: number | string, menuItem: Partial<InsertMenu>): Promise<Menu | undefined>;
+  deleteMenuItem(id: number | string): Promise<boolean>;
   
   // Search
   search(query: string): Promise<{

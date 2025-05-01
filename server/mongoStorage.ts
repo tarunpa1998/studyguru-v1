@@ -44,7 +44,7 @@ export class MongoStorage implements IStorage {
   }
 
   // User methods
-  async getUser(id: number): Promise<UserType | undefined> {
+  async getUser(id: number | string): Promise<UserType | undefined> {
     try {
       const conn = await connectToDatabase();
       if (!conn) return undefined;
@@ -82,6 +82,37 @@ export class MongoStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateUser(id: number | string, userData: Partial<InsertUser>): Promise<UserType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedUser = await User.findByIdAndUpdate(
+        id, 
+        { $set: userData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedUser);
+    } catch (error) {
+      console.error('MongoDB Error (updateUser):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteUser(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await User.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteUser):', error);
+      return false;
+    }
+  }
 
   // Scholarship methods
   async getAllScholarships(): Promise<ScholarshipType[]> {
@@ -94,6 +125,19 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (getAllScholarships):', error);
       return [];
+    }
+  }
+
+  async getScholarshipById(id: number | string): Promise<ScholarshipType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const scholarship = await Scholarship.findById(id);
+      return this.documentToObject(scholarship);
+    } catch (error) {
+      console.error('MongoDB Error (getScholarshipById):', error);
+      return undefined;
     }
   }
 
@@ -122,6 +166,37 @@ export class MongoStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateScholarship(id: number | string, scholarshipData: Partial<InsertScholarship>): Promise<ScholarshipType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedScholarship = await Scholarship.findByIdAndUpdate(
+        id, 
+        { $set: scholarshipData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedScholarship);
+    } catch (error) {
+      console.error('MongoDB Error (updateScholarship):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteScholarship(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await Scholarship.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteScholarship):', error);
+      return false;
+    }
+  }
 
   // Article methods
   async getAllArticles(): Promise<ArticleType[]> {
@@ -134,6 +209,19 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (getAllArticles):', error);
       return [];
+    }
+  }
+
+  async getArticleById(id: number | string): Promise<ArticleType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const article = await Article.findById(id);
+      return this.documentToObject(article);
+    } catch (error) {
+      console.error('MongoDB Error (getArticleById):', error);
+      return undefined;
     }
   }
 
@@ -162,6 +250,37 @@ export class MongoStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateArticle(id: number | string, articleData: Partial<InsertArticle>): Promise<ArticleType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedArticle = await Article.findByIdAndUpdate(
+        id, 
+        { $set: articleData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedArticle);
+    } catch (error) {
+      console.error('MongoDB Error (updateArticle):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteArticle(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await Article.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteArticle):', error);
+      return false;
+    }
+  }
 
   // Country methods
   async getAllCountries(): Promise<CountryType[]> {
@@ -174,6 +293,19 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (getAllCountries):', error);
       return [];
+    }
+  }
+
+  async getCountryById(id: number | string): Promise<CountryType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const country = await Country.findById(id);
+      return this.documentToObject(country);
+    } catch (error) {
+      console.error('MongoDB Error (getCountryById):', error);
+      return undefined;
     }
   }
 
@@ -200,6 +332,37 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (createCountry):', error);
       throw error;
+    }
+  }
+  
+  async updateCountry(id: number | string, countryData: Partial<InsertCountry>): Promise<CountryType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedCountry = await Country.findByIdAndUpdate(
+        id, 
+        { $set: countryData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedCountry);
+    } catch (error) {
+      console.error('MongoDB Error (updateCountry):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteCountry(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await Country.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteCountry):', error);
+      return false;
     }
   }
 
