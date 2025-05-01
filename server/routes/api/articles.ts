@@ -110,8 +110,8 @@ router.get('/', apiLimiter, asyncHandler(async (req: Request, res: Response) => 
     if (conn) {
       let query = {};
 
-      if (category && category !== 'all') {
-        query = { category: { $regex: new RegExp(category as string, 'i') } };
+      if (category) {
+        query = { category: category as string };
       }
 
       const articles = await Article.find(query)

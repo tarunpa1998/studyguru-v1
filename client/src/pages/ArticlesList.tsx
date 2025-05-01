@@ -27,13 +27,10 @@ const ArticlesList = () => {
   const { data: articles = [], isLoading } = useQuery({
     queryKey: ['/api/articles', filterCategory],
     queryFn: async () => {
-      const url = filterCategory && filterCategory !== 'all'
+      const url = filterCategory 
         ? `/api/articles?category=${encodeURIComponent(filterCategory)}`
         : '/api/articles';
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch articles');
-      }
       return response.json();
     }
   });
