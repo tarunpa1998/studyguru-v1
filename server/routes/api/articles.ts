@@ -111,7 +111,13 @@ router.get('/', apiLimiter, asyncHandler(async (req: Request, res: Response) => 
       let query = {};
 
       if (category && category !== 'all') {
-        query = { category: { $regex: new RegExp(category as string, 'i') } };
+        // Match either exact category or its parent category
+        query = {
+          $or: [
+            { category: { $regex: new RegExp(`^${category}$`, 'i') } },
+            { 'subcategory': { $regex: new RegExp(`^${category}$`, 'i') } }
+          ]
+        };
       }
 
       const articles = await Article.find(query)
