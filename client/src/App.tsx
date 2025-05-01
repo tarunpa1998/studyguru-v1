@@ -31,6 +31,34 @@ function Router() {
   const isAdminRoute = location.startsWith('/admin');
 
   return (
+    <div className="min-h-screen flex flex-col">
+      {!isAdminRoute && <Navbar />}
+      <div className="flex-1">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/articles" component={ArticlesList} />
+          <Route path="/articles/:slug" component={ArticleDetail} />
+          <Route path="/news" component={NewsList} />
+          <Route path="/news/:slug" component={NewsDetail} />
+          <Route path="/scholarships" component={ScholarshipsList} />
+          <Route path="/scholarships/:slug" component={ScholarshipDetail} />
+          <Route path="/countries" component={CountriesList} />
+          <Route path="/countries/:slug" component={CountryDetail} />
+          <Route path="/universities" component={UniversitiesList} />
+          <Route path="/universities/:slug" component={UniversityDetail} />
+          <Route path="/search" component={SearchResults} />
+          <Route path="/admin/login" component={Login} />
+          <Route path="/admin/register" component={Register} />
+          <Route path="/admin/dashboard" component={Dashboard} />
+          <Route component={NotFound} />
+        </Switch>
+      </div>
+      {!isAdminRoute && <Footer />}
+    </div>
+  );
+}
+
+  return (
     <Switch>
       {/* Public routes */}
       <Route path="/" component={Home} />
