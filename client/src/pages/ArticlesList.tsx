@@ -24,7 +24,7 @@ const ArticlesList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState(initialCategory);
 
-  const { data: articles = [], isLoading, error } = useQuery({
+  const { data: articles = [], isLoading } = useQuery({
     queryKey: ['/api/articles', filterCategory],
     queryFn: async () => {
       const url = filterCategory && filterCategory !== 'all'
@@ -34,11 +34,7 @@ const ArticlesList = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch articles');
       }
-      const data = await response.json();
-      if (!data || !Array.isArray(data)) {
-        throw new Error('Invalid response format');
-      }
-      return data;
+      return response.json();
     }
   });
 
