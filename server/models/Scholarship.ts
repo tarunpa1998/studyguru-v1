@@ -3,12 +3,23 @@ import mongoose, { Document, Schema } from 'mongoose';
 // Interface for Scholarship document
 export interface IScholarship extends Document {
   title: string;
+  slug: string;
+  overview: string;
   description: string;
+  highlights: string[];
+  
   amount: string;
   deadline: string;
+  duration: string;
+  level: string;
+  fieldsCovered: string[];
+  eligibility: string;
+  isRenewable: boolean;
+  
+  benefits: string[];
+  applicationProcedure: string;
   country: string;
   tags: string[];
-  slug: string;
   link?: string;
 }
 
@@ -20,10 +31,24 @@ const ScholarshipSchema = new Schema<IScholarship>(
       required: true,
       trim: true
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    overview: {
+      type: String,
+      default: ''
+    },
     description: {
       type: String,
       required: true
     },
+    highlights: {
+      type: [String],
+      default: []
+    },
+    
     amount: {
       type: String,
       required: true
@@ -32,6 +57,35 @@ const ScholarshipSchema = new Schema<IScholarship>(
       type: String,
       required: true
     },
+    duration: {
+      type: String,
+      default: '1 year'
+    },
+    level: {
+      type: String,
+      default: 'Undergraduate, Graduate'
+    },
+    fieldsCovered: {
+      type: [String],
+      default: []
+    },
+    eligibility: {
+      type: String,
+      default: ''
+    },
+    isRenewable: {
+      type: Boolean,
+      default: false
+    },
+    
+    benefits: {
+      type: [String],
+      default: []
+    },
+    applicationProcedure: {
+      type: String,
+      default: ''
+    },
     country: {
       type: String,
       required: true
@@ -39,11 +93,6 @@ const ScholarshipSchema = new Schema<IScholarship>(
     tags: {
       type: [String],
       required: true
-    },
-    slug: {
-      type: String,
-      required: true,
-      unique: true
     },
     link: {
       type: String
@@ -58,6 +107,7 @@ const ScholarshipSchema = new Schema<IScholarship>(
 ScholarshipSchema.index({ 
   title: 'text', 
   description: 'text', 
+  overview: 'text',
   country: 'text'
 });
 
