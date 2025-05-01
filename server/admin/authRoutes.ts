@@ -1,11 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { User } from '../models';
+import { storage } from '../storage';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { auth } from '../middleware/auth';
-
-// Environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 const router = Router();
 
@@ -18,27 +15,35 @@ router.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    // Check if user exists
-    const user = await User.findOne({ username });
+    // Check for existing user
+    const user = await storage.getUserByUsername(username);
+    
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
+    // Check if user is admin
+    if (!user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    // Validate password
+    const isMatch = await bcrypt.compare(password, user.password);
+    
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Create and sign JWT
     const payload = {
       id: user.id,
-      username: user.username
+      username: user.username,
+      isAdmin: user.isAdmin
     };
 
     jwt.sign(
-      payload,
-      JWT_SECRET,
+      payload, 
+      process.env.JWT_SECRET || 'default_secret', 
       { expiresIn: '24h' },
       (err, token) => {
         if (err) throw err;
@@ -46,8 +51,8 @@ router.post('/login', async (req: Request, res: Response) => {
       }
     );
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error in login:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -58,15 +63,21 @@ router.post('/login', async (req: Request, res: Response) => {
  */
 router.get('/auth', auth, async (req: Request, res: Response) => {
   try {
-    // Get user without password
-    const user = await User.findById(req.user?.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    if (!req.user) {
+      return res.status(401).json({ message: 'No authenticated user' });
     }
-    res.json(user);
+    
+    const user = await storage.getUser(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Return user data without password
+    const { password, ...userData } = user;
+    res.json(userData);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error getting auth user:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

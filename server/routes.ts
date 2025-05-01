@@ -13,10 +13,10 @@ import {
   insertMenuSchema
 } from "@shared/schema";
 
-// Import MongoDB API routes
+// Import routes
 import apiRoutes from './routes/api';
 import swaggerRoutes from './routes/swagger';
-import adminRoutes from './admin';
+import { registerAdminRoutes } from './admin/index';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to handle errors
@@ -34,11 +34,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
   };
 
-  // Register MongoDB API routes when MongoDB is available
+  // Register API routes
   app.use('/api', apiRoutes);
   
   // Register Admin routes
-  app.use('/api/admin', adminRoutes);
+  registerAdminRoutes(app);
   
   // Register Swagger documentation
   app.use('/', swaggerRoutes);
