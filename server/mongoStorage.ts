@@ -380,6 +380,19 @@ export class MongoStorage implements IStorage {
     }
   }
 
+  async getUniversityById(id: number | string): Promise<UniversityType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const university = await University.findById(id);
+      return this.documentToObject(university);
+    } catch (error) {
+      console.error('MongoDB Error (getUniversityById):', error);
+      return undefined;
+    }
+  }
+
   async getUniversityBySlug(slug: string): Promise<UniversityType | undefined> {
     try {
       const conn = await connectToDatabase();
@@ -405,6 +418,37 @@ export class MongoStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateUniversity(id: number | string, universityData: Partial<InsertUniversity>): Promise<UniversityType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedUniversity = await University.findByIdAndUpdate(
+        id, 
+        { $set: universityData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedUniversity);
+    } catch (error) {
+      console.error('MongoDB Error (updateUniversity):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteUniversity(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await University.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteUniversity):', error);
+      return false;
+    }
+  }
 
   // News methods
   async getAllNews(): Promise<NewsType[]> {
@@ -417,6 +461,19 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (getAllNews):', error);
       return [];
+    }
+  }
+
+  async getNewsById(id: number | string): Promise<NewsType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const newsItem = await News.findById(id);
+      return this.documentToObject(newsItem);
+    } catch (error) {
+      console.error('MongoDB Error (getNewsById):', error);
+      return undefined;
     }
   }
 
@@ -458,6 +515,37 @@ export class MongoStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateNews(id: number | string, newsData: Partial<InsertNews>): Promise<NewsType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedNews = await News.findByIdAndUpdate(
+        id, 
+        { $set: newsData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedNews);
+    } catch (error) {
+      console.error('MongoDB Error (updateNews):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteNews(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await News.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteNews):', error);
+      return false;
+    }
+  }
 
   // Menu methods
   async getMenu(): Promise<MenuType[]> {
@@ -473,6 +561,19 @@ export class MongoStorage implements IStorage {
     }
   }
 
+  async getMenuItemById(id: number | string): Promise<MenuType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const menuItem = await Menu.findById(id);
+      return this.documentToObject(menuItem);
+    } catch (error) {
+      console.error('MongoDB Error (getMenuItemById):', error);
+      return undefined;
+    }
+  }
+
   async createMenuItem(menuItem: InsertMenu): Promise<MenuType> {
     try {
       const conn = await connectToDatabase();
@@ -483,6 +584,37 @@ export class MongoStorage implements IStorage {
     } catch (error) {
       console.error('MongoDB Error (createMenuItem):', error);
       throw error;
+    }
+  }
+  
+  async updateMenuItem(id: number | string, menuItemData: Partial<InsertMenu>): Promise<MenuType | undefined> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return undefined;
+      
+      const updatedMenuItem = await Menu.findByIdAndUpdate(
+        id, 
+        { $set: menuItemData },
+        { new: true, runValidators: true }
+      );
+      
+      return this.documentToObject(updatedMenuItem);
+    } catch (error) {
+      console.error('MongoDB Error (updateMenuItem):', error);
+      return undefined;
+    }
+  }
+  
+  async deleteMenuItem(id: number | string): Promise<boolean> {
+    try {
+      const conn = await connectToDatabase();
+      if (!conn) return false;
+      
+      const result = await Menu.findByIdAndDelete(id);
+      return !!result;
+    } catch (error) {
+      console.error('MongoDB Error (deleteMenuItem):', error);
+      return false;
     }
   }
 

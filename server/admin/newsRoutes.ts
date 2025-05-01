@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
+import { mongoStorage } from '../mongoStorage';
 import { adminAuth } from '../middleware/auth';
 import slugify from 'slugify';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/news', adminAuth, async (req: Request, res: Response) => {
   try {
-    const news = await storage.getAllNews();
+    const news = await mongoStorage.getAllNews();
     res.json(news);
   } catch (error) {
     console.error('Error getting news:', error);
@@ -27,7 +27,8 @@ router.get('/news', adminAuth, async (req: Request, res: Response) => {
  */
 router.get('/news/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    const newsItem = await storage.getNewsBySlug(req.params.id);
+    // Get news by ID instead of slug
+    const newsItem = await mongoStorage.getNewsById(req.params.id);
     
     if (!newsItem) {
       return res.status(404).json({ error: 'News item not found' });
@@ -59,7 +60,28 @@ router.post('/news', adminAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Title, content, and summary are required' });
     }
     
-    const newNews = await storage.createNews(newsData);
+    // Set default values for missing fields
+    if (!newsData.image) {
+      newsData.image = null;
+    }
+    
+    if (!newsData.publishDate) {
+      newsData.publishDate = new Date().toISOString().split('T')[0];
+    }
+    
+    if (newsData.isFeatured === undefined) {
+      newsData.isFeatured = false;
+    }
+    
+    if (!newsData.seo) {
+      newsData.seo = {
+        metaTitle: newsData.title,
+        metaDescription: newsData.summary.substring(0, 160),
+        keywords: []
+      };
+    }
+    
+    const newNews = await mongoStorage.createNews(newsData);
     res.status(201).json(newNews);
   } catch (error) {
     console.error('Error creating news item:', error);
@@ -87,15 +109,20 @@ router.put('/news/:id', adminAuth, async (req: Request, res: Response) => {
     }
     
     // Check if news item exists
-    const existingNews = await storage.getNewsBySlug(req.params.id);
+    const existingNews = await mongoStorage.getNewsById(req.params.id);
     
     if (!existingNews) {
       return res.status(404).json({ error: 'News item not found' });
     }
     
-    // Update news item (implement in storage.ts)
-    // For now, just return the data
-    res.json({ ...existingNews, ...newsData });
+    // Update the news in MongoDB
+    const updatedNews = await mongoStorage.updateNews(req.params.id, newsData);
+    
+    if (!updatedNews) {
+      return res.status(500).json({ error: 'Failed to update news item' });
+    }
+    
+    res.json(updatedNews);
   } catch (error) {
     console.error('Error updating news item:', error);
     res.status(500).json({ error: 'Server error' });
@@ -110,15 +137,20 @@ router.put('/news/:id', adminAuth, async (req: Request, res: Response) => {
 router.delete('/news/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Check if news item exists
-    const existingNews = await storage.getNewsBySlug(req.params.id);
+    const existingNews = await mongoStorage.getNewsById(req.params.id);
     
     if (!existingNews) {
       return res.status(404).json({ error: 'News item not found' });
     }
     
-    // Delete news item (implement in storage.ts)
-    // For now, just return success
-    res.json({ success: true, message: 'News item deleted' });
+    // Delete the news from MongoDB
+    const success = await mongoStorage.deleteNews(req.params.id);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to delete news item' });
+    }
+    
+    res.json({ success: true, message: 'News item deleted successfully' });
   } catch (error) {
     console.error('Error deleting news item:', error);
     res.status(500).json({ error: 'Server error' });

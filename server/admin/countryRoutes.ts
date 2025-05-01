@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
+import { mongoStorage } from '../mongoStorage';
 import { adminAuth } from '../middleware/auth';
 import slugify from 'slugify';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/countries', adminAuth, async (req: Request, res: Response) => {
   try {
-    const countries = await storage.getAllCountries();
+    const countries = await mongoStorage.getAllCountries();
     res.json(countries);
   } catch (error) {
     console.error('Error getting countries:', error);
@@ -27,7 +27,8 @@ router.get('/countries', adminAuth, async (req: Request, res: Response) => {
  */
 router.get('/countries/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    const country = await storage.getCountryBySlug(req.params.id);
+    // Get country by ID instead of slug
+    const country = await mongoStorage.getCountryById(req.params.id);
     
     if (!country) {
       return res.status(404).json({ error: 'Country not found' });
@@ -59,7 +60,20 @@ router.post('/countries', adminAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name and description are required' });
     }
     
-    const newCountry = await storage.createCountry(countryData);
+    // Set default values for missing fields
+    if (!countryData.image) {
+      countryData.image = null;
+    }
+    
+    if (typeof countryData.universities !== 'number') {
+      countryData.universities = 0;
+    }
+    
+    if (!countryData.acceptanceRate) {
+      countryData.acceptanceRate = 'Varies';
+    }
+    
+    const newCountry = await mongoStorage.createCountry(countryData);
     res.status(201).json(newCountry);
   } catch (error) {
     console.error('Error creating country:', error);
@@ -87,15 +101,20 @@ router.put('/countries/:id', adminAuth, async (req: Request, res: Response) => {
     }
     
     // Check if country exists
-    const existingCountry = await storage.getCountryBySlug(req.params.id);
+    const existingCountry = await mongoStorage.getCountryById(req.params.id);
     
     if (!existingCountry) {
       return res.status(404).json({ error: 'Country not found' });
     }
     
-    // Update country (implement in storage.ts)
-    // For now, just return the data
-    res.json({ ...existingCountry, ...countryData });
+    // Update the country in MongoDB
+    const updatedCountry = await mongoStorage.updateCountry(req.params.id, countryData);
+    
+    if (!updatedCountry) {
+      return res.status(500).json({ error: 'Failed to update country' });
+    }
+    
+    res.json(updatedCountry);
   } catch (error) {
     console.error('Error updating country:', error);
     res.status(500).json({ error: 'Server error' });
@@ -110,15 +129,20 @@ router.put('/countries/:id', adminAuth, async (req: Request, res: Response) => {
 router.delete('/countries/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Check if country exists
-    const existingCountry = await storage.getCountryBySlug(req.params.id);
+    const existingCountry = await mongoStorage.getCountryById(req.params.id);
     
     if (!existingCountry) {
       return res.status(404).json({ error: 'Country not found' });
     }
     
-    // Delete country (implement in storage.ts)
-    // For now, just return success
-    res.json({ success: true, message: 'Country deleted' });
+    // Delete the country from MongoDB
+    const success = await mongoStorage.deleteCountry(req.params.id);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to delete country' });
+    }
+    
+    res.json({ success: true, message: 'Country deleted successfully' });
   } catch (error) {
     console.error('Error deleting country:', error);
     res.status(500).json({ error: 'Server error' });

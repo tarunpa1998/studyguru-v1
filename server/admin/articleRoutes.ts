@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
+import { mongoStorage } from '../mongoStorage';
 import { adminAuth } from '../middleware/auth';
 import slugify from 'slugify';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/articles', adminAuth, async (req: Request, res: Response) => {
   try {
-    const articles = await storage.getAllArticles();
+    const articles = await mongoStorage.getAllArticles();
     res.json(articles);
   } catch (error) {
     console.error('Error getting articles:', error);
@@ -27,7 +27,8 @@ router.get('/articles', adminAuth, async (req: Request, res: Response) => {
  */
 router.get('/articles/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    const article = await storage.getArticleBySlug(req.params.id);
+    // Get the article by ID instead of slug
+    const article = await mongoStorage.getArticleById(req.params.id);
     
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
@@ -59,7 +60,33 @@ router.post('/articles', adminAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Title, content, and summary are required' });
     }
     
-    const newArticle = await storage.createArticle(articleData);
+    // Add default values for missing fields
+    if (!articleData.seo) {
+      articleData.seo = {
+        metaTitle: articleData.title,
+        metaDescription: articleData.summary.substring(0, 160),
+        keywords: []
+      };
+    }
+    
+    if (!articleData.helpful) {
+      articleData.helpful = { yes: 0, no: 0 };
+    }
+    
+    if (!articleData.tableOfContents) {
+      articleData.tableOfContents = [];
+    }
+    
+    if (!articleData.faqs) {
+      articleData.faqs = [];
+    }
+    
+    // Set default values for other fields
+    if (!articleData.publishDate) {
+      articleData.publishDate = new Date().toISOString().split('T')[0];
+    }
+    
+    const newArticle = await mongoStorage.createArticle(articleData);
     res.status(201).json(newArticle);
   } catch (error) {
     console.error('Error creating article:', error);
@@ -87,15 +114,20 @@ router.put('/articles/:id', adminAuth, async (req: Request, res: Response) => {
     }
     
     // Check if article exists
-    const existingArticle = await storage.getArticleBySlug(req.params.id);
+    const existingArticle = await mongoStorage.getArticleById(req.params.id);
     
     if (!existingArticle) {
       return res.status(404).json({ error: 'Article not found' });
     }
     
-    // Update article (implement in storage.ts)
-    // For now, just return the data
-    res.json({ ...existingArticle, ...articleData });
+    // Update the article in MongoDB
+    const updatedArticle = await mongoStorage.updateArticle(req.params.id, articleData);
+    
+    if (!updatedArticle) {
+      return res.status(500).json({ error: 'Failed to update article' });
+    }
+    
+    res.json(updatedArticle);
   } catch (error) {
     console.error('Error updating article:', error);
     res.status(500).json({ error: 'Server error' });
@@ -110,15 +142,20 @@ router.put('/articles/:id', adminAuth, async (req: Request, res: Response) => {
 router.delete('/articles/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Check if article exists
-    const existingArticle = await storage.getArticleBySlug(req.params.id);
+    const existingArticle = await mongoStorage.getArticleById(req.params.id);
     
     if (!existingArticle) {
       return res.status(404).json({ error: 'Article not found' });
     }
     
-    // Delete article (implement in storage.ts)
-    // For now, just return success
-    res.json({ success: true, message: 'Article deleted' });
+    // Delete the article from MongoDB
+    const success = await mongoStorage.deleteArticle(req.params.id);
+    
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to delete article' });
+    }
+    
+    res.json({ success: true, message: 'Article deleted successfully' });
   } catch (error) {
     console.error('Error deleting article:', error);
     res.status(500).json({ error: 'Server error' });
