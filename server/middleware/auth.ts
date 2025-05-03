@@ -1,23 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-interface UserPayload {
+// Define the user payload structure
+export interface UserPayload {
   id: string;
   email: string;
   fullName: string;
   isAdmin?: boolean;
 }
 
-// Extend Express Request interface to include user
-// We extend the Express Request interface only if it hasn't been extended already
-// This prevents the 'user' property type conflict
-declare global {
-  namespace Express {
-    // Only augment the interface if the user property doesn't exist yet
-    interface Request {
-      user?: UserPayload;
-    }
-  }
+// Extend the Request type specifically for our application
+interface AuthenticatedRequest extends Request {
+  user?: UserPayload;
 }
 
 // Authentication middleware for regular users
@@ -35,7 +29,7 @@ export function auth(req: Request, res: Response, next: NextFunction) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as UserPayload;
     
     // Set user data in request
-    req.user = decoded;
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid token.' });
@@ -62,7 +56,7 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
     }
     
     // Set user data in request
-    req.user = decoded;
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid token.' });
