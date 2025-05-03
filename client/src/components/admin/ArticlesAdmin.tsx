@@ -683,38 +683,249 @@ const ArticlesAdmin = () => {
             </TabsContent>
 
             {/* Advanced Tab */}
-            <TabsContent value="advanced" className="space-y-4">
-              <div className="space-y-2">
-                <Label>Related Articles</Label>
-                <p className="text-xs text-slate-500 mb-2">
-                  This feature requires additional implementation
+            <TabsContent value="advanced" className="space-y-6">
+              {/* Related Articles Section */}
+              <div className="space-y-3 border p-4 rounded-md">
+                <div className="flex justify-between items-center">
+                  <Label className="text-base font-medium">Related Articles</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const updatedForm = {...editForm};
+                      const relatedArticles = updatedForm.relatedArticles || [];
+                      updatedForm.relatedArticles = [...relatedArticles, ""];
+                      setEditForm(updatedForm);
+                    }}
+                  >
+                    Add Related Article
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Select articles that relate to this content
                 </p>
-                <Input
-                  disabled
-                  placeholder="Feature not implemented yet"
-                />
+                
+                {editForm.relatedArticles && editForm.relatedArticles.length > 0 ? (
+                  <div className="space-y-3">
+                    {editForm.relatedArticles.map((relatedArticle, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Select
+                          value={relatedArticle}
+                          onValueChange={(value) => {
+                            const updatedForm = {...editForm};
+                            updatedForm.relatedArticles[index] = value;
+                            setEditForm(updatedForm);
+                          }}
+                        >
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select article" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {articles
+                              .filter(article => article.id !== currentArticle?.id && article._id !== currentArticle?._id)
+                              .map(article => (
+                                <SelectItem 
+                                  key={article.id || article._id} 
+                                  value={article.id || article._id || ""}
+                                >
+                                  {article.title}
+                                </SelectItem>
+                              ))
+                            }
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-red-500 hover:text-red-700"
+                          onClick={() => {
+                            const updatedForm = {...editForm};
+                            updatedForm.relatedArticles.splice(index, 1);
+                            setEditForm(updatedForm);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No related articles added</p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label>FAQs</Label>
-                <p className="text-xs text-slate-500 mb-2">
-                  This feature requires additional implementation
+              {/* FAQs Section */}
+              <div className="space-y-3 border p-4 rounded-md">
+                <div className="flex justify-between items-center">
+                  <Label className="text-base font-medium">Frequently Asked Questions</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const updatedForm = {...editForm};
+                      const faqs = updatedForm.faqs || [];
+                      updatedForm.faqs = [...faqs, { question: '', answer: '' }];
+                      setEditForm(updatedForm);
+                    }}
+                  >
+                    Add FAQ
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Add common questions and answers related to this article
                 </p>
-                <Input
-                  disabled
-                  placeholder="Feature not implemented yet"
-                />
+                
+                {editForm.faqs && editForm.faqs.length > 0 ? (
+                  <div className="space-y-4">
+                    {editForm.faqs.map((faq, index) => (
+                      <div key={index} className="space-y-3 border border-dashed p-3 rounded">
+                        <div className="flex justify-between items-start">
+                          <Label className="text-sm font-medium">FAQ #{index + 1}</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-500 hover:text-red-700"
+                            onClick={() => {
+                              const updatedForm = {...editForm};
+                              updatedForm.faqs.splice(index, 1);
+                              setEditForm(updatedForm);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`faq-question-${index}`} className="text-xs">
+                            Question
+                          </Label>
+                          <Input
+                            id={`faq-question-${index}`}
+                            value={faq.question}
+                            onChange={(e) => {
+                              const updatedForm = {...editForm};
+                              updatedForm.faqs[index].question = e.target.value;
+                              setEditForm(updatedForm);
+                            }}
+                            placeholder="Enter a question"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`faq-answer-${index}`} className="text-xs">
+                            Answer
+                          </Label>
+                          <Textarea
+                            id={`faq-answer-${index}`}
+                            value={faq.answer}
+                            onChange={(e) => {
+                              const updatedForm = {...editForm};
+                              updatedForm.faqs[index].answer = e.target.value;
+                              setEditForm(updatedForm);
+                            }}
+                            placeholder="Enter the answer"
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No FAQs added</p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label>Table of Contents</Label>
-                <p className="text-xs text-slate-500 mb-2">
-                  This feature requires additional implementation
+              {/* Table of Contents Section */}
+              <div className="space-y-3 border p-4 rounded-md">
+                <div className="flex justify-between items-center">
+                  <Label className="text-base font-medium">Table of Contents</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const updatedForm = {...editForm};
+                      const tableOfContents = updatedForm.tableOfContents || [];
+                      updatedForm.tableOfContents = [...tableOfContents, { 
+                        id: `section-${tableOfContents.length + 1}`, 
+                        title: '', 
+                        level: 1 
+                      }];
+                      setEditForm(updatedForm);
+                    }}
+                  >
+                    Add Section
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Create a table of contents for navigating your article
                 </p>
-                <Input
-                  disabled
-                  placeholder="Feature not implemented yet"
-                />
+                
+                {editForm.tableOfContents && editForm.tableOfContents.length > 0 ? (
+                  <div className="space-y-3">
+                    {editForm.tableOfContents.map((section, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <Select
+                          value={section.level.toString()}
+                          onValueChange={(value) => {
+                            const updatedForm = {...editForm};
+                            updatedForm.tableOfContents[index].level = parseInt(value);
+                            setEditForm(updatedForm);
+                          }}
+                        >
+                          <SelectTrigger className="w-24">
+                            <SelectValue placeholder="Level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">H1</SelectItem>
+                            <SelectItem value="2">H2</SelectItem>
+                            <SelectItem value="3">H3</SelectItem>
+                            <SelectItem value="4">H4</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="flex-1 flex items-center gap-2">
+                          <Input
+                            value={section.id}
+                            onChange={(e) => {
+                              const updatedForm = {...editForm};
+                              updatedForm.tableOfContents[index].id = e.target.value;
+                              setEditForm(updatedForm);
+                            }}
+                            placeholder="Section ID"
+                            className="w-1/3"
+                          />
+                          <Input
+                            value={section.title}
+                            onChange={(e) => {
+                              const updatedForm = {...editForm};
+                              updatedForm.tableOfContents[index].title = e.target.value;
+                              setEditForm(updatedForm);
+                            }}
+                            placeholder="Section title"
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-red-500 hover:text-red-700 flex-shrink-0"
+                            onClick={() => {
+                              const updatedForm = {...editForm};
+                              updatedForm.tableOfContents.splice(index, 1);
+                              setEditForm(updatedForm);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No table of contents sections added</p>
+                )}
               </div>
             </TabsContent>
           </Tabs>
