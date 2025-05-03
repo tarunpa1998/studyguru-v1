@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface UserPayload {
-  id: number;
-  username: string;
-  isAdmin: boolean;
+  id: string;
+  email: string;
+  fullName: string;
+  isAdmin?: boolean;
 }
 
 // Extend Express Request interface to include user
