@@ -160,7 +160,7 @@ const UniversitiesAdmin = () => {
     clearArrayInputs();
   };
 
-  const handleDelete = async (universityId: string) => {
+  const handleDelete = async (universityId: string | number) => {
     if (!confirm('Are you sure you want to delete this university?')) {
       return;
     }

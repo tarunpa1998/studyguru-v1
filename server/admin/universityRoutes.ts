@@ -92,15 +92,21 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
       return res.status(400).json({ error: 'Name, description, and country are required' });
     }
     
-    // Check if university exists - use getUniversityById instead of getUniversityBySlug
-    const existingUniversity = await storage.getUniversityById(req.params.id);
+    // Try to get university by ID first, if that fails try slug as fallback
+    let existingUniversity = await storage.getUniversityById(req.params.id);
+    
+    // If not found by ID, try by slug as fallback
+    if (!existingUniversity) {
+      existingUniversity = await storage.getUniversityBySlug(req.params.id);
+    }
     
     if (!existingUniversity) {
       return res.status(404).json({ error: 'University not found' });
     }
     
-    // Update university
-    const updatedUniversity = await storage.updateUniversity(req.params.id, universityData);
+    // Update university using ID from found university
+    const universityId = existingUniversity.id || existingUniversity._id;
+    const updatedUniversity = await storage.updateUniversity(universityId, universityData);
     
     if (!updatedUniversity) {
       return res.status(404).json({ error: 'Failed to update university' });
@@ -120,15 +126,21 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
  */
 router.delete('/universities/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    // Check if university exists - use getUniversityById instead of getUniversityBySlug
-    const existingUniversity = await storage.getUniversityById(req.params.id);
+    // Try to get university by ID first, if that fails try slug as fallback
+    let existingUniversity = await storage.getUniversityById(req.params.id);
+    
+    // If not found by ID, try by slug as fallback
+    if (!existingUniversity) {
+      existingUniversity = await storage.getUniversityBySlug(req.params.id);
+    }
     
     if (!existingUniversity) {
       return res.status(404).json({ error: 'University not found' });
     }
     
-    // Delete university
-    const deleted = await storage.deleteUniversity(req.params.id);
+    // Delete university using ID from found university
+    const universityId = existingUniversity.id || existingUniversity._id;
+    const deleted = await storage.deleteUniversity(universityId);
     
     if (!deleted) {
       return res.status(500).json({ error: 'Failed to delete university' });

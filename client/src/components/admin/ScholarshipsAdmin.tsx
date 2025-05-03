@@ -505,7 +505,7 @@ const ScholarshipsAdmin = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(scholarship._id)}
+                          onClick={() => handleDelete(scholarship.id || scholarship._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
