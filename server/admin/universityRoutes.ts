@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
+import { mongoStorage } from '../mongoStorage';
 import { adminAuth } from '../middleware/auth';
 import slugify from 'slugify';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/universities', adminAuth, async (req: Request, res: Response) => {
   try {
-    const universities = await storage.getAllUniversities();
+    const universities = await mongoStorage.getAllUniversities();
     res.json(universities);
   } catch (error) {
     console.error('Error getting universities:', error);
@@ -28,11 +28,11 @@ router.get('/universities', adminAuth, async (req: Request, res: Response) => {
 router.get('/universities/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Try to get by ID first, if that fails try slug as fallback
-    let university = await storage.getUniversityById(req.params.id);
+    let university = await mongoStorage.getUniversityById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!university) {
-      university = await storage.getUniversityBySlug(req.params.id);
+      university = await mongoStorage.getUniversityBySlug(req.params.id);
     }
     
     if (!university) {
@@ -65,7 +65,7 @@ router.post('/universities', adminAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name, description, and country are required' });
     }
     
-    const newUniversity = await storage.createUniversity(universityData);
+    const newUniversity = await mongoStorage.createUniversity(universityData);
     res.status(201).json(newUniversity);
   } catch (error) {
     console.error('Error creating university:', error);
@@ -93,11 +93,11 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
     }
     
     // Try to get university by ID first, if that fails try slug as fallback
-    let existingUniversity = await storage.getUniversityById(req.params.id);
+    let existingUniversity = await mongoStorage.getUniversityById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!existingUniversity) {
-      existingUniversity = await storage.getUniversityBySlug(req.params.id);
+      existingUniversity = await mongoStorage.getUniversityBySlug(req.params.id);
     }
     
     if (!existingUniversity) {
@@ -106,7 +106,7 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
     
     // Update university using ID from found university
     const universityId = existingUniversity.id || existingUniversity._id;
-    const updatedUniversity = await storage.updateUniversity(universityId, universityData);
+    const updatedUniversity = await mongoStorage.updateUniversity(universityId, universityData);
     
     if (!updatedUniversity) {
       return res.status(404).json({ error: 'Failed to update university' });
@@ -127,11 +127,11 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
 router.delete('/universities/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Try to get university by ID first, if that fails try slug as fallback
-    let existingUniversity = await storage.getUniversityById(req.params.id);
+    let existingUniversity = await mongoStorage.getUniversityById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!existingUniversity) {
-      existingUniversity = await storage.getUniversityBySlug(req.params.id);
+      existingUniversity = await mongoStorage.getUniversityBySlug(req.params.id);
     }
     
     if (!existingUniversity) {
@@ -140,7 +140,7 @@ router.delete('/universities/:id', adminAuth, async (req: Request, res: Response
     
     // Delete university using ID from found university
     const universityId = existingUniversity.id || existingUniversity._id;
-    const deleted = await storage.deleteUniversity(universityId);
+    const deleted = await mongoStorage.deleteUniversity(universityId);
     
     if (!deleted) {
       return res.status(500).json({ error: 'Failed to delete university' });

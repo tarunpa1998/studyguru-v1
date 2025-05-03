@@ -65,7 +65,7 @@ router.post('/scholarships', adminAuth, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Title, description, and amount are required' });
     }
     
-    const newScholarship = await storage.createScholarship(scholarshipData);
+    const newScholarship = await mongoStorage.createScholarship(scholarshipData);
     res.status(201).json(newScholarship);
   } catch (error) {
     console.error('Error creating scholarship:', error);
@@ -93,11 +93,11 @@ router.put('/scholarships/:id', adminAuth, async (req: Request, res: Response) =
     }
     
     // Try to get scholarship by ID first, if that fails try slug as fallback
-    let existingScholarship = await storage.getScholarshipById(req.params.id);
+    let existingScholarship = await mongoStorage.getScholarshipById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!existingScholarship) {
-      existingScholarship = await storage.getScholarshipBySlug(req.params.id);
+      existingScholarship = await mongoStorage.getScholarshipBySlug(req.params.id);
     }
     
     if (!existingScholarship) {
@@ -106,7 +106,7 @@ router.put('/scholarships/:id', adminAuth, async (req: Request, res: Response) =
     
     // Update scholarship using ID from found scholarship
     const scholarshipId = existingScholarship.id || existingScholarship._id;
-    const updatedScholarship = await storage.updateScholarship(scholarshipId, scholarshipData);
+    const updatedScholarship = await mongoStorage.updateScholarship(scholarshipId, scholarshipData);
     
     if (!updatedScholarship) {
       return res.status(404).json({ error: 'Failed to update scholarship' });
@@ -127,11 +127,11 @@ router.put('/scholarships/:id', adminAuth, async (req: Request, res: Response) =
 router.delete('/scholarships/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Try to get scholarship by ID first, if that fails try slug as fallback
-    let existingScholarship = await storage.getScholarshipById(req.params.id);
+    let existingScholarship = await mongoStorage.getScholarshipById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!existingScholarship) {
-      existingScholarship = await storage.getScholarshipBySlug(req.params.id);
+      existingScholarship = await mongoStorage.getScholarshipBySlug(req.params.id);
     }
     
     if (!existingScholarship) {
@@ -140,7 +140,7 @@ router.delete('/scholarships/:id', adminAuth, async (req: Request, res: Response
     
     // Delete scholarship using ID from found scholarship
     const scholarshipId = existingScholarship.id || existingScholarship._id;
-    const deleted = await storage.deleteScholarship(scholarshipId);
+    const deleted = await mongoStorage.deleteScholarship(scholarshipId);
     
     if (!deleted) {
       return res.status(500).json({ error: 'Failed to delete scholarship' });
