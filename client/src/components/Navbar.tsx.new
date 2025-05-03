@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -11,15 +11,11 @@ import {
   Globe, 
   Building, 
   FileText, 
-  Newspaper,
-  UserCircle,
-  LogIn
+  Newspaper 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchBar from "./SearchBar";
-import { useAuth } from "../contexts/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MenuItem {
   id: number;
@@ -127,185 +123,6 @@ const mobileMenuVariants = {
   }
 };
 
-// Mobile auth component for mobile menu
-interface MobileAuthAreaProps {
-  closeMobileMenu: () => void;
-}
-
-const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
-  const { user, logout, isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
-
-  if (user && isAuthenticated()) {
-    // Create fallback initials safely
-    const getInitials = () => {
-      if (!user.fullName) return 'U';
-      return user.fullName.split(' ').map(n => n[0]).join('') || 'U';
-    };
-
-    return (
-      <div className="flex flex-col">
-        <div className="flex items-center space-x-3 mb-2">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
-            <AvatarFallback className="text-sm bg-primary-100 text-primary-800">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium text-primary-700">{user.fullName || 'User'}</p>
-            <p className="text-xs text-slate-500">{user.email || ''}</p>
-          </div>
-        </div>
-        <div className="flex space-x-2 mt-1">
-          <Link href="/profile" className="flex-1" onClick={closeMobileMenu}>
-            <button className="w-full py-2 px-3 bg-white rounded-lg shadow-sm text-primary-600 border border-primary-100 text-sm font-medium flex items-center justify-center">
-              <UserCircle className="h-4 w-4 mr-2" />
-              Profile
-            </button>
-          </Link>
-          <button 
-            className="flex-1 py-2 px-3 bg-white rounded-lg shadow-sm text-red-600 border border-red-100 text-sm font-medium flex items-center justify-center"
-            onClick={() => {
-              logout();
-              closeMobileMenu();
-              navigate('/');
-            }}
-          >
-            <LogIn className="h-4 w-4 mr-2" />
-            Logout
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex space-x-3">
-      <Link href="/login" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-3 text-primary-600 bg-white border border-primary-200 rounded-lg shadow-sm text-sm font-medium hover:bg-primary-50 transition-colors duration-200">
-          Login
-        </button>
-      </Link>
-      <Link href="/register" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-3 text-white bg-primary-600 rounded-lg shadow-md text-sm font-medium hover:bg-primary-700 transition-colors duration-200">
-          Sign Up
-        </button>
-      </Link>
-    </div>
-  );
-};
-
-// Auth buttons component to display login/register or profile
-const AuthButtons = () => {
-  const { user, logout, isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Handle click outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  if (user && isAuthenticated()) {
-    // Create fallback initials safely
-    const getInitials = () => {
-      if (!user.fullName) return 'U';
-      return user.fullName.split(' ').map(n => n[0]).join('') || 'U';
-    };
-    
-    // Logged in user
-    return (
-      <motion.div className="relative" variants={itemVariants} ref={dropdownRef}>
-        <motion.button
-          className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200"
-          onClick={() => setShowDropdown(!showDropdown)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Avatar className="h-7 w-7">
-            <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
-            <AvatarFallback className="text-xs bg-primary-100 text-primary-800">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-medium hidden sm:inline-block max-w-[100px] truncate">
-            {user.fullName || 'User'}
-          </span>
-          <ChevronDown className="h-4 w-4" />
-        </motion.button>
-
-        <AnimatePresence>
-          {showDropdown && (
-            <motion.div
-              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="py-2">
-                <Link href="/profile">
-                  <motion.div
-                    className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600"
-                    whileHover={{ x: 3 }}
-                  >
-                    <UserCircle className="h-4 w-4 mr-2" />
-                    Profile
-                  </motion.div>
-                </Link>
-                <button
-                  className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  onClick={() => {
-                    logout();
-                    setShowDropdown(false);
-                    navigate('/');
-                  }}
-                >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Logout
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  }
-
-  // Not logged in
-  return (
-    <motion.div className="flex items-center space-x-2" variants={itemVariants}>
-      <Link href="/login">
-        <motion.button
-          className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200"
-          whileHover={{ y: -2 }}
-          whileTap={{ y: 0 }}
-        >
-          Login
-        </motion.button>
-      </Link>
-      <Link href="/register">
-        <motion.button
-          className="px-4 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Sign Up
-        </motion.button>
-      </Link>
-    </motion.div>
-  );
-};
-
 const Navbar = () => {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -406,76 +223,67 @@ const Navbar = () => {
             animate="visible"
             variants={navVariants}
           >
-            {/* Menu Items */}
-            <div className="flex items-center space-x-4 lg:space-x-6">
-              {menuItems.map((item: MenuItem) => (
-                item.children && item.children.length > 0 ? (
-                  <motion.div key={item.id} className="relative group" variants={itemVariants}>
-                    <button 
+            {menuItems.map((item: MenuItem) => (
+              item.children && item.children.length > 0 ? (
+                <motion.div key={item.id} className="relative group" variants={itemVariants}>
+                  <button 
+                    className={cn(
+                      "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
+                      location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
+                    )}
+                  >
+                    {getMenuIcon(item.title)}
+                    {item.title}
+                    <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
+                  </button>
+                  <motion.div 
+                    className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="py-2">
+                      {item.children.map((child) => (
+                        <Link 
+                          key={child.id} 
+                          href={child.url}
+                        >
+                          <motion.div
+                            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
+                            whileHover={{ x: 5 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            {child.title}
+                          </motion.div>
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div key={item.id} variants={itemVariants}>
+                  <Link href={item.url}>
+                    <motion.div 
                       className={cn(
-                        "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                        location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
+                        "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
+                        location === item.url && "text-primary-600 bg-primary-50/60"
                       )}
+                      whileHover={{ y: -2 }}
+                      transition={{ type: "spring", stiffness: 400 }}
                     >
                       {getMenuIcon(item.title)}
                       {item.title}
-                      <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
-                    </button>
-                    <motion.div 
-                      className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                    >
-                      <div className="py-2">
-                        {item.children.map((child) => (
-                          <Link 
-                            key={child.id} 
-                            href={child.url}
-                          >
-                            <motion.div
-                              className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
-                              whileHover={{ x: 5 }}
-                              transition={{ type: "spring", stiffness: 300 }}
-                            >
-                              {child.title}
-                            </motion.div>
-                          </Link>
-                        ))}
-                      </div>
+                      {location === item.url && (
+                        <motion.div 
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
+                          layoutId="navIndicator"
+                        />
+                      )}
                     </motion.div>
-                  </motion.div>
-                ) : (
-                  <motion.div key={item.id} variants={itemVariants}>
-                    <Link href={item.url}>
-                      <motion.div 
-                        className={cn(
-                          "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                          location === item.url && "text-primary-600 bg-primary-50/60"
-                        )}
-                        whileHover={{ y: -2 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        {getMenuIcon(item.title)}
-                        {item.title}
-                        {location === item.url && (
-                          <motion.div 
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
-                            layoutId="navIndicator"
-                          />
-                        )}
-                      </motion.div>
-                    </Link>
-                  </motion.div>
-                )
-              ))}
-            </div>
-
-            {/* Spacer to push auth buttons and search to the end */}
-            <div className="flex-grow"></div>
-
-            {/* Authentication buttons */}
-            <AuthButtons />
+                  </Link>
+                </motion.div>
+              )
+            ))}
 
             {/* Search Button - Desktop */}
             <motion.button 
@@ -545,13 +353,12 @@ const Navbar = () => {
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <div className="h-6"></div> {/* Empty div for spacing */}
+                  <h2 className="text-lg font-bold text-primary-700">Menu</h2>
                   <button 
-                    className="p-2 rounded-full bg-primary-600 text-white shadow-md"
+                    className="px-3 py-1 bg-primary-600 text-white rounded-lg text-sm font-medium flex items-center"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    aria-label="Close menu"
                   >
-                    <X className="h-5 w-5" />
+                    Close Menu <X className="h-4 w-4 ml-1" />
                   </button>
                 </div>
                 <div className="space-y-3">
@@ -613,12 +420,12 @@ const Navbar = () => {
                         <Link href={item.url}>
                           <motion.div
                             className={cn(
-                              "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
+                              "block px-4 py-3.5 mb-3 rounded-2xl text-base font-bold shadow-md transition-all duration-200 flex items-center",
                               item.title === "Home" 
-                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold" 
+                                ? "bg-primary-600 text-white" 
                                 : location === item.url 
-                                  ? "bg-primary-600 text-white font-bold" 
-                                  : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
+                                  ? "bg-primary-600 text-white" 
+                                  : "bg-white text-slate-900 hover:bg-primary-50 hover:text-primary-600"
                             )}
                             whileHover={{ x: 5 }}
                             transition={{ type: "spring", stiffness: 300 }}
@@ -630,15 +437,6 @@ const Navbar = () => {
                       )}
                     </motion.div>
                   ))}
-                </div>
-                
-                {/* Mobile Auth Buttons - Now at the bottom */}
-                <div className="mt-6 pt-6 border-t border-slate-200">
-                  <div className="p-3 bg-white rounded-xl shadow-sm">
-                    <MobileAuthArea 
-                      closeMobileMenu={() => setIsMobileMenuOpen(false)}
-                    />
-                  </div>
                 </div>
               </div>
             </motion.div>
