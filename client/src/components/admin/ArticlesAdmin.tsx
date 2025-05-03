@@ -703,7 +703,7 @@ const ArticlesAdmin = () => {
                     onClick={() => {
                       setEditForm({
                         ...editForm,
-                        relatedArticles: [...editForm.relatedArticles, ""]
+                        relatedArticles: [...(editForm.relatedArticles || []), ""]
                       });
                     }}
                   >
@@ -721,7 +721,7 @@ const ArticlesAdmin = () => {
                         <Select
                           value={relatedArticle}
                           onValueChange={(value) => {
-                            const relatedArticles = [...editForm.relatedArticles];
+                            const relatedArticles = [...(editForm.relatedArticles || [])];
                             relatedArticles[index] = value;
                             setEditForm({
                               ...editForm,
@@ -758,7 +758,7 @@ const ArticlesAdmin = () => {
                           size="icon"
                           className="h-9 w-9 text-red-500 hover:text-red-700"
                           onClick={() => {
-                            const relatedArticles = [...editForm.relatedArticles];
+                            const relatedArticles = [...(editForm.relatedArticles || [])];
                             relatedArticles.splice(index, 1);
                             setEditForm({
                               ...editForm,
