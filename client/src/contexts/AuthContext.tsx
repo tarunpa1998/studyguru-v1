@@ -11,6 +11,7 @@ interface AuthContextType {
   logout: () => void;
   googleLogin: (token: string) => Promise<boolean>;
   updateProfile: (data: { fullName?: string; profileImage?: string }) => Promise<boolean>;
+  isAuthenticated: () => boolean;
 }
 
 // Create the auth context
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   googleLogin: async () => false,
   updateProfile: async () => false,
+  isAuthenticated: () => false,
 });
 
 // Hook to use the auth context
@@ -165,6 +167,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to check if user is authenticated
+  const isAuthenticated = () => {
+    return !!user && !!localStorage.getItem('authToken');
   };
 
   // Provide the auth context

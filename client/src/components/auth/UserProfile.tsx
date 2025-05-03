@@ -1,204 +1,335 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '../../contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Pencil, Save, X, UserCircle, FileText, GraduationCap, MessageSquare } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { authApi } from '../../lib/authApi';
-
-// Form validation schema
-const profileSchema = z.object({
-  fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  profileImage: z.string().url().optional().or(z.literal('')),
-});
-
-type ProfileFormData = z.infer<typeof profileSchema>;
+import { Link } from 'wouter';
 
 const UserProfile: React.FC = () => {
-  const { user, updateProfile, logout } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user, updateProfile } = useAuth();
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [profileImage, setProfileImage] = useState(user?.profileImage || '');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      fullName: user?.fullName || '',
-      profileImage: user?.profileImage || '',
-    },
+  // Define comment type
+  interface UserComment {
+    id: string;
+    articleSlug: string;
+    articleTitle: string;
+    content: string;
+    createdAt: string;
+  }
+
+  // Query to fetch user's comments
+  const { data: userComments = [] as UserComment[], isLoading: commentsLoading } = useQuery<UserComment[]>({
+    queryKey: ['/api/user/comments'],
+    enabled: !!user, // Only run if user is authenticated
   });
 
-  // Fetch user's saved articles
-  const { data: userComments, isLoading: commentsLoading } = useQuery({
-    queryKey: ['userComments'],
-    queryFn: () => authApi.getUserComments(),
-    enabled: !!user,
-  });
-
-  const onSubmit = async (data: ProfileFormData) => {
-    setLoading(true);
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
     try {
-      await updateProfile(data);
+      await updateProfile({ fullName, profileImage });
+      setIsEditing(false);
+      toast({
+        title: "Profile updated!",
+        description: "Your profile information has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error updating profile",
+        description: "There was a problem updating your profile. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  const handleCancelEdit = () => {
+    setFullName(user?.fullName || '');
+    setProfileImage(user?.profileImage || '');
+    setIsEditing(false);
+  };
+
   if (!user) {
-    return <div>Please log in to view your profile.</div>;
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center justify-center py-10">
+            <UserCircle className="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Not Logged In</h3>
+            <p className="text-muted-foreground mb-4">Please log in to view your profile</p>
+            <Link href="/login">
+              <Button>Log In</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-      
-      <Tabs defaultValue="profile">
-        <TabsList className="mb-6">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="comments">My Comments</TabsTrigger>
-          <TabsTrigger value="saved">Saved Items</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="profile">
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-2xl">My Profile</CardTitle>
+        <CardDescription>
+          Manage your account information and view saved content
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="profile">Profile Info</TabsTrigger>
+            <TabsTrigger value="saved-content">Saved Content</TabsTrigger>
+            <TabsTrigger value="comments">My Comments</TabsTrigger>
+          </TabsList>
+          
+          {/* Profile Info Tab */}
+          <TabsContent value="profile">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex flex-col items-center">
+                <Avatar className="w-32 h-32 mb-4">
                   <AvatarImage src={user.profileImage} alt={user.fullName} />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-xl">
                     {user.fullName.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <CardTitle className="text-2xl font-bold">{user.fullName}</CardTitle>
-                  <CardDescription>{user.email}</CardDescription>
-                </div>
+                {!isEditing && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                )}
               </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input 
-                    id="fullName" 
-                    placeholder="John Doe" 
-                    {...register('fullName')} 
-                  />
-                  {errors.fullName && (
-                    <p className="text-sm text-red-500">{errors.fullName.message}</p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="profileImage">Profile Image URL</Label>
-                  <Input 
-                    id="profileImage" 
-                    placeholder="https://example.com/image.jpg" 
-                    {...register('profileImage')} 
-                  />
-                  {errors.profileImage && (
-                    <p className="text-sm text-red-500">{errors.profileImage.message}</p>
-                  )}
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    'Update Profile'
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" onClick={logout}>
-                Log Out
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="comments">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Comments</CardTitle>
-              <CardDescription>Comments you've made on articles</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {commentsLoading ? (
-                <div className="flex justify-center p-4">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
-              ) : userComments && userComments.length > 0 ? (
-                <div className="space-y-4">
-                  {userComments.map((comment: any) => (
-                    <div key={comment.commentId} className="border rounded-lg p-4">
-                      <div className="flex justify-between mb-2">
-                        <h3 className="font-medium">On article: {comment.articleTitle}</h3>
-                        <span className="text-sm text-gray-500">
-                          {new Date(comment.createdAt).toLocaleDateString()}
-                        </span>
+              
+              <div className="flex-1 space-y-4">
+                {isEditing ? (
+                  // Edit Mode
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Full Name</label>
+                      <Input 
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Your full name" 
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Profile Image URL</label>
+                      <Input 
+                        value={profileImage}
+                        onChange={(e) => setProfileImage(e.target.value)}
+                        placeholder="https://example.com/your-image.jpg" 
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Enter a URL to an image. For best results, use a square image.
+                      </p>
+                    </div>
+                    
+                    <div className="pt-4 flex space-x-2">
+                      <Button 
+                        onClick={handleSaveProfile}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Changes
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleCancelEdit}
+                        disabled={isLoading}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  // View Mode
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                      <p className="text-lg font-medium">{user.fullName}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">Email</label>
+                      <p className="text-lg">{user.email}</p>
+                    </div>
+                    
+                    <div className="space-y-2 pt-2">
+                      <label className="text-sm font-medium text-muted-foreground">Account Status</label>
+                      <div>
+                        <Badge variant="outline" className="bg-primary-50 text-primary-700">
+                          Active Member
+                        </Badge>
                       </div>
-                      <p>{comment.content}</p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center py-4">You haven't made any comments yet.</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="saved">
-          <Card>
-            <CardHeader>
-              <CardTitle>Saved Items</CardTitle>
-              <CardDescription>Articles and scholarships you've saved</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Saved Articles</h3>
-                  {user.savedArticles && user.savedArticles.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Article cards would go here */}
-                      <p>This feature will be implemented in future iterations.</p>
-                    </div>
-                  ) : (
-                    <p className="text-center py-2">You haven't saved any articles yet.</p>
-                  )}
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Saved Scholarships</h3>
-                  {user.savedScholarships && user.savedScholarships.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Scholarship cards would go here */}
-                      <p>This feature will be implemented in future iterations.</p>
-                    </div>
-                  ) : (
-                    <p className="text-center py-2">You haven't saved any scholarships yet.</p>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </div>
+          </TabsContent>
+          
+          {/* Saved Content Tab */}
+          <TabsContent value="saved-content">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center">
+                    <FileText className="w-5 h-5 mr-2 text-primary-500" />
+                    Saved Articles
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {user.savedArticles && user.savedArticles.length > 0 ? (
+                    <ul className="space-y-2">
+                      {user.savedArticles.map((article: string) => (
+                        <li key={article} className="p-2 hover:bg-slate-50 rounded-md">
+                          <Link href={`/articles/${article}`}>
+                            <a className="text-primary-600 hover:underline">{article}</a>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <FileText className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                      <p>No saved articles yet</p>
+                      <Link href="/articles">
+                        <Button variant="link" className="mt-2">Browse Articles</Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center">
+                    <GraduationCap className="w-5 h-5 mr-2 text-primary-500" />
+                    Saved Scholarships
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {user.savedScholarships && user.savedScholarships.length > 0 ? (
+                    <ul className="space-y-2">
+                      {user.savedScholarships.map((scholarship: string) => (
+                        <li key={scholarship} className="p-2 hover:bg-slate-50 rounded-md">
+                          <Link href={`/scholarships/${scholarship}`}>
+                            <a className="text-primary-600 hover:underline">{scholarship}</a>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                      <p>No saved scholarships yet</p>
+                      <Link href="/scholarships">
+                        <Button variant="link" className="mt-2">Browse Scholarships</Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          {/* Comments Tab */}
+          <TabsContent value="comments">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center">
+                  <MessageSquare className="w-5 h-5 mr-2 text-primary-500" />
+                  My Comments
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {commentsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+                  </div>
+                ) : userComments.length > 0 ? (
+                  <ul className="space-y-4">
+                    {userComments.map((comment) => (
+                      <li key={comment.id} className="border-b pb-3 last:border-0">
+                        <div className="flex justify-between mb-1">
+                          <Link href={`/articles/${comment.articleSlug}`}>
+                            <span className="text-sm font-medium text-primary-600 hover:underline">
+                              {comment.articleTitle}
+                            </span>
+                          </Link>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(comment.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm">{comment.content}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>You haven't made any comments yet</p>
+                    <Link href="/articles">
+                      <Button variant="link" className="mt-2">Browse Articles</Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+      <CardFooter className="border-t pt-6 flex justify-between">
+        <p className="text-sm text-muted-foreground">
+          Member since {new Date().toLocaleDateString()}
+        </p>
+        <Link href="/">
+          <Button variant="ghost">
+            Back to Home
+          </Button>
+        </Link>
+      </CardFooter>
+    </Card>
   );
 };
 

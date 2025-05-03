@@ -1,104 +1,66 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '../../contexts/AuthContext';
 import { useLocation } from 'wouter';
+import { useAuth } from '../../contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
 
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: any) => void;
-          renderButton: (element: HTMLElement, options: any) => void;
-          prompt: () => void;
-        };
-      };
-    };
-  }
-}
-
-const GoogleLoginButton = () => {
+const GoogleLoginButton: React.FC = () => {
   const { googleLogin } = useAuth();
-  const { toast } = useToast();
   const [, navigate] = useLocation();
   const [loading, setLoading] = useState(false);
-  const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
 
-  useEffect(() => {
-    // Check if the Google script is already loaded
-    if (window.google?.accounts) {
-      setGoogleScriptLoaded(true);
-      return;
-    }
-
-    // Add the Google script
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setGoogleScriptLoaded(true);
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!googleScriptLoaded || !window.google?.accounts) return;
-
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
-      callback: async (response: any) => {
-        if (response.credential) {
-          setLoading(true);
-          try {
-            const success = await googleLogin(response.credential);
-            if (success) {
-              navigate('/');
-            }
-          } catch (error) {
-            console.error('Google login error:', error);
-            toast({
-              variant: 'destructive',
-              title: 'Login failed',
-              description: 'Failed to login with Google. Please try again.',
-            });
-          } finally {
-            setLoading(false);
-          }
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      // Get the access token
+      const accessToken = tokenResponse.access_token;
+      setLoading(true);
+      try {
+        const success = await googleLogin(accessToken);
+        if (success) {
+          navigate('/');
         }
-      },
-      ux_mode: 'popup',
-    });
-
-    const buttonContainer = document.getElementById('google-signin-button');
-    if (buttonContainer) {
-      window.google.accounts.id.renderButton(buttonContainer, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        width: '100%',
-      });
-    }
-  }, [googleScriptLoaded, googleLogin, navigate, toast]);
+      } catch (error) {
+        console.error('Google login error:', error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      console.error('Google login failed');
+      setLoading(false);
+    },
+  });
 
   return (
-    <div className="w-full">
-      {!googleScriptLoaded ? (
-        <Button variant="outline" className="w-full" disabled>
-          Loading Google Sign-In...
-        </Button>
+    <Button 
+      type="button" 
+      variant="outline" 
+      className="w-full flex items-center justify-center"
+      onClick={() => login()}
+      disabled={loading}
+    >
+      {loading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
-        <div 
-          id="google-signin-button" 
-          className="w-full flex justify-center"
-        ></div>
+        <svg
+          className="mr-2 h-4 w-4"
+          aria-hidden="true"
+          focusable="false"
+          data-prefix="fab"
+          data-icon="google"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 488 512"
+        >
+          <path
+            fill="currentColor"
+            d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+          ></path>
+        </svg>
       )}
-    </div>
+      {loading ? "Signing in..." : "Continue with Google"}
+    </Button>
   );
 };
 

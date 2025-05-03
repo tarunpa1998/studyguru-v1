@@ -1,34 +1,21 @@
-import React, { useEffect } from 'react';
-import { useLocation } from 'wouter';
+import React from 'react';
 import UserProfile from '@/components/auth/UserProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { Redirect } from 'wouter';
 
 const Profile: React.FC = () => {
-  const { user, loading } = useAuth();
-  const [, navigate] = useLocation();
-
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
-
-  if (loading) {
-    return (
-      <div className="container mx-auto py-10 px-4 flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect in useEffect
+  const { isAuthenticated } = useAuth();
+  
+  // Redirect to login if not authenticated
+  if (!isAuthenticated()) {
+    return <Redirect to="/login" />;
   }
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <UserProfile />
+      <div className="max-w-4xl mx-auto">
+        <UserProfile />
+      </div>
     </div>
   );
 };
