@@ -20,37 +20,48 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
  * @access  Public
  */
 router.post('/register', async (req: Request, res: Response) => {
+  // Enhanced debugging
   log(`Register request received with data: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`, 'auth');
+  console.log(`[DEBUG] Register request body: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`);
+  
   const { fullName, email, password } = req.body;
 
   // Validate request data
   if (!fullName || !email || !password) {
     log('Missing required fields for registration', 'auth');
+    console.log('[DEBUG] Missing required fields for registration');
     return res.status(400).json({ message: 'Please provide all required fields: fullName, email, password' });
   }
 
   try {
     // Connect to MongoDB
     log('Connecting to database...', 'auth');
+    console.log('[DEBUG] Connecting to MongoDB database...');
     const conn = await connectToDatabase();
     if (!conn) {
       log('Failed to connect to MongoDB', 'auth');
+      console.log('[DEBUG] Failed to connect to MongoDB');
       return res.status(500).json({ message: 'Database connection failed' });
     }
     log('Connected to MongoDB', 'auth');
+    console.log('[DEBUG] Connected to MongoDB successfully');
 
     // Check if user already exists
     log(`Checking if user exists with email: ${email}`, 'auth');
+    console.log(`[DEBUG] Checking if user exists with email: ${email}`);
     const existingUser = await ActiveUser.findOne({ email });
     
     if (existingUser) {
       log(`User already exists with email: ${email}`, 'auth');
+      console.log(`[DEBUG] User already exists with email: ${email}`);
       return res.status(400).json({ message: 'User already exists with this email' });
     }
+    console.log(`[DEBUG] No existing user found with email: ${email}`);
 
     try {
-      // Create new user
+      // Create new user - ensure we use empty arrays for collections
       log('Creating new user document', 'auth');
+      console.log('[DEBUG] Creating new user document');
       const newUser = new ActiveUser({
         fullName,
         email,
@@ -62,42 +73,59 @@ router.post('/register', async (req: Request, res: Response) => {
 
       // Save user to database
       log('Saving user to database...', 'auth');
+      console.log('[DEBUG] Saving user to database...');
       await newUser.save();
+      console.log(`[DEBUG] User saved with ID: ${newUser._id}`);
       log(`User saved with ID: ${newUser._id}`, 'auth');
 
-      // Create token payload
+      // Create token payload with string ID
       const payload = {
-        id: newUser._id,
+        id: newUser._id.toString(),
         email: newUser.email,
         fullName: newUser.fullName
       };
 
-      // Sign JWT synchronously to avoid callback issues
+      // Sign JWT synchronously and explicitly provide error handling
+      log('Generating JWT token...', 'auth');
+      console.log('[DEBUG] Generating JWT token...');
+      
       try {
-        log('Generating JWT token...', 'auth');
+        // Create token with synchronous signing
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+        console.log('[DEBUG] JWT token generated successfully');
         
-        // Return user data with token
+        // Format user object for response
+        const userResponse = {
+          id: newUser._id.toString(),
+          fullName: newUser.fullName,
+          email: newUser.email,
+          profileImage: newUser.profileImage || '',
+          savedArticles: [],
+          savedScholarships: []
+        };
+        
+        // Create full response object
+        const responseData = { token, user: userResponse };
+        
+        // Log success and response data
         log('Registration successful, returning user data with token', 'auth');
-        return res.status(201).json({ 
-          token,
-          user: {
-            id: newUser._id,
-            fullName: newUser.fullName,
-            email: newUser.email,
-            profileImage: newUser.profileImage || ''
-          }
-        });
+        console.log('[DEBUG] Registration successful, response data:', JSON.stringify(responseData));
+        
+        // Return success response
+        return res.status(201).json(responseData);
       } catch (jwtError) {
         log(`JWT signing error: ${jwtError}`, 'auth');
+        console.error('[DEBUG] JWT signing error:', jwtError);
         return res.status(500).json({ message: 'Error generating authentication token' });
       }
     } catch (saveError: any) {
       log(`Error saving user to database: ${saveError.message}`, 'auth');
+      console.error('[DEBUG] Error saving user to database:', saveError);
       return res.status(500).json({ message: 'Error creating user account' });
     }
   } catch (err: any) {
     log(`Registration error: ${err.message}`, 'auth');
+    console.error('[DEBUG] Registration error:', err);
     return res.status(500).json({ message: 'Server error during registration' });
   }
 });
@@ -108,74 +136,101 @@ router.post('/register', async (req: Request, res: Response) => {
  * @access  Public
  */
 router.post('/login', async (req: Request, res: Response) => {
-  log(`Login request received with data: ${JSON.stringify(req.body)}`, 'auth');
+  // Enhanced debugging
+  log(`Login request received with data: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`, 'auth');
+  console.log(`[DEBUG] Login request body: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`);
+  
   const { email, password } = req.body;
 
   // Validate request data
   if (!email || !password) {
     log('Missing required fields for login', 'auth');
+    console.log('[DEBUG] Missing required fields for login');
     return res.status(400).json({ message: 'Please provide email and password' });
   }
 
   try {
     // Connect to MongoDB
     log('Connecting to database...', 'auth');
+    console.log('[DEBUG] Connecting to MongoDB database...');
     const conn = await connectToDatabase();
     if (!conn) {
       log('Failed to connect to MongoDB', 'auth');
+      console.log('[DEBUG] Failed to connect to MongoDB');
       return res.status(500).json({ message: 'Database connection failed' });
     }
     log('Connected to MongoDB', 'auth');
+    console.log('[DEBUG] Connected to MongoDB successfully');
 
     // Check for existing user
     log(`Checking if user exists with email: ${email}`, 'auth');
+    console.log(`[DEBUG] Checking if user exists with email: ${email}`);
     const user = await ActiveUser.findOne({ email });
     
     if (!user) {
       log(`No user found with email: ${email}`, 'auth');
+      console.log(`[DEBUG] No user found with email: ${email}`);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     log(`User found with ID: ${user._id}`, 'auth');
+    console.log(`[DEBUG] User found with ID: ${user._id}`);
 
     // Validate password
     log('Validating password...', 'auth');
+    console.log('[DEBUG] Validating password...');
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
       log('Password validation failed', 'auth');
+      console.log('[DEBUG] Password validation failed');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     log('Password validated successfully', 'auth');
+    console.log('[DEBUG] Password validated successfully');
 
-    // Create token payload
+    // Create token payload with string ID
     const payload = {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       fullName: user.fullName
     };
 
     // Sign JWT synchronously to avoid callback issues
+    log('Generating JWT token...', 'auth');
+    console.log('[DEBUG] Generating JWT token...');
+    
     try {
-      log('Generating JWT token...', 'auth');
+      // Create token with synchronous signing
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+      console.log('[DEBUG] JWT token generated successfully');
       
-      // Return user data with token
+      // Format user object for response
+      const userResponse = {
+        id: user._id.toString(),
+        fullName: user.fullName,
+        email: user.email,
+        profileImage: user.profileImage || '',
+        savedArticles: Array.isArray(user.savedArticles) ? user.savedArticles.map(id => id.toString()) : [],
+        savedScholarships: Array.isArray(user.savedScholarships) ? user.savedScholarships.map(id => id.toString()) : []
+      };
+      
+      // Create full response object
+      const responseData = { token, user: userResponse };
+      
+      // Log success and response data
       log('Login successful, returning user data with token', 'auth');
-      return res.json({ 
-        token,
-        user: {
-          id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-          profileImage: user.profileImage || ''
-        }
-      });
+      console.log('[DEBUG] Login successful, response data:', JSON.stringify(responseData));
+      
+      // Return success response
+      return res.status(200).json(responseData);
     } catch (jwtError) {
       log(`JWT signing error: ${jwtError}`, 'auth');
+      console.error('[DEBUG] JWT signing error:', jwtError);
       return res.status(500).json({ message: 'Error generating authentication token' });
     }
   } catch (err) {
     log(`Login error: ${err}`, 'auth');
+    console.error('[DEBUG] Login error:', err);
     res.status(500).json({ message: 'Server error during login' });
   }
 });

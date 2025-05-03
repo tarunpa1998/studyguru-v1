@@ -54,21 +54,35 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       const { confirmPassword, ...registerData } = data;
       console.log('Submitting registration form with data:', {...registerData, password: '******'});
       
-      const success = await registerUser(registerData);
+      // Add a small timeout to ensure all console logs are flushed
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      if (success) {
-        console.log('Registration successful, redirecting...');
-        if (onSuccess) {
-          onSuccess();
+      try {
+        console.log('Calling registerUser with data:', {...registerData, password: '******'});
+        const success = await registerUser(registerData);
+        
+        if (success) {
+          console.log('Registration successful, redirecting...');
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            navigate('/');
+          }
         } else {
-          navigate('/');
+          console.error('Registration returned false, setting error message');
+          setError('Registration failed. Please try again.');
         }
-      } else {
-        setError('Registration failed. Please try again.');
+      } catch (apiError: any) {
+        console.error('Registration API call error:', apiError);
+        const errorMessage = apiError?.response?.data?.message || 
+                            apiError?.message || 
+                            'An error occurred during registration. Please try again.';
+        console.error('Setting error message:', errorMessage);
+        setError(errorMessage);
       }
     } catch (error: any) {
-      console.error('Registration error:', error);
-      setError(error?.message || 'An error occurred during registration. Please try again.');
+      console.error('Registration form submission error:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
