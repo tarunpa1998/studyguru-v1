@@ -125,20 +125,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterData) => {
     try {
       setLoading(true);
-      const response = await authApi.register(data);
-      localStorage.setItem('authToken', response.token);
-      setUser(response.user);
-      toast({
-        title: 'Registration successful',
-        description: `Welcome, ${response.user.fullName}!`,
-      });
-      return true;
+      console.log('AuthContext: Registering user:', {...data, password: '[REDACTED]'});
+      
+      try {
+        const response = await authApi.register(data);
+        console.log('AuthContext: Registration API response:', response);
+        
+        if (response && response.token) {
+          console.log('AuthContext: Saving token to localStorage');
+          localStorage.setItem('authToken', response.token);
+          setUser(response.user);
+          toast({
+            title: 'Registration successful',
+            description: `Welcome, ${response.user.fullName}!`,
+          });
+          return true;
+        } else {
+          console.error('AuthContext: Missing token in response:', response);
+          toast({
+            variant: 'destructive',
+            title: 'Registration failed',
+            description: 'Invalid server response. Please try again.',
+          });
+          return false;
+        }
+      } catch (apiError: any) {
+        console.error('AuthContext: Registration error:', apiError);
+        console.error('AuthContext: Error details:', apiError.response?.data);
+        
+        const message = apiError.response?.data?.message || 'Registration failed. Please try again.';
+        toast({
+          variant: 'destructive',
+          title: 'Registration failed',
+          description: message,
+        });
+        return false;
+      }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registration failed';
+      console.error('AuthContext: Unexpected error in register function:', error);
       toast({
         variant: 'destructive',
-        title: 'Registration failed',
-        description: message,
+        title: 'Registration error',
+        description: 'An unexpected error occurred. Please try again.',
       });
       return false;
     } finally {

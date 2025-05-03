@@ -68,14 +68,28 @@ function Router() {
       
       {/* Admin routes - completely separate from the regular auth system */}
       <Route path="/admin/login" component={AdminLogin} />
+      {/* Simple root admin route handler */}
       <Route path="/admin">
         {() => {
           // This root admin route will just redirect to dashboard
+          const [, navigate] = useLocation();
           const token = localStorage.getItem('adminToken');
-          if (!token) {
-            return <Redirect to="/admin/login" />;
-          }
-          return <Redirect to="/admin/dashboard" />;
+          
+          // Use effect to handle navigation
+          useEffect(() => {
+            if (!token) {
+              navigate('/admin/login');
+            } else {
+              navigate('/admin/dashboard');
+            }
+          }, [navigate, token]);
+          
+          // Return loading spinner while redirecting
+          return (
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+            </div>
+          );
         }}
       </Route>
       <AdminProtectedRoute path="/admin/dashboard" component={AdminDashboard} />

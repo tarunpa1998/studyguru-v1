@@ -75,11 +75,31 @@ export const authApi = {
   register: async (userData: RegisterData): Promise<AuthResponse> => {
     console.log('Registering new user:', {...userData, password: '******'});
     try {
+      // Make the API request
       const response = await api.post<AuthResponse>('/auth/register', userData);
+      console.log('Registration API response:', response);
+      
+      if (!response || !response.data) {
+        console.error('Empty response received from server during registration');
+        throw new Error('Invalid response from server');
+      }
+      
+      if (!response.data.token || !response.data.user) {
+        console.error('Invalid response format from server:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+      
       console.log('Registration successful, token received');
       return response.data;
     } catch (error: any) {
-      console.error('Registration error:', error.response?.status, error.response?.data);
+      console.error('Registration error details:', error);
+      if (error.response) {
+        console.error('Server response:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('No response received from server');
+      } else {
+        console.error('Error setting up request:', error.message);
+      }
       throw error;
     }
   },
