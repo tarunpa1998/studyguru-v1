@@ -12,12 +12,16 @@ import {
   FileText, 
   Newspaper,
   UserCircle,
-  LogIn
+  LogIn,
+  Moon,
+  Sun
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ThemeToggle from "./ThemeToggle";
 
 interface MenuItem {
   id: number;
@@ -273,7 +277,7 @@ const Navbar = () => {
   return (
     <header 
       className={cn(
-        "sticky top-0 bg-white z-50 transition-shadow duration-300",
+        "sticky top-0 bg-background z-50 transition-shadow duration-300",
         isScrolled || isMobileMenuOpen || isSearchOpen ? "shadow-md" : "shadow-sm"
       )}
     >
@@ -343,10 +347,13 @@ const Navbar = () => {
 
             {/* Authentication buttons */}
             <AuthButtons />
+            
+            {/* Theme Toggle - Desktop */}
+            <ThemeToggle />
 
             {/* Search Button - Desktop */}
             <button 
-              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200" 
+              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" 
               aria-label="Search"
               onClick={toggleSearch}
             >
@@ -394,7 +401,7 @@ const Navbar = () => {
             {/* Menu Content */}
             <div 
               ref={menuRef}
-              className="md:hidden fixed inset-x-0 top-16 bg-white shadow-lg z-40 max-h-[80vh] overflow-y-auto"
+              className="md:hidden fixed inset-x-0 top-16 bg-background shadow-lg z-40 max-h-[80vh] overflow-y-auto"
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
                 <div className="space-y-3">
@@ -448,9 +455,20 @@ const Navbar = () => {
                   ))}
                 </div>
                 
+                {/* Mobile Theme Toggle */}
+                <div className="mt-6 pt-4 border-t border-slate-200">
+                  <div className="flex justify-center">
+                    <div className="flex items-center gap-2">
+                      <Sun className="h-5 w-5 text-amber-500" />
+                      <ThemeToggle />
+                      <Moon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Mobile Auth Buttons */}
                 <div className="mt-6 pt-6 border-t border-slate-200">
-                  <div className="p-3 bg-white rounded-xl shadow-sm">
+                  <div className="p-3 bg-white rounded-xl shadow-sm dark:bg-slate-800">
                     <MobileAuthArea 
                       closeMobileMenu={() => setIsMobileMenuOpen(false)}
                     />

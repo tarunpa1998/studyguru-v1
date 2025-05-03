@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ProtectedRoute } from "./lib/ProtectedRoute";
 import { AdminProtectedRoute } from "./lib/AdminProtectedRoute";
@@ -125,18 +126,20 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <div className="flex flex-col min-h-screen">
-              {!isAdminRoute && <Navbar />}
-              <div className="flex-grow">
-                <Router />
+        <ThemeProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <div className="flex flex-col min-h-screen bg-background text-foreground">
+                {!isAdminRoute && <Navbar />}
+                <div className="flex-grow">
+                  <Router />
+                </div>
+                {!isAdminRoute && <Footer />}
               </div>
-              {!isAdminRoute && <Footer />}
-            </div>
-          </TooltipProvider>
-        </AuthProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </GoogleOAuthProvider>
     </QueryClientProvider>
   );
