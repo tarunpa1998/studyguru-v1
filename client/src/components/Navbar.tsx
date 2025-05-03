@@ -220,13 +220,13 @@ const AuthButtons = () => {
           whileTap={{ scale: 0.97 }}
         >
           <Avatar className="h-7 w-7">
-            <AvatarImage src={user.profileImage} alt={user.fullName} />
+            <AvatarImage src={user?.profileImage} alt={user?.fullName || 'User'} />
             <AvatarFallback className="text-xs">
-              {user.fullName.split(' ').map(n => n[0]).join('')}
+              {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
             </AvatarFallback>
           </Avatar>
           <span className="text-sm font-medium hidden sm:inline-block max-w-[100px] truncate">
-            {user.fullName}
+            {user?.fullName || 'User'}
           </span>
           <ChevronDown className="h-4 w-4" />
         </motion.button>

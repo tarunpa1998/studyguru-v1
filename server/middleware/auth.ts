@@ -9,8 +9,11 @@ interface UserPayload {
 }
 
 // Extend Express Request interface to include user
+// We extend the Express Request interface only if it hasn't been extended already
+// This prevents the 'user' property type conflict
 declare global {
   namespace Express {
+    // Only augment the interface if the user property doesn't exist yet
     interface Request {
       user?: UserPayload;
     }
