@@ -1,6 +1,5 @@
-import React, { memo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Route, Redirect } from 'wouter';
+import React, { memo, useState, useEffect } from 'react';
+import { Route, Redirect, useLocation } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 interface AdminProtectedRouteProps {
@@ -10,16 +9,58 @@ interface AdminProtectedRouteProps {
 
 /**
  * A wrapper around Route that redirects to the admin login page if the user is not authenticated as an admin
+ * This uses a completely separate authentication mechanism from the regular user auth
  */
 export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = memo(({
   path,
   component: Component,
 }) => {
-  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // Create the render function outside of the return statement
+  // Check admin authentication independently from user auth
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check if admin token exists
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+          console.log('No admin token found, redirecting to admin login');
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+        
+        // Verify token with backend
+        try {
+          const response = await fetch('/api/admin/auth/auth', {
+            headers: {
+              'x-auth-token': token
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Admin authentication failed');
+          }
+          
+          await response.json(); // Just to validate we got a proper response
+          setIsAuthenticated(true);
+        } catch (err) {
+          console.error('Admin token validation error:', err);
+          localStorage.removeItem('adminToken');
+          setIsAuthenticated(false);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+  
+  // Create a memoized render function to prevent infinite renders
   const renderComponent = () => {
-    // Show loading spinner while checking authentication
     if (loading) {
       return (
         <div className="flex items-center justify-center min-h-screen">
@@ -28,18 +69,10 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = memo(({
       );
     }
     
-    // Check if user is authenticated and is an admin
-    // Instead of calling isAuthenticated() which triggers a render,
-    // directly check for token existence and user.isAdmin
-    const token = localStorage.getItem('authToken');
-    const isAdmin = !!token && !!user && user.isAdmin === true;
-    
-    // Redirect to admin login if not authenticated as admin
-    if (!isAdmin) {
+    if (!isAuthenticated) {
       return <Redirect to="/admin/login" />;
     }
     
-    // Render the protected component if authenticated as admin
     return <Component />;
   };
   

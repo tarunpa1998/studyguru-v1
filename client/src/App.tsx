@@ -66,9 +66,18 @@ function Router() {
       <Route path="/register" component={Register} />
       <ProtectedRoute path="/profile" component={Profile} />
       
-      {/* Admin routes */}
+      {/* Admin routes - completely separate from the regular auth system */}
       <Route path="/admin/login" component={AdminLogin} />
-      <AdminProtectedRoute path="/admin" component={AdminDashboard} />
+      <Route path="/admin">
+        {() => {
+          // This root admin route will just redirect to dashboard
+          const token = localStorage.getItem('adminToken');
+          if (!token) {
+            return <Redirect to="/admin/login" />;
+          }
+          return <Redirect to="/admin/dashboard" />;
+        }}
+      </Route>
       <AdminProtectedRoute path="/admin/dashboard" component={AdminDashboard} />
       <AdminProtectedRoute path="/admin/articles" component={AdminDashboard} />
       <AdminProtectedRoute path="/admin/news" component={AdminDashboard} />
