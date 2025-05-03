@@ -29,7 +29,7 @@ export interface LoginData {
 
 // Setup axios instance with common headers
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: '/',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -132,8 +132,24 @@ export const authApi = {
 
   // Login with Google
   googleLogin: async (token: string): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/google', { token });
-    return response.data;
+    console.log('Attempting Google login with token');
+    try {
+      // Use the direct API endpoint to bypass Vite middleware
+      const response = await api.post<AuthResponse>('/direct-api/auth/google', { token });
+      
+      // Store the token in localStorage
+      if (response.data && response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        console.log('Google login successful, token received and stored');
+      } else {
+        console.warn('Google login successful but no token received');
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('Google login error:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   // Get current user data
@@ -152,73 +168,73 @@ export const authApi = {
 
   // Save article
   saveArticle: async (articleId: string): Promise<{ message: string, savedArticles: string[] }> => {
-    const response = await api.post(`/user/save-article/${articleId}`);
+    const response = await api.post(`/direct-api/user/save-article/${articleId}`);
     return response.data;
   },
 
   // Unsave article
   unsaveArticle: async (articleId: string): Promise<{ message: string, savedArticles: string[] }> => {
-    const response = await api.delete(`/user/unsave-article/${articleId}`);
+    const response = await api.delete(`/direct-api/user/unsave-article/${articleId}`);
     return response.data;
   },
 
   // Save scholarship
   saveScholarship: async (scholarshipId: string): Promise<{ message: string, savedScholarships: string[] }> => {
-    const response = await api.post(`/user/save-scholarship/${scholarshipId}`);
+    const response = await api.post(`/direct-api/user/save-scholarship/${scholarshipId}`);
     return response.data;
   },
 
   // Unsave scholarship
   unsaveScholarship: async (scholarshipId: string): Promise<{ message: string, savedScholarships: string[] }> => {
-    const response = await api.delete(`/user/unsave-scholarship/${scholarshipId}`);
+    const response = await api.delete(`/direct-api/user/unsave-scholarship/${scholarshipId}`);
     return response.data;
   },
 
   // Like article
   likeArticle: async (articleId: string): Promise<{ message: string, likes: number }> => {
-    const response = await api.post(`/likes/article/${articleId}`);
+    const response = await api.post(`/direct-api/likes/article/${articleId}`);
     return response.data;
   },
 
   // Unlike article
   unlikeArticle: async (articleId: string): Promise<{ message: string, likes: number }> => {
-    const response = await api.delete(`/likes/article/${articleId}`);
+    const response = await api.delete(`/direct-api/likes/article/${articleId}`);
     return response.data;
   },
 
   // Get article like count
   getArticleLikes: async (articleId: string): Promise<{ likes: number }> => {
-    const response = await api.get(`/likes/article/${articleId}/count`);
+    const response = await api.get(`/direct-api/likes/article/${articleId}/count`);
     return response.data;
   },
 
   // Check if user liked article
   hasLikedArticle: async (articleId: string): Promise<{ hasLiked: boolean }> => {
-    const response = await api.get(`/likes/article/${articleId}/status`);
+    const response = await api.get(`/direct-api/likes/article/${articleId}/status`);
     return response.data;
   },
 
   // Post comment on article
   postComment: async (articleId: string, content: string): Promise<any> => {
-    const response = await api.post(`/comments/article/${articleId}`, { content });
+    const response = await api.post(`/direct-api/comments/article/${articleId}`, { content });
     return response.data;
   },
 
   // Get comments for article
   getArticleComments: async (articleId: string): Promise<any[]> => {
-    const response = await api.get(`/comments/article/${articleId}`);
+    const response = await api.get(`/direct-api/comments/article/${articleId}`);
     return response.data;
   },
 
   // Update user profile
   updateProfile: async (data: { fullName?: string, profileImage?: string }): Promise<AuthUser> => {
-    const response = await api.put('/user/profile', data);
+    const response = await api.put('/direct-api/user/profile', data);
     return response.data;
   },
 
   // Get user's comments
   getUserComments: async (): Promise<any[]> => {
-    const response = await api.get('/user/comments');
+    const response = await api.get('/direct-api/user/comments');
     return response.data;
   },
 
