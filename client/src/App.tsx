@@ -99,18 +99,20 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <div className="flex flex-col min-h-screen">
-            {!isAdminRoute && <Navbar />}
-            <div className="flex-grow">
-              <Router />
+      <GoogleOAuthProvider clientId={import.meta.env.GOOGLE_CLIENT_ID || ""}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <div className="flex flex-col min-h-screen">
+              {!isAdminRoute && <Navbar />}
+              <div className="flex-grow">
+                <Router />
+              </div>
+              {!isAdminRoute && <Footer />}
             </div>
-            {!isAdminRoute && <Footer />}
-          </div>
-        </TooltipProvider>
-      </AuthProvider>
+          </TooltipProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </QueryClientProvider>
   );
 }
