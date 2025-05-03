@@ -112,9 +112,9 @@ const UserProfile: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col items-center">
                 <Avatar className="w-32 h-32 mb-4">
-                  <AvatarImage src={user.profileImage} alt={user.fullName} />
-                  <AvatarFallback className="text-xl">
-                    {user.fullName.split(' ').map(n => n[0]).join('')}
+                  <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
+                  <AvatarFallback className="text-xl bg-primary-100 text-primary-800">
+                    {user.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
                   </AvatarFallback>
                 </Avatar>
                 {!isEditing && (

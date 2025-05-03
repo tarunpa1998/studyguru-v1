@@ -20,23 +20,36 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
  * @access  Public
  */
 router.post('/register', async (req: Request, res: Response) => {
+  log(`Register request received with data: ${JSON.stringify(req.body)}`, 'auth');
   const { fullName, email, password } = req.body;
+
+  // Validate request data
+  if (!fullName || !email || !password) {
+    log('Missing required fields for registration', 'auth');
+    return res.status(400).json({ message: 'Please provide all required fields: fullName, email, password' });
+  }
 
   try {
     // Connect to MongoDB
+    log('Connecting to database...', 'auth');
     const conn = await connectToDatabase();
     if (!conn) {
+      log('Failed to connect to MongoDB', 'auth');
       return res.status(500).json({ message: 'Database connection failed' });
     }
+    log('Connected to MongoDB', 'auth');
 
     // Check if user already exists
+    log(`Checking if user exists with email: ${email}`, 'auth');
     const existingUser = await ActiveUser.findOne({ email });
     
     if (existingUser) {
+      log(`User already exists with email: ${email}`, 'auth');
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
     // Create new user
+    log('Creating new user document', 'auth');
     const newUser = new ActiveUser({
       fullName,
       email,
@@ -44,7 +57,9 @@ router.post('/register', async (req: Request, res: Response) => {
     });
 
     // Save user to database
+    log('Saving user to database...', 'auth');
     await newUser.save();
+    log(`User saved with ID: ${newUser._id}`, 'auth');
 
     // Create token
     const payload = {
@@ -54,12 +69,18 @@ router.post('/register', async (req: Request, res: Response) => {
     };
 
     // Sign and return JWT
+    log('Generating JWT token...', 'auth');
     jwt.sign(
       payload, 
       JWT_SECRET, 
       { expiresIn: '7d' },
       (err: Error | null, token: string) => {
-        if (err) throw err;
+        if (err) {
+          log(`JWT signing error: ${err}`, 'auth');
+          return res.status(500).json({ message: 'Error generating authentication token' });
+        }
+        
+        log('Registration successful, returning user data with token', 'auth');
         res.status(201).json({ 
           token,
           user: {
@@ -83,28 +104,44 @@ router.post('/register', async (req: Request, res: Response) => {
  * @access  Public
  */
 router.post('/login', async (req: Request, res: Response) => {
+  log(`Login request received with data: ${JSON.stringify(req.body)}`, 'auth');
   const { email, password } = req.body;
+
+  // Validate request data
+  if (!email || !password) {
+    log('Missing required fields for login', 'auth');
+    return res.status(400).json({ message: 'Please provide email and password' });
+  }
 
   try {
     // Connect to MongoDB
+    log('Connecting to database...', 'auth');
     const conn = await connectToDatabase();
     if (!conn) {
+      log('Failed to connect to MongoDB', 'auth');
       return res.status(500).json({ message: 'Database connection failed' });
     }
+    log('Connected to MongoDB', 'auth');
 
     // Check for existing user
+    log(`Checking if user exists with email: ${email}`, 'auth');
     const user = await ActiveUser.findOne({ email });
     
     if (!user) {
+      log(`No user found with email: ${email}`, 'auth');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    log(`User found with ID: ${user._id}`, 'auth');
 
     // Validate password
+    log('Validating password...', 'auth');
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
+      log('Password validation failed', 'auth');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    log('Password validated successfully', 'auth');
 
     // Create token payload
     const payload = {
@@ -114,12 +151,18 @@ router.post('/login', async (req: Request, res: Response) => {
     };
 
     // Sign and return JWT
+    log('Generating JWT token...', 'auth');
     jwt.sign(
       payload, 
       JWT_SECRET, 
       { expiresIn: '7d' },
       (err: Error | null, token: string) => {
-        if (err) throw err;
+        if (err) {
+          log(`JWT signing error: ${err}`, 'auth');
+          return res.status(500).json({ message: 'Error generating authentication token' });
+        }
+        
+        log('Login successful, returning user data with token', 'auth');
         res.json({ 
           token,
           user: {
