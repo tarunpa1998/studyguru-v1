@@ -545,20 +545,14 @@ const Navbar = () => {
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold text-primary-700">Menu</h2>
+                  <div className="h-6"></div> {/* Empty div for spacing */}
                   <button 
-                    className="px-3 py-1 bg-primary-600 text-white rounded-lg text-sm font-medium flex items-center"
+                    className="p-2 rounded-full bg-primary-600 text-white shadow-md"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Close menu"
                   >
-                    Close Menu <X className="h-4 w-4 ml-1" />
+                    <X className="h-5 w-5" />
                   </button>
-                </div>
-                
-                {/* Mobile Auth Buttons */}
-                <div className="mb-4 p-3 bg-primary-50 rounded-xl">
-                  <MobileAuthArea 
-                    closeMobileMenu={() => setIsMobileMenuOpen(false)}
-                  />
                 </div>
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (
