@@ -606,7 +606,7 @@ const Navbar = () => {
                             className={cn(
                               "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
                               item.title === "Home" 
-                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold" 
+                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold border-2 border-primary-500" 
                                 : location === item.url 
                                   ? "bg-primary-600 text-white font-bold" 
                                   : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
