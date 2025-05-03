@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 // University interface based on the MongoDB model
 interface University {
   _id: string;
+  id?: string | number; // Add id as optional to support both ID formats
   name: string;
   description: string;
   overview: string;
@@ -212,8 +213,10 @@ const UniversitiesAdmin = () => {
         throw new Error('Name, description, and country are required');
       }
 
+      // Use the appropriate ID field (supporting both formats)
+      const universityId = currentUniversity?.id || currentUniversity?._id;
       const url = isEditing
-        ? `/api/admin/universities/${currentUniversity?._id}`
+        ? `/api/admin/universities/${universityId}`
         : '/api/admin/universities';
       
       const method = isEditing ? 'PUT' : 'POST';
@@ -508,7 +511,7 @@ const UniversitiesAdmin = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="text-red-500 hover:text-red-700"
-                                onClick={() => handleDelete(university._id)}
+                                onClick={() => handleDelete(university.id || university._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -596,7 +599,7 @@ const UniversitiesAdmin = () => {
                           variant="ghost"
                           size="icon"
                           className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDelete(university._id)}
+                          onClick={() => handleDelete(university.id || university._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
