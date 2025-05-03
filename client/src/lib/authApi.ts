@@ -75,8 +75,8 @@ export const authApi = {
   register: async (userData: RegisterData): Promise<AuthResponse> => {
     console.log('Registering new user:', {...userData, password: '******'});
     try {
-      // Make the API request
-      const response = await api.post<AuthResponse>('/auth/register', userData);
+      // Use the direct API endpoint to bypass Vite middleware
+      const response = await api.post<AuthResponse>('/direct-api/auth/register', userData);
       console.log('Registration API response:', response);
       
       if (!response || !response.data) {
@@ -108,7 +108,8 @@ export const authApi = {
   login: async (credentials: LoginData): Promise<AuthResponse> => {
     console.log('Attempting login with:', credentials.email);
     try {
-      const response = await api.post<AuthResponse>('/auth/login', credentials);
+      // Use the direct API endpoint to bypass Vite middleware
+      const response = await api.post<AuthResponse>('/direct-api/auth/login', credentials);
       console.log('Login successful, token received');
       return response.data;
     } catch (error: any) {
