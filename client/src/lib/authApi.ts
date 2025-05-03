@@ -8,6 +8,7 @@ export interface AuthUser {
   profileImage?: string;
   savedArticles?: string[];
   savedScholarships?: string[];
+  isAdmin?: boolean;
 }
 
 export interface AuthResponse {
@@ -37,27 +38,63 @@ const api = axios.create({
 // Add auth token to requests if available
 api.interceptors.request.use(
   (config: any) => {
+    // Get token from localStorage
     const token = localStorage.getItem('authToken');
+    
     if (token) {
+      console.log(`Adding auth token to request: ${config.url}`);
+      // Set the token in the header
       config.headers['x-auth-token'] = token;
+    } else {
+      console.log(`No auth token for request: ${config.url}`);
     }
     return config;
   },
-  (error: any) => Promise.reject(error)
+  (error: any) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Handle 401 responses globally
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.log('Received 401 unauthorized response - clearing auth token');
+      // Clear token on 401 unauthorized response
+      localStorage.removeItem('authToken');
+    }
+    return Promise.reject(error);
+  }
 );
 
 // Auth API functions
 export const authApi = {
   // Register a new user
   register: async (userData: RegisterData): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/register', userData);
-    return response.data;
+    console.log('Registering new user:', {...userData, password: '******'});
+    try {
+      const response = await api.post<AuthResponse>('/auth/register', userData);
+      console.log('Registration successful, token received');
+      return response.data;
+    } catch (error: any) {
+      console.error('Registration error:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   // Login with email/password
   login: async (credentials: LoginData): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
-    return response.data;
+    console.log('Attempting login with:', credentials.email);
+    try {
+      const response = await api.post<AuthResponse>('/auth/login', credentials);
+      console.log('Login successful, token received');
+      return response.data;
+    } catch (error: any) {
+      console.error('Login error:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   // Login with Google

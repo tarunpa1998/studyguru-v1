@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./contexts/AuthContext";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ProtectedRoute } from "./lib/ProtectedRoute";
+import { AdminProtectedRoute } from "./lib/AdminProtectedRoute";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -62,17 +64,17 @@ function Router() {
       {/* Auth routes */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
-      <Route path="/profile" component={Profile} />
+      <ProtectedRoute path="/profile" component={Profile} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/dashboard" component={AdminDashboard} />
-      <Route path="/admin/articles" component={AdminDashboard} />
-      <Route path="/admin/news" component={AdminDashboard} />
-      <Route path="/admin/scholarships" component={AdminDashboard} />
-      <Route path="/admin/countries" component={AdminDashboard} />
-      <Route path="/admin/universities" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/dashboard" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/articles" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/news" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/scholarships" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/countries" component={AdminDashboard} />
+      <AdminProtectedRoute path="/admin/universities" component={AdminDashboard} />
       
       <Route component={NotFound} />
     </Switch>
