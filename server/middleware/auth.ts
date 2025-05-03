@@ -21,18 +21,24 @@ export function auth(req: Request, res: Response, next: NextFunction) {
 
   // Check if token exists
   if (!token) {
+    console.log('Auth middleware: No token provided');
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as UserPayload;
+    const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
+    console.log(`Auth middleware: Verifying token with secret length: ${JWT_SECRET.length}`);
+    
+    const decoded = jwt.verify(token, JWT_SECRET) as UserPayload;
+    console.log(`Auth middleware: Token verified for user ID: ${decoded.id}`);
     
     // Set user data in request
     (req as AuthenticatedRequest).user = decoded;
     next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token.' });
+  } catch (error: any) {
+    console.error('Auth middleware: Token verification failed:', error.message);
+    res.status(401).json({ error: 'Invalid token. Please log in again.' });
   }
 }
 

@@ -49,26 +49,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         console.log('Auth token found, fetching user data');
         
-        // Fetch current user
-        const userData = await authApi.getCurrentUser();
-        
-        if (!userData || !userData.id) {
-          console.error('Received invalid user data from API:', userData);
-          localStorage.removeItem('authToken');
-          setLoading(false);
-          return;
+        try {
+          // Fetch current user data
+          const userData = await authApi.getCurrentUser();
+          
+          if (!userData || !userData.id) {
+            console.error('Received invalid user data from API:', userData);
+            localStorage.removeItem('authToken');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('User data loaded successfully:', userData);
+          setUser(userData);
+        } catch (apiError: any) {
+          console.error(
+            'API error fetching user data:', 
+            apiError?.response?.status, 
+            apiError?.response?.data
+          );
+          
+          // If we got a 401 Unauthorized response, clear the token
+          if (apiError?.response?.status === 401) {
+            localStorage.removeItem('authToken');
+            toast({
+              variant: 'destructive',
+              title: 'Session Expired',
+              description: 'Your session has expired. Please log in again.',
+            });
+          } else {
+            toast({
+              variant: 'destructive',
+              title: 'Error',
+              description: 'Failed to load user profile. Please try again.',
+            });
+          }
         }
-        
-        console.log('User data loaded successfully');
-        setUser(userData);
       } catch (error: any) {
-        console.error('Failed to load user:', error?.response?.status, error?.response?.data || error.message);
-        toast({
-          variant: 'destructive',
-          title: 'Authentication Error',
-          description: 'Your session has expired. Please log in again.',
-        });
-        localStorage.removeItem('authToken'); // Clear invalid token
+        console.error('Fatal error in loadUser:', error);
+        localStorage.removeItem('authToken'); // Clear possibly corrupted token
       } finally {
         setLoading(false);
       }

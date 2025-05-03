@@ -281,34 +281,39 @@ router.get('/user', auth, async (req: Request, res: Response) => {
     
     log('Connected to MongoDB for user retrieval', 'auth');
     
-    // Fetch user from MongoDB by ID
-    const user = await ActiveUser.findById(req.user.id)
-      .select('-password')
-      .populate('savedArticles', 'title slug image')
-      .populate('savedScholarships', 'title slug');
-    
-    if (!user) {
-      log(`User not found with ID: ${req.user.id}`, 'auth');
-      return res.status(404).json({ message: 'User not found' });
+    try {
+      // Fetch user from MongoDB by ID
+      const user = await ActiveUser.findById(req.user.id)
+        .select('-password')
+        .lean();
+      
+      if (!user) {
+        log(`User not found with ID: ${req.user.id}`, 'auth');
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      log(`User found: ${user.email}`, 'auth');
+      
+      // Transform to match expected client format
+      const userData = {
+        id: user._id.toString(),
+        fullName: user.fullName,
+        email: user.email,
+        profileImage: user.profileImage || '',
+        savedArticles: user.savedArticles || [],
+        savedScholarships: user.savedScholarships || [],
+        isAdmin: !!user.isAdmin
+      };
+      
+      log('Returning user data', 'auth');
+      return res.json(userData);
+    } catch (findError) {
+      log(`Error finding user: ${findError}`, 'auth');
+      return res.status(500).json({ message: 'Error finding user' });
     }
-    
-    log(`User found: ${user.email}`, 'auth');
-    
-    // Transform to match expected client format
-    const userData = {
-      id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      profileImage: user.profileImage || '',
-      savedArticles: user.savedArticles || [],
-      savedScholarships: user.savedScholarships || [],
-    };
-    
-    log('Returning user data', 'auth');
-    res.json(userData);
   } catch (err) {
     log(`Get user error: ${err}`, 'auth');
-    res.status(500).json({ message: 'Server error fetching user data' });
+    return res.status(500).json({ message: 'Server error fetching user data' });
   }
 });
 
