@@ -181,14 +181,14 @@ const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
   }
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-3">
       <Link href="/login" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-2.5 text-primary-600 bg-white border border-primary-200 rounded-lg shadow-sm text-sm font-medium">
+        <button className="w-full py-3 text-primary-600 bg-white border border-primary-200 rounded-lg shadow-sm text-sm font-medium hover:bg-primary-50 transition-colors duration-200">
           Login
         </button>
       </Link>
       <Link href="/register" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-2.5 text-white bg-primary-600 rounded-lg shadow-sm text-sm font-medium">
+        <button className="w-full py-3 text-white bg-primary-600 rounded-lg shadow-md text-sm font-medium hover:bg-primary-700 transition-colors duration-200">
           Sign Up
         </button>
       </Link>
@@ -613,12 +613,12 @@ const Navbar = () => {
                         <Link href={item.url}>
                           <motion.div
                             className={cn(
-                              "block px-4 py-3.5 mb-3 rounded-2xl text-base font-bold shadow-md transition-all duration-200 flex items-center",
+                              "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
                               item.title === "Home" 
-                                ? "bg-primary-600 text-white" 
+                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold" 
                                 : location === item.url 
-                                  ? "bg-primary-600 text-white" 
-                                  : "bg-white text-slate-900 hover:bg-primary-50 hover:text-primary-600"
+                                  ? "bg-primary-600 text-white font-bold" 
+                                  : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
                             )}
                             whileHover={{ x: 5 }}
                             transition={{ type: "spring", stiffness: 300 }}
@@ -630,6 +630,15 @@ const Navbar = () => {
                       )}
                     </motion.div>
                   ))}
+                </div>
+                
+                {/* Mobile Auth Buttons - Now at the bottom */}
+                <div className="mt-6 pt-6 border-t border-slate-200">
+                  <div className="p-3 bg-white rounded-xl shadow-sm">
+                    <MobileAuthArea 
+                      closeMobileMenu={() => setIsMobileMenuOpen(false)}
+                    />
+                  </div>
                 </div>
               </div>
             </motion.div>
