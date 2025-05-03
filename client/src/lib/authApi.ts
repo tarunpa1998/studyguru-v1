@@ -43,7 +43,8 @@ api.interceptors.request.use(
     
     if (token) {
       console.log(`Adding auth token to request: ${config.url}`);
-      // Set the token in the header
+      // Set the token in both headers for compatibility
+      config.headers['Authorization'] = `Bearer ${token}`;
       config.headers['x-auth-token'] = token;
     } else {
       console.log(`No auth token for request: ${config.url}`);
@@ -89,7 +90,10 @@ export const authApi = {
         throw new Error('Invalid response format from server');
       }
       
-      console.log('Registration successful, token received');
+      // Store the token in localStorage
+      localStorage.setItem('authToken', response.data.token);
+      
+      console.log('Registration successful, token received and stored');
       return response.data;
     } catch (error: any) {
       console.error('Registration error details:', error);
@@ -110,7 +114,15 @@ export const authApi = {
     try {
       // Use the direct API endpoint to bypass Vite middleware
       const response = await api.post<AuthResponse>('/direct-api/auth/login', credentials);
-      console.log('Login successful, token received');
+      
+      // Store the token in localStorage
+      if (response.data && response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        console.log('Login successful, token received and stored');
+      } else {
+        console.warn('Login successful but no token received');
+      }
+      
       return response.data;
     } catch (error: any) {
       console.error('Login error:', error.response?.status, error.response?.data);
@@ -128,7 +140,8 @@ export const authApi = {
   getCurrentUser: async (): Promise<AuthUser> => {
     try {
       console.log('Calling API to get current user data');
-      const response = await api.get<AuthUser>('/auth/user');
+      // Use the direct API endpoint to bypass Vite middleware
+      const response = await api.get<AuthUser>('/direct-api/auth/user');
       console.log('User data retrieved successfully:', response.data);
       return response.data;
     } catch (error: any) {

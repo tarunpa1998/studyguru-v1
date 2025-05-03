@@ -212,6 +212,75 @@ app.use((req, res, next) => {
       });
     }
   });
+  
+  // Get current user endpoint
+  app.get('/direct-api/auth/user', async (req: Request, res: Response) => {
+    try {
+      // Extract token from Authorization header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ 
+          error: true,
+          message: 'Authorization token is required' 
+        });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ 
+          error: true,
+          message: 'No token provided' 
+        });
+      }
+      
+      // Import modules
+      const { default: jwt } = await import('jsonwebtoken');
+      const { default: ActiveUser } = await import('./models/ActiveUser');
+      const JWT_SECRET = process.env.JWT_SECRET || 'studyguru-secret-key';
+      
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      if (!decoded || !decoded.id) {
+        return res.status(401).json({ 
+          error: true,
+          message: 'Invalid token' 
+        });
+      }
+      
+      // Find user
+      const user = await ActiveUser.findById(decoded.id);
+      if (!user) {
+        return res.status(404).json({ 
+          error: true,
+          message: 'User not found' 
+        });
+      }
+      
+      // Return user data
+      return res.status(200).json({
+        id: user._id.toString(),
+        fullName: user.fullName,
+        email: user.email,
+        profileImage: user.profileImage || '',
+        savedArticles: user.savedArticles || [],
+        savedScholarships: user.savedScholarships || [],
+        isAdmin: user.isAdmin || false
+      });
+    } catch (error: any) {
+      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          error: true,
+          message: 'Invalid or expired token' 
+        });
+      }
+      
+      console.error('User data error:', error);
+      return res.status(500).json({ 
+        error: true,
+        message: error.message || 'Server error while fetching user data' 
+      });
+    }
+  });
 
   // Set up the Vite middleware after API routes
   if (app.get("env") === "development") {
