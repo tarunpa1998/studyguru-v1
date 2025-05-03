@@ -27,7 +27,13 @@ router.get('/universities', adminAuth, async (req: Request, res: Response) => {
  */
 router.get('/universities/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    const university = await storage.getUniversityBySlug(req.params.id);
+    // Try to get by ID first, if that fails try slug as fallback
+    let university = await storage.getUniversityById(req.params.id);
+    
+    // If not found by ID, try by slug as fallback
+    if (!university) {
+      university = await storage.getUniversityBySlug(req.params.id);
+    }
     
     if (!university) {
       return res.status(404).json({ error: 'University not found' });

@@ -379,6 +379,65 @@ export class MemStorage implements IStorage {
     this.scholarshipsMap.set(id, scholarship);
     return scholarship;
   }
+
+  async getScholarshipById(id: number | string): Promise<Scholarship | undefined> {
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (Number.isNaN(numId)) {
+      // If id is not a number (likely MongoDB ObjectId), find by checking all IDs as strings
+      return Array.from(this.scholarshipsMap.values()).find(
+        (scholarship) => scholarship.id.toString() === id.toString()
+      );
+    }
+    return this.scholarshipsMap.get(numId);
+  }
+
+  async updateScholarship(id: number | string, scholarshipData: Partial<InsertScholarship>): Promise<Scholarship | undefined> {
+    const scholarship = await this.getScholarshipById(id);
+    if (!scholarship) {
+      return undefined;
+    }
+
+    const updatedScholarship = { ...scholarship, ...scholarshipData };
+    
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (!Number.isNaN(numId)) {
+      this.scholarshipsMap.set(numId, updatedScholarship);
+    } else {
+      // For string IDs (likely MongoDB ObjectIds), find and update by ID
+      for (const [key, value] of this.scholarshipsMap.entries()) {
+        if (value.id.toString() === id.toString()) {
+          this.scholarshipsMap.set(key, updatedScholarship);
+          break;
+        }
+      }
+    }
+    
+    return updatedScholarship;
+  }
+
+  async deleteScholarship(id: number | string): Promise<boolean> {
+    const scholarship = await this.getScholarshipById(id);
+    if (!scholarship) {
+      return false;
+    }
+
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (!Number.isNaN(numId)) {
+      return this.scholarshipsMap.delete(numId);
+    } else {
+      // For string IDs (likely MongoDB ObjectIds), find and delete by ID
+      for (const [key, value] of this.scholarshipsMap.entries()) {
+        if (value.id.toString() === id.toString()) {
+          return this.scholarshipsMap.delete(key);
+        }
+      }
+    }
+    
+    return false;
+  }
   
   // Article methods
   async getAllArticles(): Promise<Article[]> {
@@ -432,6 +491,65 @@ export class MemStorage implements IStorage {
     const university: University = { ...insertUniversity, id };
     this.universitiesMap.set(id, university);
     return university;
+  }
+
+  async getUniversityById(id: number | string): Promise<University | undefined> {
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (Number.isNaN(numId)) {
+      // If id is not a number (likely MongoDB ObjectId), find by checking all IDs as strings
+      return Array.from(this.universitiesMap.values()).find(
+        (university) => university.id.toString() === id.toString()
+      );
+    }
+    return this.universitiesMap.get(numId);
+  }
+
+  async updateUniversity(id: number | string, universityData: Partial<InsertUniversity>): Promise<University | undefined> {
+    const university = await this.getUniversityById(id);
+    if (!university) {
+      return undefined;
+    }
+
+    const updatedUniversity = { ...university, ...universityData };
+    
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (!Number.isNaN(numId)) {
+      this.universitiesMap.set(numId, updatedUniversity);
+    } else {
+      // For string IDs (likely MongoDB ObjectIds), find and update by ID
+      for (const [key, value] of this.universitiesMap.entries()) {
+        if (value.id.toString() === id.toString()) {
+          this.universitiesMap.set(key, updatedUniversity);
+          break;
+        }
+      }
+    }
+    
+    return updatedUniversity;
+  }
+
+  async deleteUniversity(id: number | string): Promise<boolean> {
+    const university = await this.getUniversityById(id);
+    if (!university) {
+      return false;
+    }
+
+    // Convert id to number if it's a string containing a number
+    const numId = typeof id === 'string' ? parseInt(id) : id;
+    if (!Number.isNaN(numId)) {
+      return this.universitiesMap.delete(numId);
+    } else {
+      // For string IDs (likely MongoDB ObjectIds), find and delete by ID
+      for (const [key, value] of this.universitiesMap.entries()) {
+        if (value.id.toString() === id.toString()) {
+          return this.universitiesMap.delete(key);
+        }
+      }
+    }
+    
+    return false;
   }
   
   // News methods

@@ -27,7 +27,13 @@ router.get('/scholarships', adminAuth, async (req: Request, res: Response) => {
  */
 router.get('/scholarships/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    const scholarship = await storage.getScholarshipBySlug(req.params.id);
+    // Try to get by ID first, if that fails try slug as fallback
+    let scholarship = await storage.getScholarshipById(req.params.id);
+    
+    // If not found by ID, try by slug as fallback
+    if (!scholarship) {
+      scholarship = await storage.getScholarshipBySlug(req.params.id);
+    }
     
     if (!scholarship) {
       return res.status(404).json({ error: 'Scholarship not found' });
@@ -86,16 +92,21 @@ router.put('/scholarships/:id', adminAuth, async (req: Request, res: Response) =
       return res.status(400).json({ error: 'Title, description, and amount are required' });
     }
     
-    // Check if scholarship exists
-    const existingScholarship = await storage.getScholarshipBySlug(req.params.id);
+    // Check if scholarship exists - use getScholarshipById instead of getScholarshipBySlug
+    const existingScholarship = await storage.getScholarshipById(req.params.id);
     
     if (!existingScholarship) {
       return res.status(404).json({ error: 'Scholarship not found' });
     }
     
-    // Update scholarship (implement in storage.ts)
-    // For now, just return the data
-    res.json({ ...existingScholarship, ...scholarshipData });
+    // Update scholarship 
+    const updatedScholarship = await storage.updateScholarship(req.params.id, scholarshipData);
+    
+    if (!updatedScholarship) {
+      return res.status(404).json({ error: 'Failed to update scholarship' });
+    }
+    
+    res.json(updatedScholarship);
   } catch (error) {
     console.error('Error updating scholarship:', error);
     res.status(500).json({ error: 'Server error' });
@@ -109,15 +120,20 @@ router.put('/scholarships/:id', adminAuth, async (req: Request, res: Response) =
  */
 router.delete('/scholarships/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    // Check if scholarship exists
-    const existingScholarship = await storage.getScholarshipBySlug(req.params.id);
+    // Check if scholarship exists - use getScholarshipById instead of getScholarshipBySlug
+    const existingScholarship = await storage.getScholarshipById(req.params.id);
     
     if (!existingScholarship) {
       return res.status(404).json({ error: 'Scholarship not found' });
     }
     
-    // Delete scholarship (implement in storage.ts)
-    // For now, just return success
+    // Delete scholarship
+    const deleted = await storage.deleteScholarship(req.params.id);
+    
+    if (!deleted) {
+      return res.status(500).json({ error: 'Failed to delete scholarship' });
+    }
+    
     res.json({ success: true, message: 'Scholarship deleted' });
   } catch (error) {
     console.error('Error deleting scholarship:', error);
