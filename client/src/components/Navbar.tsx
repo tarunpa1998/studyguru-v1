@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -121,7 +121,8 @@ const mobileMenuVariants = {
     height: 0,
     transition: {
       duration: 0.3,
-      when: "afterChildren"
+      when: "afterChildren",
+      ease: "easeInOut"
     }
   },
   visible: { 
@@ -130,7 +131,8 @@ const mobileMenuVariants = {
     transition: {
       duration: 0.4,
       when: "beforeChildren",
-      staggerChildren: 0.1
+      staggerChildren: 0.1,
+      ease: "easeOut"
     }
   }
 };
@@ -141,6 +143,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<{[key: number]: boolean}>({});
   const [isScrolled, setIsScrolled] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   
   // Fetch menu data from MongoDB
   const { data: menuItems = [] as MenuItem[], isLoading } = useQuery<MenuItem[]>({
@@ -162,6 +165,27 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Handle click outside mobile menu to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.body.style.overflow = ''; // Re-enable scrolling
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -311,23 +335,44 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* Mobile Navigation Backdrop */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+            
         {/* Mobile Navigation */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div 
-              className="md:hidden overflow-hidden bg-white"
-              variants={mobileMenuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
+              ref={menuRef}
+              className="md:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 max-h-[80vh] overflow-y-auto touch-auto overscroll-contain"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              <div className="px-2 pt-3 pb-4 space-y-2">
+              <div className="container mx-auto px-4 pt-4 pb-6 space-y-3">
                 {menuItems.map((item: MenuItem) => (
-                  <motion.div key={item.id} variants={itemVariants}>
+                  <motion.div 
+                    key={item.id} 
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="touch-manipulation"
+                  >
                     {item.children && item.children.length > 0 ? (
-                      <div className="mobile-dropdown overflow-hidden rounded-2xl shadow-sm mb-2 border border-slate-100">
+                      <div className="mobile-dropdown overflow-hidden rounded-2xl shadow-md mb-3 border border-slate-200 bg-white">
                         <button 
-                          className="w-full text-left flex justify-between items-center px-4 py-3 rounded-t-2xl text-base font-medium text-slate-700 hover:bg-primary-50 transition-colors duration-200"
+                          className="w-full text-left flex justify-between items-center px-4 py-3.5 rounded-t-2xl text-base font-medium bg-gradient-to-r from-primary-50 to-white text-primary-700 hover:from-primary-100 hover:to-primary-50 transition-colors duration-200"
                           onClick={() => toggleMobileDropdown(item.id)}
                           aria-expanded={mobileDropdownOpen[item.id] ? "true" : "false"}
                         >
@@ -338,14 +383,15 @@ const Navbar = () => {
                           <motion.div
                             animate={{ rotate: mobileDropdownOpen[item.id] ? 180 : 0 }}
                             transition={{ duration: 0.3 }}
+                            className="text-primary-500"
                           >
-                            <ChevronDown className="h-5 w-5 text-slate-500" />
+                            <ChevronDown className="h-5 w-5" />
                           </motion.div>
                         </button>
                         <AnimatePresence>
                           {mobileDropdownOpen[item.id] && (
                             <motion.div 
-                              className="bg-slate-50"
+                              className="bg-white border-t border-slate-100"
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
@@ -357,7 +403,7 @@ const Navbar = () => {
                                   href={child.url}
                                 >
                                   <motion.div
-                                    className="block px-4 py-3 text-base font-medium text-slate-600 hover:bg-primary-100 hover:text-primary-600 border-t border-slate-100 transition-colors duration-200"
+                                    className="block px-5 py-3.5 text-base font-medium text-slate-700 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200"
                                     whileHover={{ x: 5 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                   >
@@ -373,10 +419,10 @@ const Navbar = () => {
                       <Link href={item.url}>
                         <motion.div
                           className={cn(
-                            "block px-4 py-3 mb-2 rounded-2xl text-base font-medium hover:bg-primary-50 shadow-sm border border-slate-100 transition-all duration-200 flex items-center",
+                            "block px-4 py-3.5 mb-3 rounded-2xl text-base font-semibold shadow-md transition-all duration-200 flex items-center",
                             location === item.url 
-                              ? "text-primary-600 border-l-4 border-l-primary-600 pl-3" 
-                              : "text-slate-700"
+                              ? "bg-primary-600 text-white" 
+                              : "bg-white text-slate-700 hover:bg-primary-50 hover:text-primary-600"
                           )}
                           whileHover={{ x: 5 }}
                           transition={{ type: "spring", stiffness: 300 }}
