@@ -38,7 +38,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, Pencil, Trash2, Search, FileText, LayoutGrid } from "lucide-react";
+import { 
+  Loader2, 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Search, 
+  FileText, 
+  LayoutGrid 
+} from "lucide-react";
 
 // Article interface based on the MongoDB model
 interface Article {
@@ -693,10 +701,10 @@ const ArticlesAdmin = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => {
-                      const updatedForm = {...editForm};
-                      const relatedArticles = updatedForm.relatedArticles || [];
-                      updatedForm.relatedArticles = [...relatedArticles, ""];
-                      setEditForm(updatedForm);
+                      setEditForm({
+                        ...editForm,
+                        relatedArticles: [...editForm.relatedArticles, ""]
+                      });
                     }}
                   >
                     Add Related Article
@@ -713,9 +721,12 @@ const ArticlesAdmin = () => {
                         <Select
                           value={relatedArticle}
                           onValueChange={(value) => {
-                            const updatedForm = {...editForm};
-                            updatedForm.relatedArticles[index] = value;
-                            setEditForm(updatedForm);
+                            const relatedArticles = [...editForm.relatedArticles];
+                            relatedArticles[index] = value;
+                            setEditForm({
+                              ...editForm,
+                              relatedArticles
+                            });
                           }}
                         >
                           <SelectTrigger className="flex-1">
@@ -726,8 +737,8 @@ const ArticlesAdmin = () => {
                               .filter(article => article.id !== currentArticle?.id && article._id !== currentArticle?._id)
                               .map(article => (
                                 <SelectItem 
-                                  key={article.id || article._id} 
-                                  value={article.id || article._id || ""}
+                                  key={article.id || article._id || ""} 
+                                  value={(article.id || article._id || "").toString()}
                                 >
                                   {article.title}
                                 </SelectItem>
@@ -741,9 +752,12 @@ const ArticlesAdmin = () => {
                           size="icon"
                           className="h-9 w-9 text-red-500 hover:text-red-700"
                           onClick={() => {
-                            const updatedForm = {...editForm};
-                            updatedForm.relatedArticles.splice(index, 1);
-                            setEditForm(updatedForm);
+                            const relatedArticles = [...editForm.relatedArticles];
+                            relatedArticles.splice(index, 1);
+                            setEditForm({
+                              ...editForm,
+                              relatedArticles
+                            });
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
