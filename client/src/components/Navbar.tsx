@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -6,7 +6,6 @@ import {
   X, 
   Search, 
   ChevronDown, 
-  ChevronUp, 
   GraduationCap, 
   Globe, 
   Building, 
@@ -16,7 +15,6 @@ import {
   LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,26 +30,6 @@ interface MenuItem {
   }[];
 }
 
-// Menu Icon animation variants
-const Path = (props: any) => (
-  <motion.path
-    fill="transparent"
-    strokeWidth="2"
-    stroke="currentColor"
-    strokeLinecap="round"
-    {...props}
-  />
-);
-
-// Simple hamburger menu icon
-const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
-  return isOpen ? (
-    <X className="h-5 w-5" />
-  ) : (
-    <Menu className="h-5 w-5" />
-  );
-};
-
 // Icon map for menu items
 const menuIconMap: Record<string, any> = {
   "Scholarships": GraduationCap,
@@ -59,48 +37,6 @@ const menuIconMap: Record<string, any> = {
   "Universities": Building,
   "Articles": FileText,
   "News": Newspaper
-};
-
-const navVariants = {
-  hidden: { 
-    opacity: 0,
-    y: -10,
-  },
-  visible: { 
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: -8 },
-  visible: { opacity: 1, y: 0 }
-};
-
-const mobileMenuVariants = {
-  hidden: { 
-    opacity: 0,
-    height: 0,
-    transition: {
-      duration: 0.3,
-      when: "afterChildren",
-      ease: "easeInOut"
-    }
-  },
-  visible: { 
-    opacity: 1,
-    height: "auto",
-    transition: {
-      duration: 0.4,
-      when: "beforeChildren",
-      staggerChildren: 0.1,
-      ease: "easeOut"
-    }
-  }
 };
 
 // Mobile auth component for mobile menu
@@ -200,12 +136,10 @@ const AuthButtons = () => {
     
     // Logged in user
     return (
-      <motion.div className="relative" variants={itemVariants} ref={dropdownRef}>
-        <motion.button
+      <div className="relative" ref={dropdownRef}>
+        <button
           className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200"
           onClick={() => setShowDropdown(!showDropdown)}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
         >
           <Avatar className="h-7 w-7">
             <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
@@ -217,68 +151,51 @@ const AuthButtons = () => {
             {user.fullName || 'User'}
           </span>
           <ChevronDown className="h-4 w-4" />
-        </motion.button>
+        </button>
 
-        <AnimatePresence>
-          {showDropdown && (
-            <motion.div
-              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="py-2">
-                <Link href="/profile">
-                  <motion.div
-                    className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600"
-                    whileHover={{ x: 3 }}
-                  >
-                    <UserCircle className="h-4 w-4 mr-2" />
-                    Profile
-                  </motion.div>
-                </Link>
-                <button
-                  className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  onClick={() => {
-                    logout();
-                    setShowDropdown(false);
-                    navigate('/');
-                  }}
-                >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Logout
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        {showDropdown && (
+          <div
+            className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
+          >
+            <div className="py-2">
+              <Link href="/profile">
+                <div className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600">
+                  <UserCircle className="h-4 w-4 mr-2" />
+                  Profile
+                </div>
+              </Link>
+              <button
+                className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                onClick={() => {
+                  logout();
+                  setShowDropdown(false);
+                  navigate('/');
+                }}
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
   // Not logged in
   return (
-    <motion.div className="flex items-center space-x-2" variants={itemVariants}>
+    <div className="flex items-center space-x-2">
       <Link href="/login">
-        <motion.button
-          className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200"
-          whileHover={{ y: -2 }}
-          whileTap={{ y: 0 }}
-        >
+        <button className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200">
           Login
-        </motion.button>
+        </button>
       </Link>
       <Link href="/register">
-        <motion.button
-          className="px-4 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
+        <button className="px-4 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors duration-200">
           Sign Up
-        </motion.button>
+        </button>
       </Link>
-    </motion.div>
+    </div>
   );
 };
 
@@ -364,29 +281,19 @@ const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
             <Link href="/">
-              <motion.span 
-                className="text-primary-600 font-bold text-xl md:text-2xl"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-              >
+              <span className="text-primary-600 font-bold text-xl md:text-2xl">
                 StudyGlobal
-              </motion.span>
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <motion.div 
-            className="hidden md:flex items-center space-x-6 lg:space-x-8"
-            initial="hidden"
-            animate="visible"
-            variants={navVariants}
-          >
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {/* Menu Items */}
             <div className="flex items-center space-x-4 lg:space-x-6">
               {menuItems.map((item: MenuItem) => (
                 item.children && item.children.length > 0 ? (
-                  <motion.div key={item.id} className="relative group" variants={itemVariants}>
+                  <div key={item.id} className="relative group">
                     <button 
                       className={cn(
                         "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
@@ -397,52 +304,36 @@ const Navbar = () => {
                       {item.title}
                       <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
                     </button>
-                    <motion.div 
-                      className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                    >
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100">
                       <div className="py-2">
                         {item.children.map((child) => (
                           <Link 
                             key={child.id} 
                             href={child.url}
                           >
-                            <motion.div
-                              className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
-                              whileHover={{ x: 5 }}
-                              transition={{ type: "spring", stiffness: 300 }}
-                            >
+                            <div className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200">
                               {child.title}
-                            </motion.div>
+                            </div>
                           </Link>
                         ))}
                       </div>
-                    </motion.div>
-                  </motion.div>
+                    </div>
+                  </div>
                 ) : (
-                  <motion.div key={item.id} variants={itemVariants}>
+                  <div key={item.id}>
                     <Link href={item.url}>
-                      <motion.div 
-                        className={cn(
-                          "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                          location === item.url && "text-primary-600 bg-primary-50/60"
-                        )}
-                        whileHover={{ y: -2 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
+                      <div className={cn(
+                        "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
+                        location === item.url && "text-primary-600 bg-primary-50/60"
+                      )}>
                         {getMenuIcon(item.title)}
                         {item.title}
                         {location === item.url && (
-                          <motion.div 
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
-                            layoutId="navIndicator"
-                          />
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />
                         )}
-                      </motion.div>
+                      </div>
                     </Link>
-                  </motion.div>
+                  </div>
                 )
               ))}
             </div>
@@ -454,17 +345,14 @@ const Navbar = () => {
             <AuthButtons />
 
             {/* Search Button - Desktop */}
-            <motion.button 
-              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100/80 hover:bg-slate-200/80 transition-colors duration-200" 
+            <button 
+              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200" 
               aria-label="Search"
               onClick={toggleSearch}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              variants={itemVariants}
             >
               <Search className="h-5 w-5" />
-            </motion.button>
-          </motion.div>
+            </button>
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center">
@@ -485,35 +373,33 @@ const Navbar = () => {
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={toggleMobileMenu}
             >
-              <MenuIcon isOpen={isMobileMenuOpen} />
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation Backdrop */}
-        {isMobileMenuOpen && (
-          <div
-            className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-        )}
-            
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div 
-            ref={menuRef}
-            className="md:hidden fixed inset-x-0 top-16 bg-white shadow-lg z-40 max-h-[80vh] overflow-y-auto"
-          >
+          <>
+            {/* Backdrop */}
+            <div
+              className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Menu Content */}
+            <div 
+              ref={menuRef}
+              className="md:hidden fixed inset-x-0 top-16 bg-white shadow-lg z-40 max-h-[80vh] overflow-y-auto"
+            >
               <div className="container mx-auto px-4 pt-4 pb-6">
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (
-                    <motion.div 
-                      key={item.id} 
-                      variants={itemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="touch-manipulation"
-                    >
+                    <div key={item.id} className="touch-manipulation">
                       {item.children && item.children.length > 0 ? (
                         <div className="mobile-dropdown overflow-hidden rounded-2xl shadow-md mb-3 border border-slate-200 bg-white">
                           <button 
@@ -525,63 +411,44 @@ const Navbar = () => {
                               {getMenuIcon(item.title)}
                               {item.title}
                             </span>
-                            <motion.div
-                              animate={{ rotate: mobileDropdownOpen[item.id] ? 180 : 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="text-primary-500"
-                            >
+                            <div className={cn("text-primary-500", mobileDropdownOpen[item.id] && "transform rotate-180")}>
                               <ChevronDown className="h-5 w-5" />
-                            </motion.div>
+                            </div>
                           </button>
-                          <AnimatePresence>
-                            {mobileDropdownOpen[item.id] && (
-                              <motion.div 
-                                className="bg-white border-t border-slate-100"
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                              >
-                                {item.children.map((child) => (
-                                  <Link 
-                                    key={child.id} 
-                                    href={child.url}
-                                  >
-                                    <motion.div
-                                      className="block px-5 py-3.5 text-base font-medium text-slate-800 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200"
-                                      whileHover={{ x: 5 }}
-                                      transition={{ type: "spring", stiffness: 300 }}
-                                    >
-                                      <span className="text-current">{child.title}</span>
-                                    </motion.div>
-                                  </Link>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                          
+                          {mobileDropdownOpen[item.id] && (
+                            <div className="bg-white border-t border-slate-100">
+                              {item.children.map((child) => (
+                                <Link 
+                                  key={child.id} 
+                                  href={child.url}
+                                >
+                                  <div className="block px-5 py-3.5 text-base font-medium text-slate-800 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200">
+                                    <span className="text-current">{child.title}</span>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <Link href={item.url}>
-                          <motion.div
-                            className={cn(
-                              "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
-                              location === item.url 
-                                ? "bg-primary-600 text-white font-bold" 
-                                : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
-                            )}
-                            whileHover={{ x: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
+                          <div className={cn(
+                            "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
+                            location === item.url 
+                              ? "bg-primary-600 text-white font-bold" 
+                              : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
+                          )}>
                             {getMenuIcon(item.title)}
                             <span className="text-current">{item.title}</span>
-                          </motion.div>
+                          </div>
                         </Link>
                       )}
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
                 
-                {/* Mobile Auth Buttons - Now at the bottom */}
+                {/* Mobile Auth Buttons */}
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <div className="p-3 bg-white rounded-xl shadow-sm">
                     <MobileAuthArea 
@@ -591,26 +458,18 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-          )}
+          </>
+        )}
       </nav>
 
       {/* Search Bar */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div 
-            className="bg-white border-t border-slate-100 py-4 px-4 shadow-inner"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            style={{ opacity: 0, height: 0 }} // Initial style to prevent animation warning
-            transition={{ duration: 0.3 }}
-          >
-            <div className="container mx-auto">
-              <SearchBar onSearch={() => setIsSearchOpen(false)} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isSearchOpen && (
+        <div className="bg-white border-t border-slate-100 py-4 px-4 shadow-inner">
+          <div className="container mx-auto">
+            <SearchBar onSearch={() => setIsSearchOpen(false)} />
+          </div>
+        </div>
+      )}
     </header>
   );
 };
