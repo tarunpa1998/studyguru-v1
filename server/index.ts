@@ -213,6 +213,98 @@ app.use((req, res, next) => {
     }
   });
   
+  // Google OAuth login endpoint
+  app.post('/direct-api/auth/google', async (req: Request, res: Response) => {
+    try {
+      const { token } = req.body;
+      
+      if (!token) {
+        return res.status(400).json({ 
+          error: true,
+          message: 'Google token is required' 
+        });
+      }
+      
+      // Import modules using dynamic import
+      const { OAuth2Client } = await import('google-auth-library');
+      const { default: ActiveUser } = await import('./models/ActiveUser');
+      const { default: jwt } = await import('jsonwebtoken');
+      const JWT_SECRET = process.env.JWT_SECRET || 'studyguru-secret-key';
+      
+      // Connect to MongoDB
+      const conn = await connectToDatabase();
+      if (!conn) {
+        return res.status(500).json({ 
+          error: true,
+          message: 'Database connection failed' 
+        });
+      }
+      
+      // Verify the Google token
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      
+      const payload = ticket.getPayload();
+      if (!payload) {
+        return res.status(400).json({ 
+          error: true,
+          message: 'Invalid Google token' 
+        });
+      }
+      
+      const { email, name, picture } = payload;
+      
+      // Find or create the user
+      let user = await ActiveUser.findOne({ email });
+      
+      if (!user) {
+        // Create new user
+        user = new ActiveUser({
+          fullName: name,
+          email,
+          password: jwt.sign({ random: Math.random() }, JWT_SECRET), // Random secure password
+          profileImage: picture || '',
+          savedArticles: [],
+          savedScholarships: [],
+          comments: []
+        });
+        
+        await user.save();
+      }
+      
+      // Create token
+      const tokenPayload = {
+        id: user._id.toString(),
+        email: user.email,
+        fullName: user.fullName
+      };
+      
+      const authToken = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '7d' });
+      
+      // Return success response
+      return res.status(200).json({
+        token: authToken,
+        user: {
+          id: user._id.toString(),
+          fullName: user.fullName,
+          email: user.email,
+          profileImage: user.profileImage || picture || '',
+          savedArticles: user.savedArticles || [],
+          savedScholarships: user.savedScholarships || []
+        }
+      });
+    } catch (error: any) {
+      console.error('Google auth error:', error);
+      return res.status(500).json({ 
+        error: true,
+        message: error.message || 'Server error during Google authentication' 
+      });
+    }
+  });
+  
   // Get current user endpoint
   app.get('/direct-api/auth/user', async (req: Request, res: Response) => {
     try {
