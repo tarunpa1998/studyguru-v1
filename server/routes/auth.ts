@@ -20,7 +20,7 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
  * @access  Public
  */
 router.post('/register', async (req: Request, res: Response) => {
-  log(`Register request received with data: ${JSON.stringify(req.body)}`, 'auth');
+  log(`Register request received with data: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`, 'auth');
   const { fullName, email, password } = req.body;
 
   // Validate request data
@@ -48,53 +48,57 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    // Create new user
-    log('Creating new user document', 'auth');
-    const newUser = new ActiveUser({
-      fullName,
-      email,
-      password, // Will be hashed in pre-save hook
-    });
+    try {
+      // Create new user
+      log('Creating new user document', 'auth');
+      const newUser = new ActiveUser({
+        fullName,
+        email,
+        password, // Will be hashed in pre-save hook
+        savedArticles: [],
+        savedScholarships: [],
+        comments: []
+      });
 
-    // Save user to database
-    log('Saving user to database...', 'auth');
-    await newUser.save();
-    log(`User saved with ID: ${newUser._id}`, 'auth');
+      // Save user to database
+      log('Saving user to database...', 'auth');
+      await newUser.save();
+      log(`User saved with ID: ${newUser._id}`, 'auth');
 
-    // Create token
-    const payload = {
-      id: newUser._id,
-      email: newUser.email,
-      fullName: newUser.fullName
-    };
+      // Create token payload
+      const payload = {
+        id: newUser._id,
+        email: newUser.email,
+        fullName: newUser.fullName
+      };
 
-    // Sign and return JWT
-    log('Generating JWT token...', 'auth');
-    jwt.sign(
-      payload, 
-      JWT_SECRET, 
-      { expiresIn: '7d' },
-      (err: Error | null, token: string) => {
-        if (err) {
-          log(`JWT signing error: ${err}`, 'auth');
-          return res.status(500).json({ message: 'Error generating authentication token' });
-        }
+      // Sign JWT synchronously to avoid callback issues
+      try {
+        log('Generating JWT token...', 'auth');
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
         
+        // Return user data with token
         log('Registration successful, returning user data with token', 'auth');
-        res.status(201).json({ 
+        return res.status(201).json({ 
           token,
           user: {
             id: newUser._id,
             fullName: newUser.fullName,
             email: newUser.email,
-            profileImage: newUser.profileImage
+            profileImage: newUser.profileImage || ''
           }
         });
+      } catch (jwtError) {
+        log(`JWT signing error: ${jwtError}`, 'auth');
+        return res.status(500).json({ message: 'Error generating authentication token' });
       }
-    );
-  } catch (err) {
-    log(`Registration error: ${err}`, 'auth');
-    res.status(500).json({ message: 'Server error during registration' });
+    } catch (saveError: any) {
+      log(`Error saving user to database: ${saveError.message}`, 'auth');
+      return res.status(500).json({ message: 'Error creating user account' });
+    }
+  } catch (err: any) {
+    log(`Registration error: ${err.message}`, 'auth');
+    return res.status(500).json({ message: 'Server error during registration' });
   }
 });
 
@@ -150,30 +154,26 @@ router.post('/login', async (req: Request, res: Response) => {
       fullName: user.fullName
     };
 
-    // Sign and return JWT
-    log('Generating JWT token...', 'auth');
-    jwt.sign(
-      payload, 
-      JWT_SECRET, 
-      { expiresIn: '7d' },
-      (err: Error | null, token: string) => {
-        if (err) {
-          log(`JWT signing error: ${err}`, 'auth');
-          return res.status(500).json({ message: 'Error generating authentication token' });
+    // Sign JWT synchronously to avoid callback issues
+    try {
+      log('Generating JWT token...', 'auth');
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+      
+      // Return user data with token
+      log('Login successful, returning user data with token', 'auth');
+      return res.json({ 
+        token,
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          profileImage: user.profileImage || ''
         }
-        
-        log('Login successful, returning user data with token', 'auth');
-        res.json({ 
-          token,
-          user: {
-            id: user._id,
-            fullName: user.fullName,
-            email: user.email,
-            profileImage: user.profileImage
-          }
-        });
-      }
-    );
+      });
+    } catch (jwtError) {
+      log(`JWT signing error: ${jwtError}`, 'auth');
+      return res.status(500).json({ message: 'Error generating authentication token' });
+    }
   } catch (err) {
     log(`Login error: ${err}`, 'auth');
     res.status(500).json({ message: 'Server error during login' });
@@ -234,24 +234,26 @@ router.post('/google', async (req: Request, res: Response) => {
       fullName: user.fullName
     };
     
-    // Sign and return JWT
-    jwt.sign(
-      jwtPayload,
-      JWT_SECRET,
-      { expiresIn: '7d' },
-      (err: Error | null, jwtToken: string) => {
-        if (err) throw err;
-        res.json({ 
-          token: jwtToken,
-          user: {
-            id: user._id,
-            fullName: user.fullName,
-            email: user.email,
-            profileImage: user.profileImage || picture
-          }
-        });
-      }
-    );
+    // Sign JWT synchronously to avoid callback issues
+    try {
+      log('Generating JWT token for Google login...', 'auth');
+      const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '7d' });
+      
+      // Return user data with token
+      log('Google login successful, returning user data with token', 'auth');
+      return res.json({ 
+        token: jwtToken,
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          profileImage: user.profileImage || picture || ''
+        }
+      });
+    } catch (jwtError) {
+      log(`JWT signing error during Google login: ${jwtError}`, 'auth');
+      return res.status(500).json({ message: 'Error generating authentication token' });
+    }
   } catch (err) {
     log(`Google auth error: ${err}`, 'auth');
     res.status(500).json({ message: 'Server error during Google authentication' });
@@ -296,12 +298,12 @@ router.get('/user', auth, async (req: Request, res: Response) => {
       
       // Transform to match expected client format
       const userData = {
-        id: user._id.toString(),
-        fullName: user.fullName,
-        email: user.email,
+        id: user._id ? user._id.toString() : req.user.id,
+        fullName: user.fullName || '',
+        email: user.email || '',
         profileImage: user.profileImage || '',
-        savedArticles: user.savedArticles || [],
-        savedScholarships: user.savedScholarships || [],
+        savedArticles: Array.isArray(user.savedArticles) ? user.savedArticles : [],
+        savedScholarships: Array.isArray(user.savedScholarships) ? user.savedScholarships : [],
         isAdmin: !!user.isAdmin
       };
       

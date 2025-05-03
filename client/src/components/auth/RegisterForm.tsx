@@ -43,20 +43,32 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     },
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
+    setError(null);
+    
     try {
       // Remove confirmPassword as it's not needed for the API call
       const { confirmPassword, ...registerData } = data;
+      console.log('Submitting registration form with data:', {...registerData, password: '******'});
+      
       const success = await registerUser(registerData);
       
       if (success) {
+        console.log('Registration successful, redirecting...');
         if (onSuccess) {
           onSuccess();
         } else {
           navigate('/');
         }
+      } else {
+        setError('Registration failed. Please try again.');
       }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setError(error?.message || 'An error occurred during registration. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -122,6 +134,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
               <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
             )}
           </div>
+          
+          {error && (
+            <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm mb-3">
+              {error}
+            </div>
+          )}
           
           <Button 
             type="submit" 
