@@ -54,21 +54,21 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
       <Path
         variants={{
           closed: { d: "M3 6h18", opacity: 1 },
-          open: { d: "M6 6h12", opacity: 1, y: 6 }
+          open: { d: "M6 6L18 18", opacity: 1 }
         }}
         transition={{ duration: 0.3 }}
       />
       <Path
         variants={{
           closed: { d: "M3 12h18", opacity: 1 },
-          open: { d: "M6 12h12", opacity: 1 }
+          open: { d: "M6 12h12", opacity: 0 }
         }}
         transition={{ duration: 0.3 }}
       />
       <Path
         variants={{
           closed: { d: "M3 18h18", opacity: 1 },
-          open: { d: "M6 18h12", opacity: 1, y: -6 }
+          open: { d: "M6 18L18 6", opacity: 1 }
         }}
         transition={{ duration: 0.3 }}
       />
@@ -544,16 +544,7 @@ const Navbar = () => {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="h-6"></div> {/* Empty div for spacing */}
-                  <button 
-                    className="p-2 rounded-full bg-primary-600 text-white shadow-md"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    aria-label="Close menu"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
+                {/* Removed the separate close button as we'll use the hamburger button to toggle the menu */}
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (
                     <motion.div 
