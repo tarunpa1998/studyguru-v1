@@ -156,7 +156,8 @@ router.put('/:id', auth, async (req: Request, res: Response) => {
     
     // Find the comment in the user's comments array
     const commentIndex = user.comments.findIndex(
-      comment => comment._id.toString() === commentId
+      (comment: { _id: mongoose.Types.ObjectId, content: string, articleId: mongoose.Types.ObjectId, createdAt: Date }) => 
+        comment._id.toString() === commentId
     );
     
     if (commentIndex === -1) {

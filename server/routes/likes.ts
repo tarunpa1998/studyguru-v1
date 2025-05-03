@@ -146,7 +146,7 @@ router.get('/article/:id/status', auth, async (req: Request, res: Response) => {
     
     // Check if user has liked this article
     const hasLiked = article.likes.some(
-      id => id.toString() === req.user!.id.toString()
+      (id: mongoose.Types.ObjectId) => id.toString() === req.user!.id.toString()
     );
     
     res.json({ hasLiked });
