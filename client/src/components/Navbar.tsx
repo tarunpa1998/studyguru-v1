@@ -394,67 +394,73 @@ const Navbar = () => {
             animate="visible"
             variants={navVariants}
           >
-            {menuItems.map((item: MenuItem) => (
-              item.children && item.children.length > 0 ? (
-                <motion.div key={item.id} className="relative group" variants={itemVariants}>
-                  <button 
-                    className={cn(
-                      "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                      location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
-                    )}
-                  >
-                    {getMenuIcon(item.title)}
-                    {item.title}
-                    <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
-                  </button>
-                  <motion.div 
-                    className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className="py-2">
-                      {item.children.map((child) => (
-                        <Link 
-                          key={child.id} 
-                          href={child.url}
-                        >
-                          <motion.div
-                            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
-                            whileHover={{ x: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            {child.title}
-                          </motion.div>
-                        </Link>
-                      ))}
-                    </div>
-                  </motion.div>
-                </motion.div>
-              ) : (
-                <motion.div key={item.id} variants={itemVariants}>
-                  <Link href={item.url}>
-                    <motion.div 
+            {/* Menu Items */}
+            <div className="flex items-center space-x-4 lg:space-x-6">
+              {menuItems.map((item: MenuItem) => (
+                item.children && item.children.length > 0 ? (
+                  <motion.div key={item.id} className="relative group" variants={itemVariants}>
+                    <button 
                       className={cn(
-                        "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                        location === item.url && "text-primary-600 bg-primary-50/60"
+                        "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
+                        location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
                       )}
-                      whileHover={{ y: -2 }}
-                      transition={{ type: "spring", stiffness: 400 }}
                     >
                       {getMenuIcon(item.title)}
                       {item.title}
-                      {location === item.url && (
-                        <motion.div 
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
-                          layoutId="navIndicator"
-                        />
-                      )}
+                      <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
+                    </button>
+                    <motion.div 
+                      className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="py-2">
+                        {item.children.map((child) => (
+                          <Link 
+                            key={child.id} 
+                            href={child.url}
+                          >
+                            <motion.div
+                              className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
+                              whileHover={{ x: 5 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              {child.title}
+                            </motion.div>
+                          </Link>
+                        ))}
+                      </div>
                     </motion.div>
-                  </Link>
-                </motion.div>
-              )
-            ))}
+                  </motion.div>
+                ) : (
+                  <motion.div key={item.id} variants={itemVariants}>
+                    <Link href={item.url}>
+                      <motion.div 
+                        className={cn(
+                          "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
+                          location === item.url && "text-primary-600 bg-primary-50/60"
+                        )}
+                        whileHover={{ y: -2 }}
+                        transition={{ type: "spring", stiffness: 400 }}
+                      >
+                        {getMenuIcon(item.title)}
+                        {item.title}
+                        {location === item.url && (
+                          <motion.div 
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
+                            layoutId="navIndicator"
+                          />
+                        )}
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                )
+              ))}
+            </div>
+
+            {/* Spacer to push auth buttons and search to the end */}
+            <div className="flex-grow"></div>
 
             {/* Authentication buttons */}
             <AuthButtons />
