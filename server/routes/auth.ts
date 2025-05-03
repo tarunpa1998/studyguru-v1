@@ -23,6 +23,10 @@ router.post('/register', async (req: Request, res: Response) => {
   // Enhanced debugging
   log(`Register request received with data: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`, 'auth');
   console.log(`[DEBUG] Register request body: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`);
+  console.log('[DEBUG] Content-Type:', req.get('Content-Type'));
+  
+  // Ensure we're using correct content type
+  res.setHeader('Content-Type', 'application/json');
   
   const { fullName, email, password } = req.body;
 
@@ -111,7 +115,8 @@ router.post('/register', async (req: Request, res: Response) => {
         log('Registration successful, returning user data with token', 'auth');
         console.log('[DEBUG] Registration successful, response data:', JSON.stringify(responseData));
         
-        // Return success response
+        // Explicitly use json method and ensure proper content-type
+        res.setHeader('Content-Type', 'application/json');
         return res.status(201).json(responseData);
       } catch (jwtError) {
         log(`JWT signing error: ${jwtError}`, 'auth');
@@ -139,6 +144,10 @@ router.post('/login', async (req: Request, res: Response) => {
   // Enhanced debugging
   log(`Login request received with data: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`, 'auth');
   console.log(`[DEBUG] Login request body: ${JSON.stringify({ ...req.body, password: '[REDACTED]' })}`);
+  console.log('[DEBUG] Content-Type:', req.get('Content-Type'));
+  
+  // Ensure we're using correct content type
+  res.setHeader('Content-Type', 'application/json');
   
   const { email, password } = req.body;
 
@@ -221,7 +230,8 @@ router.post('/login', async (req: Request, res: Response) => {
       log('Login successful, returning user data with token', 'auth');
       console.log('[DEBUG] Login successful, response data:', JSON.stringify(responseData));
       
-      // Return success response
+      // Explicitly use json method and ensure proper content-type
+      res.setHeader('Content-Type', 'application/json');
       return res.status(200).json(responseData);
     } catch (jwtError) {
       log(`JWT signing error: ${jwtError}`, 'auth');
@@ -241,7 +251,15 @@ router.post('/login', async (req: Request, res: Response) => {
  * @access  Public
  */
 router.post('/google', async (req: Request, res: Response) => {
+  // Ensure we're using correct content type
+  res.setHeader('Content-Type', 'application/json');
+  
   const { token } = req.body;
+  
+  if (!token) {
+    log('Missing Google token in request', 'auth');
+    return res.status(400).json({ message: 'Google token is required' });
+  }
   
   try {
     // Connect to MongoDB
@@ -296,7 +314,9 @@ router.post('/google', async (req: Request, res: Response) => {
       
       // Return user data with token
       log('Google login successful, returning user data with token', 'auth');
-      return res.json({ 
+      
+      // Explicitly use json method and ensure proper content-type
+      return res.status(200).json({ 
         token: jwtToken,
         user: {
           id: user._id,
@@ -311,7 +331,7 @@ router.post('/google', async (req: Request, res: Response) => {
     }
   } catch (err) {
     log(`Google auth error: ${err}`, 'auth');
-    res.status(500).json({ message: 'Server error during Google authentication' });
+    return res.status(500).json({ message: 'Server error during Google authentication' });
   }
 });
 
