@@ -28,7 +28,7 @@ const ScholarshipCard = ({
   
   return (
     <motion.div 
-      className="group bg-white rounded-2xl shadow-md hover:shadow-xl border border-slate-100 overflow-hidden h-full flex flex-col transition-all duration-300"
+      className="group bg-card rounded-2xl shadow-md hover:shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden h-full flex flex-col transition-all duration-300"
       whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)" }}
       transition={{ type: "spring", stiffness: 300 }}
       onClick={goToDetails}
@@ -78,29 +78,29 @@ const ScholarshipCard = ({
           </div>
         </div>
         
-        <h3 className="text-xl font-bold text-slate-800 mb-2.5 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200">
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2.5 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200">
           {title}
         </h3>
         
-        <p className="text-slate-600 text-sm line-clamp-2 mb-5">
+        <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 mb-5">
           {description}
         </p>
 
         {/* Info section */}
         <div className="flex flex-col space-y-2.5 mb-4">
-          <div className="flex items-center text-sm text-slate-500">
+          <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-full bg-blue-50 p-1.5 mr-2">
-                <MapPin className="h-4 w-4 text-blue-500" />
+              <div className="flex-shrink-0 rounded-full bg-blue-50 dark:bg-blue-900/30 p-1.5 mr-2">
+                <MapPin className="h-4 w-4 text-blue-500 dark:text-blue-400" />
               </div>
               <span className="font-medium">{country}</span>
             </div>
           </div>
           
-          <div className="flex items-center text-sm text-slate-500">
+          <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center">
-              <div className="flex-shrink-0 rounded-full bg-amber-50 p-1.5 mr-2">
-                <CalendarClock className="h-4 w-4 text-amber-500" />
+              <div className="flex-shrink-0 rounded-full bg-amber-50 dark:bg-amber-900/30 p-1.5 mr-2">
+                <CalendarClock className="h-4 w-4 text-amber-500 dark:text-amber-400" />
               </div>
               <span>Deadline: <span className="font-medium">{deadline}</span></span>
             </div>
@@ -110,7 +110,7 @@ const ScholarshipCard = ({
       
       {/* Card footer */}
       <div className="mt-auto">
-        <div className="border-t border-slate-100 px-6 py-3 flex justify-between items-center">
+        <div className="border-t border-slate-100 dark:border-slate-800 px-6 py-3 flex justify-between items-center">
           <motion.div 
             className="text-primary-600 font-medium text-sm flex items-center"
             initial={{ x: 0 }}
@@ -134,7 +134,7 @@ const ScholarshipCard = ({
             </motion.div>
           </motion.div>
           
-          <div className="text-xs text-slate-400 flex items-center">
+          <div className="text-xs text-slate-400 dark:text-slate-500 flex items-center">
             <GraduationCap className="h-3.5 w-3.5 mr-1" />
             Scholarship
           </div>
