@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { storage } from '../storage';
+import { mongoStorage } from '../mongoStorage';
 import { adminAuth } from '../middleware/auth';
 import slugify from 'slugify';
 
@@ -12,7 +12,7 @@ const router = Router();
  */
 router.get('/scholarships', adminAuth, async (req: Request, res: Response) => {
   try {
-    const scholarships = await storage.getAllScholarships();
+    const scholarships = await mongoStorage.getAllScholarships();
     res.json(scholarships);
   } catch (error) {
     console.error('Error getting scholarships:', error);
@@ -28,11 +28,11 @@ router.get('/scholarships', adminAuth, async (req: Request, res: Response) => {
 router.get('/scholarships/:id', adminAuth, async (req: Request, res: Response) => {
   try {
     // Try to get by ID first, if that fails try slug as fallback
-    let scholarship = await storage.getScholarshipById(req.params.id);
+    let scholarship = await mongoStorage.getScholarshipById(req.params.id);
     
     // If not found by ID, try by slug as fallback
     if (!scholarship) {
-      scholarship = await storage.getScholarshipBySlug(req.params.id);
+      scholarship = await mongoStorage.getScholarshipBySlug(req.params.id);
     }
     
     if (!scholarship) {
