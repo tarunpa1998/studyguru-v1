@@ -49,21 +49,29 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
       width="24"
       height="24"
       viewBox="0 0 24 24"
+      animate={isOpen ? "open" : "closed"}
     >
-      {isOpen ? (
-        // X icon when menu is open
-        <>
-          <Path d="M6 6L18 18" strokeWidth="2" />
-          <Path d="M6 18L18 6" strokeWidth="2" />
-        </>
-      ) : (
-        // Hamburger icon when menu is closed
-        <>
-          <Path d="M3 6h18" strokeWidth="2" />
-          <Path d="M3 12h18" strokeWidth="2" />
-          <Path d="M3 18h18" strokeWidth="2" />
-        </>
-      )}
+      <Path
+        variants={{
+          closed: { d: "M3 6h18", opacity: 1 },
+          open: { d: "M6 6L18 18", opacity: 1 }
+        }}
+        transition={{ duration: 0.2 }}
+      />
+      <Path
+        variants={{
+          closed: { d: "M3 12h18", opacity: 1 },
+          open: { opacity: 0 }
+        }}
+        transition={{ duration: 0.2 }}
+      />
+      <Path
+        variants={{
+          closed: { d: "M3 18h18", opacity: 1 },
+          open: { d: "M6 18L18 6", opacity: 1 }
+        }}
+        transition={{ duration: 0.2 }}
+      />
     </motion.svg>
   );
 };
@@ -596,7 +604,7 @@ const Navbar = () => {
                           <motion.div
                             className={cn(
                               "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
-                              location === item.url || item.title === "Home"
+                              location === item.url 
                                 ? "bg-primary-600 text-white font-bold" 
                                 : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
                             )}
