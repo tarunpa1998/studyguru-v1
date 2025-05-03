@@ -6,6 +6,8 @@ export interface AuthUser {
   fullName: string;
   email: string;
   profileImage?: string;
+  savedArticles?: string[];
+  savedScholarships?: string[];
 }
 
 export interface AuthResponse {

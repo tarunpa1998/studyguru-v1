@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -11,11 +11,15 @@ import {
   Globe, 
   Building, 
   FileText, 
-  Newspaper 
+  Newspaper,
+  UserCircle,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchBar from "./SearchBar";
+import { useAuth } from "../contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MenuItem {
   id: number;
@@ -121,6 +125,173 @@ const mobileMenuVariants = {
       ease: "easeOut"
     }
   }
+};
+
+// Mobile auth component for mobile menu
+interface MobileAuthAreaProps {
+  closeMobileMenu: () => void;
+}
+
+const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
+  const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  if (user) {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center space-x-3 mb-2">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user.profileImage} alt={user.fullName} />
+            <AvatarFallback className="text-sm">
+              {user.fullName.split(' ').map(n => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-medium text-primary-700">{user.fullName}</p>
+            <p className="text-xs text-slate-500">{user.email}</p>
+          </div>
+        </div>
+        <div className="flex space-x-2 mt-1">
+          <Link href="/profile" className="flex-1" onClick={closeMobileMenu}>
+            <button className="w-full py-2 px-3 bg-white rounded-lg shadow-sm text-primary-600 border border-primary-100 text-sm font-medium flex items-center justify-center">
+              <UserCircle className="h-4 w-4 mr-2" />
+              Profile
+            </button>
+          </Link>
+          <button 
+            className="flex-1 py-2 px-3 bg-white rounded-lg shadow-sm text-red-600 border border-red-100 text-sm font-medium flex items-center justify-center"
+            onClick={() => {
+              logout();
+              closeMobileMenu();
+              navigate('/');
+            }}
+          >
+            <LogIn className="h-4 w-4 mr-2" />
+            Logout
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex space-x-2">
+      <Link href="/login" className="flex-1" onClick={closeMobileMenu}>
+        <button className="w-full py-2.5 text-primary-600 bg-white border border-primary-200 rounded-lg shadow-sm text-sm font-medium">
+          Login
+        </button>
+      </Link>
+      <Link href="/register" className="flex-1" onClick={closeMobileMenu}>
+        <button className="w-full py-2.5 text-white bg-primary-600 rounded-lg shadow-sm text-sm font-medium">
+          Sign Up
+        </button>
+      </Link>
+    </div>
+  );
+};
+
+// Auth buttons component to display login/register or profile
+const AuthButtons = () => {
+  const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  if (user) {
+    // Logged in user
+    return (
+      <motion.div className="relative" variants={itemVariants} ref={dropdownRef}>
+        <motion.button
+          className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200"
+          onClick={() => setShowDropdown(!showDropdown)}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Avatar className="h-7 w-7">
+            <AvatarImage src={user.profileImage} alt={user.fullName} />
+            <AvatarFallback className="text-xs">
+              {user.fullName.split(' ').map(n => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-medium hidden sm:inline-block max-w-[100px] truncate">
+            {user.fullName}
+          </span>
+          <ChevronDown className="h-4 w-4" />
+        </motion.button>
+
+        <AnimatePresence>
+          {showDropdown && (
+            <motion.div
+              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="py-2">
+                <Link href="/profile">
+                  <motion.div
+                    className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600"
+                    whileHover={{ x: 3 }}
+                  >
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Profile
+                  </motion.div>
+                </Link>
+                <button
+                  className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    logout();
+                    setShowDropdown(false);
+                    navigate('/');
+                  }}
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    );
+  }
+
+  // Not logged in
+  return (
+    <motion.div className="flex items-center space-x-2" variants={itemVariants}>
+      <Link href="/login">
+        <motion.button
+          className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200"
+          whileHover={{ y: -2 }}
+          whileTap={{ y: 0 }}
+        >
+          Login
+        </motion.button>
+      </Link>
+      <Link href="/register">
+        <motion.button
+          className="px-4 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Sign Up
+        </motion.button>
+      </Link>
+    </motion.div>
+  );
 };
 
 const Navbar = () => {
@@ -285,6 +456,9 @@ const Navbar = () => {
               )
             ))}
 
+            {/* Authentication buttons */}
+            <AuthButtons />
+
             {/* Search Button - Desktop */}
             <motion.button 
               className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100/80 hover:bg-slate-200/80 transition-colors duration-200" 
@@ -360,6 +534,13 @@ const Navbar = () => {
                   >
                     Close Menu <X className="h-4 w-4 ml-1" />
                   </button>
+                </div>
+                
+                {/* Mobile Auth Buttons */}
+                <div className="mb-4 p-3 bg-primary-50 rounded-xl">
+                  <MobileAuthArea 
+                    closeMobileMenu={() => setIsMobileMenuOpen(false)}
+                  />
                 </div>
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (

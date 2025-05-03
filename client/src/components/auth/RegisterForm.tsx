@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '../../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import GoogleLoginButton from './GoogleLoginButton';
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 
 // Form validation schema
 const registerSchema = z.object({

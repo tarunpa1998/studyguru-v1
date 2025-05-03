@@ -21,6 +21,11 @@ import NewsDetail from "@/pages/NewsDetail";
 import SearchResults from "@/pages/SearchResults";
 import NotFound from "@/pages/not-found";
 
+// Auth pages
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import Profile from "@/pages/Profile";
+
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
@@ -52,6 +57,11 @@ function Router() {
       <Route path="/news/:slug" component={NewsDetail} />
       
       <Route path="/search" component={SearchResults} />
+      
+      {/* Auth routes */}
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/profile" component={Profile} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />

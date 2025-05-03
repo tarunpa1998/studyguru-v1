@@ -1,22 +1,11 @@
-import React, { useEffect } from 'react';
-import { useLocation } from 'wouter';
+import React from 'react';
 import LoginForm from '@/components/auth/LoginForm';
-import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
-  const { user } = useAuth();
-  const [, navigate] = useLocation();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
-
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-lg mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">Login to StudyGlobal</h1>
         <LoginForm />
       </div>
     </div>
