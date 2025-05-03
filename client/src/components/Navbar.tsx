@@ -50,37 +50,23 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
       <Path
         variants={{
           closed: { d: "M3 6h18", opacity: 1 },
-          open: { d: "M3 6h18", opacity: 1 }
+          open: { d: "M6 6h12", opacity: 1, y: 6 }
         }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3 }}
       />
       <Path
         variants={{
           closed: { d: "M3 12h18", opacity: 1 },
-          open: { d: "M3 12h18", opacity: 0 }
+          open: { d: "M6 12h12", opacity: 1 }
         }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3 }}
       />
       <Path
         variants={{
           closed: { d: "M3 18h18", opacity: 1 },
-          open: { d: "M3 18h18", opacity: 1 }
+          open: { d: "M6 18h12", opacity: 1, y: -6 }
         }}
-        transition={{ duration: 0.2 }}
-      />
-      <Path
-        variants={{
-          closed: { d: "M3 6h18", opacity: 0, rotate: 0, y: 0 },
-          open: { d: "M20 6L4 20", opacity: 1, rotate: 0, y: 0 }
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      <Path
-        variants={{
-          closed: { d: "M3 18h18", opacity: 0, rotate: 0, y: 0 },
-          open: { d: "M4 4L20 20", opacity: 1, rotate: 0, y: 0 }
-        }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3 }}
       />
     </motion.svg>
   );
@@ -403,11 +389,11 @@ const Navbar = () => {
                                   href={child.url}
                                 >
                                   <motion.div
-                                    className="block px-5 py-3.5 text-base font-medium text-slate-700 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200"
+                                    className="block px-5 py-3.5 text-base font-medium text-slate-800 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200"
                                     whileHover={{ x: 5 }}
                                     transition={{ type: "spring", stiffness: 300 }}
                                   >
-                                    {child.title}
+                                    <span className="text-current">{child.title}</span>
                                   </motion.div>
                                 </Link>
                               ))}
@@ -422,13 +408,13 @@ const Navbar = () => {
                             "block px-4 py-3.5 mb-3 rounded-2xl text-base font-semibold shadow-md transition-all duration-200 flex items-center",
                             location === item.url 
                               ? "bg-primary-600 text-white" 
-                              : "bg-white text-slate-700 hover:bg-primary-50 hover:text-primary-600"
+                              : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600"
                           )}
                           whileHover={{ x: 5 }}
                           transition={{ type: "spring", stiffness: 300 }}
                         >
                           {getMenuIcon(item.title)}
-                          {item.title}
+                          <span className="text-current">{item.title}</span>
                         </motion.div>
                       </Link>
                     )}
