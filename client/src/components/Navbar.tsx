@@ -43,40 +43,12 @@ const Path = (props: any) => (
   />
 );
 
+// Simple hamburger menu icon
 const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
-  return (
-    <motion.svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      initial="closed"
-      animate={isOpen ? "open" : "closed"}
-    >
-      <Path
-        initial={{ opacity: 1 }}
-        variants={{
-          closed: { d: "M3 6h18", opacity: 1 },
-          open: { d: "M6 6L18 18", opacity: 1 }
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      <Path
-        initial={{ opacity: 1 }}
-        variants={{
-          closed: { d: "M3 12h18", opacity: 1 },
-          open: { opacity: 0, d: "M3 12h18" }
-        }}
-        transition={{ duration: 0.2 }}
-      />
-      <Path
-        initial={{ opacity: 1 }}
-        variants={{
-          closed: { d: "M3 18h18", opacity: 1 },
-          open: { d: "M6 18L18 6", opacity: 1 }
-        }}
-        transition={{ duration: 0.2 }}
-      />
-    </motion.svg>
+  return isOpen ? (
+    <X className="h-5 w-5" />
+  ) : (
+    <Menu className="h-5 w-5" />
   );
 };
 
@@ -496,59 +468,42 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center">
-            <motion.button 
-              className="p-2 ml-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100/80 hover:bg-slate-200/80 transition-colors duration-200" 
+            <button 
+              className="p-2 ml-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200" 
               aria-label="Search"
               onClick={toggleSearch}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               <Search className="h-5 w-5" />
-            </motion.button>
-            <motion.button 
+            </button>
+            <button 
               className={cn(
                 "p-2 ml-2 rounded-full focus:outline-none transition-colors duration-200", 
                 isMobileMenuOpen 
                   ? "bg-primary-600 text-white hover:bg-primary-700" 
-                  : "bg-slate-100/80 text-slate-700 hover:text-primary-600 hover:bg-slate-200/80"
+                  : "bg-slate-100 text-slate-700 hover:text-primary-600 hover:bg-slate-200"
               )}
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               onClick={toggleMobileMenu}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               <MenuIcon isOpen={isMobileMenuOpen} />
-            </motion.button>
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation Backdrop */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{ opacity: 0 }} // Initial style to prevent animation warning
-              transition={{ duration: 0.2 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-          )}
-        </AnimatePresence>
+        {isMobileMenuOpen && (
+          <div
+            className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
             
         {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div 
-              ref={menuRef}
-              className="md:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 max-h-[80vh] overflow-y-auto touch-auto overscroll-contain"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              style={{ opacity: 0 }} // Initial style to prevent animation warning
-              transition={{ duration: 0.3, ease: "easeOut" }}
-            >
+        {isMobileMenuOpen && (
+          <div 
+            ref={menuRef}
+            className="md:hidden fixed inset-x-0 top-16 bg-white shadow-lg z-40 max-h-[80vh] overflow-y-auto"
+          >
               <div className="container mx-auto px-4 pt-4 pb-6">
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (
@@ -635,9 +590,8 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </nav>
 
       {/* Search Bar */}
