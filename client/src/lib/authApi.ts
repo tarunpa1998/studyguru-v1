@@ -34,14 +34,14 @@ const api = axios.create({
 
 // Add auth token to requests if available
 api.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers['x-auth-token'] = token;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: any) => Promise.reject(error)
 );
 
 // Auth API functions
