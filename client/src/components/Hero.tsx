@@ -3,7 +3,7 @@ import { GraduationCap, Globe, BookOpen, Search, ArrowRight, MapPin, School } fr
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden bg-primary-600 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 text-white">
+    <section className="relative overflow-hidden bg-primary-600 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 dark:from-primary-800 dark:via-primary-700 dark:to-primary-600 text-white">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
@@ -93,7 +93,7 @@ const Hero = () => {
                 <input
                   type="text"
                   placeholder="Search scholarships, countries, universities..."
-                  className="block w-full rounded-2xl border-0 bg-white py-3 pl-12 pr-16 text-slate-900 shadow-lg placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                  className="block w-full rounded-2xl border-0 bg-white dark:bg-slate-800 py-3 pl-12 pr-16 text-slate-900 dark:text-slate-200 shadow-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:outline-none"
                 />
                 <motion.div 
                   className="absolute inset-y-0 right-1 flex items-center"
@@ -150,7 +150,7 @@ const Hero = () => {
             >
               <motion.div 
                 onClick={() => window.location.href = "/scholarships"}
-                className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-2xl text-primary-700 bg-white hover:bg-primary-50 focus:outline-none shadow-lg transition-colors duration-200 cursor-pointer"
+                className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-2xl text-primary-700 dark:text-primary-950 bg-white dark:bg-primary-100 hover:bg-primary-50 dark:hover:bg-primary-200 focus:outline-none shadow-lg transition-colors duration-200 cursor-pointer"
                 whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -235,55 +235,55 @@ const Hero = () => {
             
             {/* Floating cards */}
             <motion.div
-              className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              className="absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl z-20 border border-slate-100 dark:border-slate-800"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
               whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-50 p-2 rounded-full">
-                  <GraduationCap className="h-8 w-8 text-green-600" />
+                <div className="flex-shrink-0 bg-green-50 dark:bg-green-950/30 p-2 rounded-full">
+                  <GraduationCap className="h-8 w-8 text-green-600 dark:text-green-500" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-bold text-slate-900">5000+ Scholarships</p>
-                  <p className="text-xs text-slate-500">Updated weekly</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-200">5000+ Scholarships</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Updated weekly</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div
-              className="absolute -top-6 -right-6 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              className="absolute -top-6 -right-6 bg-card p-4 rounded-2xl shadow-xl z-20 border border-slate-100 dark:border-slate-800"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.6 }}
               whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-50 p-2 rounded-full">
-                  <Globe className="h-7 w-7 text-blue-600" />
+                <div className="flex-shrink-0 bg-blue-50 dark:bg-blue-950/30 p-2 rounded-full">
+                  <Globe className="h-7 w-7 text-blue-600 dark:text-blue-500" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-bold text-slate-900">150+ Countries</p>
-                  <p className="text-xs text-slate-500">Across 6 continents</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-200">150+ Countries</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Across 6 continents</p>
                 </div>
               </div>
             </motion.div>
             
             <motion.div
-              className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-white p-4 rounded-2xl shadow-xl z-20 border border-slate-100"
+              className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-card p-4 rounded-2xl shadow-xl z-20 border border-slate-100 dark:border-slate-800"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.8, duration: 0.6 }}
               whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}
             >
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-purple-50 p-2 rounded-full">
-                  <School className="h-7 w-7 text-purple-600" />
+                <div className="flex-shrink-0 bg-purple-50 dark:bg-purple-950/30 p-2 rounded-full">
+                  <School className="h-7 w-7 text-purple-600 dark:text-purple-500" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-bold text-slate-900">1200+ Universities</p>
-                  <p className="text-xs text-slate-500">Top ranked institutions</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-200">1200+ Universities</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Top ranked institutions</p>
                 </div>
               </div>
             </motion.div>
