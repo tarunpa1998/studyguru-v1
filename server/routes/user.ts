@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { auth } from '../middleware/auth';
+import { auth, UserPayload } from '../middleware/auth';
 import ActiveUser from '../models/ActiveUser';
 import Article from '../models/Article';
 import Scholarship from '../models/Scholarship';
@@ -9,6 +9,11 @@ import { log } from '../vite';
 
 const router = Router();
 
+// Type definition for the authenticated request
+interface AuthenticatedRequest extends Request {
+  user?: UserPayload;
+}
+
 /**
  * @route   PUT /api/user/profile
  * @desc    Update user profile
@@ -16,7 +21,9 @@ const router = Router();
  */
 router.put('/profile', auth, async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authReq = req as AuthenticatedRequest;
+    
+    if (!authReq.user) {
       return res.status(401).json({ message: 'No authenticated user' });
     }
     
@@ -35,7 +42,7 @@ router.put('/profile', auth, async (req: Request, res: Response) => {
     
     // Update user
     const user = await ActiveUser.findByIdAndUpdate(
-      req.user.id,
+      authReq.user.id,
       { $set: updateData },
       { new: true }
     ).select('-password');
@@ -58,7 +65,9 @@ router.put('/profile', auth, async (req: Request, res: Response) => {
  */
 router.post('/save-article/:id', auth, async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authReq = req as AuthenticatedRequest;
+    
+    if (!authReq.user) {
       return res.status(401).json({ message: 'No authenticated user' });
     }
     
@@ -77,7 +86,7 @@ router.post('/save-article/:id', auth, async (req: Request, res: Response) => {
     }
     
     // Check if article is already saved
-    const user = await ActiveUser.findById(req.user.id);
+    const user = await ActiveUser.findById(authReq.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -104,7 +113,9 @@ router.post('/save-article/:id', auth, async (req: Request, res: Response) => {
  */
 router.delete('/unsave-article/:id', auth, async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authReq = req as AuthenticatedRequest;
+    
+    if (!authReq.user) {
       return res.status(401).json({ message: 'No authenticated user' });
     }
     
@@ -118,7 +129,7 @@ router.delete('/unsave-article/:id', auth, async (req: Request, res: Response) =
     
     // Remove article from savedArticles
     const user = await ActiveUser.findByIdAndUpdate(
-      req.user.id,
+      authReq.user.id,
       { $pull: { savedArticles: mongoose.Types.ObjectId.createFromHexString(articleId) } },
       { new: true }
     );
@@ -141,7 +152,9 @@ router.delete('/unsave-article/:id', auth, async (req: Request, res: Response) =
  */
 router.post('/save-scholarship/:id', auth, async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authReq = req as AuthenticatedRequest;
+    
+    if (!authReq.user) {
       return res.status(401).json({ message: 'No authenticated user' });
     }
     
@@ -160,7 +173,7 @@ router.post('/save-scholarship/:id', auth, async (req: Request, res: Response) =
     }
     
     // Check if scholarship is already saved
-    const user = await ActiveUser.findById(req.user.id);
+    const user = await ActiveUser.findById(authReq.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
