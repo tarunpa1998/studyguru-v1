@@ -734,7 +734,13 @@ const ArticlesAdmin = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {articles
-                              .filter(article => article.id !== currentArticle?.id && article._id !== currentArticle?._id)
+                              .filter(article => {
+                                // Don't include the current article
+                                if (currentArticle?.id && article.id === currentArticle.id) return false;
+                                if (currentArticle?._id && article._id === currentArticle._id) return false;
+                                // Ensure we have a valid slug
+                                return article.slug && article.slug.trim() !== '';
+                              })
                               .map(article => (
                                 <SelectItem 
                                   key={article.id || article._id || ""} 
