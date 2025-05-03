@@ -738,7 +738,7 @@ const ArticlesAdmin = () => {
                               .map(article => (
                                 <SelectItem 
                                   key={article.id || article._id || ""} 
-                                  value={(article.id || article._id || "").toString()}
+                                  value={article.slug}
                                 >
                                   {article.title}
                                 </SelectItem>
@@ -779,10 +779,10 @@ const ArticlesAdmin = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => {
-                      const updatedForm = {...editForm};
-                      const faqs = updatedForm.faqs || [];
-                      updatedForm.faqs = [...faqs, { question: '', answer: '' }];
-                      setEditForm(updatedForm);
+                      setEditForm({
+                        ...editForm,
+                        faqs: [...(editForm.faqs || []), { question: '', answer: '' }]
+                      });
                     }}
                   >
                     Add FAQ
@@ -804,9 +804,12 @@ const ArticlesAdmin = () => {
                             size="icon"
                             className="h-8 w-8 text-red-500 hover:text-red-700"
                             onClick={() => {
-                              const updatedForm = {...editForm};
-                              updatedForm.faqs.splice(index, 1);
-                              setEditForm(updatedForm);
+                              const faqs = [...editForm.faqs];
+                              faqs.splice(index, 1);
+                              setEditForm({
+                                ...editForm,
+                                faqs
+                              });
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -820,9 +823,15 @@ const ArticlesAdmin = () => {
                             id={`faq-question-${index}`}
                             value={faq.question}
                             onChange={(e) => {
-                              const updatedForm = {...editForm};
-                              updatedForm.faqs[index].question = e.target.value;
-                              setEditForm(updatedForm);
+                              const faqs = [...editForm.faqs];
+                              faqs[index] = {
+                                ...faqs[index],
+                                question: e.target.value
+                              };
+                              setEditForm({
+                                ...editForm,
+                                faqs
+                              });
                             }}
                             placeholder="Enter a question"
                           />
@@ -835,9 +844,15 @@ const ArticlesAdmin = () => {
                             id={`faq-answer-${index}`}
                             value={faq.answer}
                             onChange={(e) => {
-                              const updatedForm = {...editForm};
-                              updatedForm.faqs[index].answer = e.target.value;
-                              setEditForm(updatedForm);
+                              const faqs = [...editForm.faqs];
+                              faqs[index] = {
+                                ...faqs[index],
+                                answer: e.target.value
+                              };
+                              setEditForm({
+                                ...editForm,
+                                faqs
+                              });
                             }}
                             placeholder="Enter the answer"
                             rows={3}
@@ -860,14 +875,15 @@ const ArticlesAdmin = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => {
-                      const updatedForm = {...editForm};
-                      const tableOfContents = updatedForm.tableOfContents || [];
-                      updatedForm.tableOfContents = [...tableOfContents, { 
-                        id: `section-${tableOfContents.length + 1}`, 
-                        title: '', 
-                        level: 1 
-                      }];
-                      setEditForm(updatedForm);
+                      const tableOfContents = [...(editForm.tableOfContents || [])];
+                      setEditForm({
+                        ...editForm,
+                        tableOfContents: [...tableOfContents, { 
+                          id: `section-${tableOfContents.length + 1}`, 
+                          title: '', 
+                          level: 1 
+                        }]
+                      });
                     }}
                   >
                     Add Section
@@ -884,9 +900,15 @@ const ArticlesAdmin = () => {
                         <Select
                           value={section.level.toString()}
                           onValueChange={(value) => {
-                            const updatedForm = {...editForm};
-                            updatedForm.tableOfContents[index].level = parseInt(value);
-                            setEditForm(updatedForm);
+                            const tableOfContents = [...editForm.tableOfContents];
+                            tableOfContents[index] = {
+                              ...tableOfContents[index],
+                              level: parseInt(value)
+                            };
+                            setEditForm({
+                              ...editForm,
+                              tableOfContents
+                            });
                           }}
                         >
                           <SelectTrigger className="w-24">
@@ -903,9 +925,15 @@ const ArticlesAdmin = () => {
                           <Input
                             value={section.id}
                             onChange={(e) => {
-                              const updatedForm = {...editForm};
-                              updatedForm.tableOfContents[index].id = e.target.value;
-                              setEditForm(updatedForm);
+                              const tableOfContents = [...editForm.tableOfContents];
+                              tableOfContents[index] = {
+                                ...tableOfContents[index],
+                                id: e.target.value
+                              };
+                              setEditForm({
+                                ...editForm,
+                                tableOfContents
+                              });
                             }}
                             placeholder="Section ID"
                             className="w-1/3"
@@ -913,9 +941,15 @@ const ArticlesAdmin = () => {
                           <Input
                             value={section.title}
                             onChange={(e) => {
-                              const updatedForm = {...editForm};
-                              updatedForm.tableOfContents[index].title = e.target.value;
-                              setEditForm(updatedForm);
+                              const tableOfContents = [...editForm.tableOfContents];
+                              tableOfContents[index] = {
+                                ...tableOfContents[index],
+                                title: e.target.value
+                              };
+                              setEditForm({
+                                ...editForm,
+                                tableOfContents
+                              });
                             }}
                             placeholder="Section title"
                             className="flex-1"
@@ -926,9 +960,12 @@ const ArticlesAdmin = () => {
                             size="icon"
                             className="h-9 w-9 text-red-500 hover:text-red-700 flex-shrink-0"
                             onClick={() => {
-                              const updatedForm = {...editForm};
-                              updatedForm.tableOfContents.splice(index, 1);
-                              setEditForm(updatedForm);
+                              const tableOfContents = [...editForm.tableOfContents];
+                              tableOfContents.splice(index, 1);
+                              setEditForm({
+                                ...editForm,
+                                tableOfContents
+                              });
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
