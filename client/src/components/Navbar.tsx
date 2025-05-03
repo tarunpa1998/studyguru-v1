@@ -56,21 +56,21 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
           closed: { d: "M3 6h18", opacity: 1 },
           open: { d: "M6 6L18 18", opacity: 1 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
       />
       <Path
         variants={{
           closed: { d: "M3 12h18", opacity: 1 },
-          open: { d: "M6 12h12", opacity: 0 }
+          open: { opacity: 0 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
       />
       <Path
         variants={{
           closed: { d: "M3 18h18", opacity: 1 },
           open: { d: "M6 18L18 6", opacity: 1 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
       />
     </motion.svg>
   );
@@ -544,7 +544,6 @@ const Navbar = () => {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
-                {/* Removed the separate close button as we'll use the hamburger button to toggle the menu */}
                 <div className="space-y-3">
                   {menuItems.map((item: MenuItem) => (
                     <motion.div 
@@ -605,11 +604,9 @@ const Navbar = () => {
                           <motion.div
                             className={cn(
                               "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
-                              item.title === "Home" 
-                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold border-2 border-primary-500" 
-                                : location === item.url 
-                                  ? "bg-primary-600 text-white font-bold" 
-                                  : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
+                              location === item.url 
+                                ? "bg-primary-600 text-white font-bold" 
+                                : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
                             )}
                             whileHover={{ x: 5 }}
                             transition={{ type: "spring", stiffness: 300 }}
