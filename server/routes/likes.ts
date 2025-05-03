@@ -80,7 +80,7 @@ router.delete('/article/:id', auth, async (req: Request, res: Response) => {
     
     // Remove user ID from likes array
     article.likes = article.likes.filter(
-      id => id.toString() !== req.user!.id.toString()
+      (id: mongoose.Types.ObjectId) => id.toString() !== req.user!.id.toString()
     );
     await article.save();
     
