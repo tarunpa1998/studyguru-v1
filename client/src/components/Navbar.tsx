@@ -133,22 +133,28 @@ interface MobileAuthAreaProps {
 }
 
 const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
 
-  if (user) {
+  if (user && isAuthenticated()) {
+    // Create fallback initials safely
+    const getInitials = () => {
+      if (!user.fullName) return 'U';
+      return user.fullName.split(' ').map(n => n[0]).join('') || 'U';
+    };
+
     return (
       <div className="flex flex-col">
         <div className="flex items-center space-x-3 mb-2">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user.profileImage} alt={user.fullName} />
-            <AvatarFallback className="text-sm">
-              {user.fullName.split(' ').map(n => n[0]).join('')}
+            <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
+            <AvatarFallback className="text-sm bg-primary-100 text-primary-800">
+              {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium text-primary-700">{user.fullName}</p>
-            <p className="text-xs text-slate-500">{user.email}</p>
+            <p className="font-medium text-primary-700">{user.fullName || 'User'}</p>
+            <p className="text-xs text-slate-500">{user.email || ''}</p>
           </div>
         </div>
         <div className="flex space-x-2 mt-1">
@@ -192,7 +198,7 @@ const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
 
 // Auth buttons component to display login/register or profile
 const AuthButtons = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -209,7 +215,13 @@ const AuthButtons = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (user) {
+  if (user && isAuthenticated()) {
+    // Create fallback initials safely
+    const getInitials = () => {
+      if (!user.fullName) return 'U';
+      return user.fullName.split(' ').map(n => n[0]).join('') || 'U';
+    };
+    
     // Logged in user
     return (
       <motion.div className="relative" variants={itemVariants} ref={dropdownRef}>
@@ -220,13 +232,13 @@ const AuthButtons = () => {
           whileTap={{ scale: 0.97 }}
         >
           <Avatar className="h-7 w-7">
-            <AvatarImage src={user?.profileImage} alt={user?.fullName || 'User'} />
-            <AvatarFallback className="text-xs">
-              {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('') : 'U'}
+            <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
+            <AvatarFallback className="text-xs bg-primary-100 text-primary-800">
+              {getInitials()}
             </AvatarFallback>
           </Avatar>
           <span className="text-sm font-medium hidden sm:inline-block max-w-[100px] truncate">
-            {user?.fullName || 'User'}
+            {user.fullName || 'User'}
           </span>
           <ChevronDown className="h-4 w-4" />
         </motion.button>
