@@ -86,16 +86,21 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
       return res.status(400).json({ error: 'Name, description, and country are required' });
     }
     
-    // Check if university exists
-    const existingUniversity = await storage.getUniversityBySlug(req.params.id);
+    // Check if university exists - use getUniversityById instead of getUniversityBySlug
+    const existingUniversity = await storage.getUniversityById(req.params.id);
     
     if (!existingUniversity) {
       return res.status(404).json({ error: 'University not found' });
     }
     
-    // Update university (implement in storage.ts)
-    // For now, just return the data
-    res.json({ ...existingUniversity, ...universityData });
+    // Update university
+    const updatedUniversity = await storage.updateUniversity(req.params.id, universityData);
+    
+    if (!updatedUniversity) {
+      return res.status(404).json({ error: 'Failed to update university' });
+    }
+    
+    res.json(updatedUniversity);
   } catch (error) {
     console.error('Error updating university:', error);
     res.status(500).json({ error: 'Server error' });
@@ -109,15 +114,20 @@ router.put('/universities/:id', adminAuth, async (req: Request, res: Response) =
  */
 router.delete('/universities/:id', adminAuth, async (req: Request, res: Response) => {
   try {
-    // Check if university exists
-    const existingUniversity = await storage.getUniversityBySlug(req.params.id);
+    // Check if university exists - use getUniversityById instead of getUniversityBySlug
+    const existingUniversity = await storage.getUniversityById(req.params.id);
     
     if (!existingUniversity) {
       return res.status(404).json({ error: 'University not found' });
     }
     
-    // Delete university (implement in storage.ts)
-    // For now, just return success
+    // Delete university
+    const deleted = await storage.deleteUniversity(req.params.id);
+    
+    if (!deleted) {
+      return res.status(500).json({ error: 'Failed to delete university' });
+    }
+    
     res.json({ success: true, message: 'University deleted' });
   } catch (error) {
     console.error('Error deleting university:', error);
