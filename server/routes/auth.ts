@@ -266,14 +266,20 @@ router.post('/google', async (req: Request, res: Response) => {
 router.get('/user', auth, async (req: Request, res: Response) => {
   try {
     if (!req.user) {
+      log('No user data in request object', 'auth');
       return res.status(401).json({ message: 'No authenticated user' });
     }
+    
+    log(`Getting user data for ID: ${req.user.id}`, 'auth');
     
     // Connect to MongoDB
     const conn = await connectToDatabase();
     if (!conn) {
+      log('Failed to connect to MongoDB for user retrieval', 'auth');
       return res.status(500).json({ message: 'Database connection failed' });
     }
+    
+    log('Connected to MongoDB for user retrieval', 'auth');
     
     // Fetch user from MongoDB by ID
     const user = await ActiveUser.findById(req.user.id)
@@ -282,10 +288,24 @@ router.get('/user', auth, async (req: Request, res: Response) => {
       .populate('savedScholarships', 'title slug');
     
     if (!user) {
+      log(`User not found with ID: ${req.user.id}`, 'auth');
       return res.status(404).json({ message: 'User not found' });
     }
     
-    res.json(user);
+    log(`User found: ${user.email}`, 'auth');
+    
+    // Transform to match expected client format
+    const userData = {
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profileImage: user.profileImage || '',
+      savedArticles: user.savedArticles || [],
+      savedScholarships: user.savedScholarships || [],
+    };
+    
+    log('Returning user data', 'auth');
+    res.json(userData);
   } catch (err) {
     log(`Get user error: ${err}`, 'auth');
     res.status(500).json({ message: 'Server error fetching user data' });

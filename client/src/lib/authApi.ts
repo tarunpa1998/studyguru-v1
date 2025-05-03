@@ -68,8 +68,15 @@ export const authApi = {
 
   // Get current user data
   getCurrentUser: async (): Promise<AuthUser> => {
-    const response = await api.get<AuthUser>('/auth/user');
-    return response.data;
+    try {
+      console.log('Calling API to get current user data');
+      const response = await api.get<AuthUser>('/auth/user');
+      console.log('User data retrieved successfully:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching current user:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   // Save article

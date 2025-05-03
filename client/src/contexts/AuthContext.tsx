@@ -42,15 +42,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check if we have a token
         const token = localStorage.getItem('authToken');
         if (!token) {
+          console.log('No auth token found in localStorage');
           setLoading(false);
           return;
         }
-
+        
+        console.log('Auth token found, fetching user data');
+        
         // Fetch current user
         const userData = await authApi.getCurrentUser();
+        
+        if (!userData || !userData.id) {
+          console.error('Received invalid user data from API:', userData);
+          localStorage.removeItem('authToken');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('User data loaded successfully');
         setUser(userData);
-      } catch (error) {
-        console.error('Failed to load user:', error);
+      } catch (error: any) {
+        console.error('Failed to load user:', error?.response?.status, error?.response?.data || error.message);
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Error',
+          description: 'Your session has expired. Please log in again.',
+        });
         localStorage.removeItem('authToken'); // Clear invalid token
       } finally {
         setLoading(false);
@@ -58,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadUser();
-  }, []);
+  }, [toast]);
 
   // Login function
   const login = async (data: LoginData) => {
@@ -171,7 +188,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Function to check if user is authenticated
   const isAuthenticated = () => {
-    return !!user && !!localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');
+    // We need both a token and a user object to be considered authenticated
+    return !!token && !!user && !!user.id;
   };
 
   // Provide the auth context
