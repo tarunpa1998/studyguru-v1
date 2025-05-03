@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -13,13 +13,32 @@ import {
   FileText, 
   Newspaper,
   UserCircle,
-  LogIn
+  LogIn,
+  Sparkles,
+  BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchBar from "./SearchBar";
 import { useAuth } from "../contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetTrigger, 
+  SheetClose 
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface MenuItem {
   id: number;
@@ -32,11 +51,11 @@ interface MenuItem {
   }[];
 }
 
-// Menu Icon animation variants
+// Menu Icon animation variants with fancy animation
 const Path = (props: any) => (
   <motion.path
     fill="transparent"
-    strokeWidth="2"
+    strokeWidth="2.5"
     stroke="currentColor"
     strokeLinecap="round"
     {...props}
@@ -53,24 +72,24 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
     >
       <Path
         variants={{
-          closed: { d: "M3 6h18", opacity: 1 },
-          open: { d: "M6 6h12", opacity: 1, y: 6 }
+          closed: { d: "M4 6h16", opacity: 1 },
+          open: { d: "M5 19L19 5", opacity: 1 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
       />
       <Path
         variants={{
-          closed: { d: "M3 12h18", opacity: 1 },
-          open: { d: "M6 12h12", opacity: 1 }
+          closed: { d: "M4 12h16", opacity: 1 },
+          open: { d: "M4 12h16", opacity: 0 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.3, ease: [0.6, 0.05, -0.01, 0.9] }}
       />
       <Path
         variants={{
-          closed: { d: "M3 18h18", opacity: 1 },
-          open: { d: "M6 18h12", opacity: 1, y: -6 }
+          closed: { d: "M4 18h16", opacity: 1 },
+          open: { d: "M5 5L19 19", opacity: 1 }
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4, ease: [0.6, 0.05, -0.01, 0.9] }}
       />
     </motion.svg>
   );
@@ -376,119 +395,116 @@ const Navbar = () => {
     const IconComponent = menuIconMap[title];
     return IconComponent ? <IconComponent className="h-5 w-5 mr-2" /> : null;
   };
-
+  
   return (
     <header 
       className={cn(
-        "sticky top-0 bg-white z-50 transition-shadow duration-300",
-        isScrolled || isMobileMenuOpen || isSearchOpen ? "shadow-md" : "shadow-sm"
+        "sticky top-0 bg-white z-50 transition-all duration-300",
+        isScrolled || isMobileMenuOpen || isSearchOpen 
+          ? "shadow-lg border-b border-slate-200" 
+          : "shadow-sm"
       )}
     >
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
-              <motion.span 
-                className="text-primary-600 font-bold text-xl md:text-2xl"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
+              <motion.div 
+                className="flex items-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
               >
-                StudyGlobal
-              </motion.span>
+                <BookOpen className="h-6 w-6 text-primary-600 mr-2" />
+                <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800">
+                  StudyGlobal
+                </span>
+              </motion.div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <motion.div 
-            className="hidden md:flex items-center space-x-6 lg:space-x-8"
-            initial="hidden"
-            animate="visible"
-            variants={navVariants}
-          >
-            {/* Menu Items */}
-            <div className="flex items-center space-x-4 lg:space-x-6">
-              {menuItems.map((item: MenuItem) => (
-                item.children && item.children.length > 0 ? (
-                  <motion.div key={item.id} className="relative group" variants={itemVariants}>
-                    <button 
-                      className={cn(
-                        "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                        location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
-                      )}
-                    >
-                      {getMenuIcon(item.title)}
-                      {item.title}
-                      <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
-                    </button>
-                    <motion.div 
-                      className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                    >
-                      <div className="py-2">
-                        {item.children.map((child) => (
-                          <Link 
-                            key={child.id} 
-                            href={child.url}
+          <div className="hidden md:flex items-center gap-1">
+            <NavigationMenu className="hidden md:flex">
+              <NavigationMenuList>
+                {menuItems.map((item: MenuItem) => (
+                  <NavigationMenuItem key={item.id}>
+                    {item.children && item.children.length > 0 ? (
+                      <>
+                        <NavigationMenuTrigger className={cn(
+                          "font-medium",
+                          location.startsWith(item.url) && "text-primary-600 bg-primary-50/40"
+                        )}>
+                          <span className="flex items-center">
+                            {getMenuIcon(item.title)}
+                            {item.title}
+                          </span>
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                            {item.children.map((child) => (
+                              <li key={child.id}>
+                                <Link href={child.url}>
+                                  <NavigationMenuLink asChild>
+                                    <motion.div
+                                      className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary-50 hover:text-primary-600"
+                                      whileHover={{ x: 5 }}
+                                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    >
+                                      <div className="text-sm font-medium">{child.title}</div>
+                                    </motion.div>
+                                  </NavigationMenuLink>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      <Link href={item.url}>
+                        <NavigationMenuLink asChild>
+                          <motion.div
+                            className={cn(
+                              "inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary-700 relative",
+                              location === item.url 
+                                ? "text-primary-600 bg-primary-50/40" 
+                                : "text-slate-700"
+                            )}
+                            whileHover={{ y: -2 }}
+                            transition={{ type: "spring", stiffness: 500 }}
                           >
-                            <motion.div
-                              className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
-                              whileHover={{ x: 5 }}
-                              transition={{ type: "spring", stiffness: 300 }}
-                            >
-                              {child.title}
-                            </motion.div>
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                ) : (
-                  <motion.div key={item.id} variants={itemVariants}>
-                    <Link href={item.url}>
-                      <motion.div 
-                        className={cn(
-                          "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                          location === item.url && "text-primary-600 bg-primary-50/60"
-                        )}
-                        whileHover={{ y: -2 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        {getMenuIcon(item.title)}
-                        {item.title}
-                        {location === item.url && (
-                          <motion.div 
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
-                            layoutId="navIndicator"
-                          />
-                        )}
-                      </motion.div>
-                    </Link>
-                  </motion.div>
-                )
-              ))}
+                            {getMenuIcon(item.title)}
+                            {item.title}
+                            {location === item.url && (
+                              <motion.div 
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" 
+                                layoutId="desktopNavIndicator"
+                              />
+                            )}
+                          </motion.div>
+                        </NavigationMenuLink>
+                      </Link>
+                    )}
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            {/* Auth Buttons and Search */}
+            <div className="flex items-center ml-4 gap-2">
+              <AuthButtons />
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={toggleSearch}
+                className="bg-slate-50 border-slate-200"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
-
-            {/* Spacer to push auth buttons and search to the end */}
-            <div className="flex-grow"></div>
-
-            {/* Authentication buttons */}
-            <AuthButtons />
-
-            {/* Search Button - Desktop */}
-            <motion.button 
-              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100/80 hover:bg-slate-200/80 transition-colors duration-200" 
-              aria-label="Search"
-              onClick={toggleSearch}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              variants={itemVariants}
-            >
-              <Search className="h-5 w-5" />
-            </motion.button>
-          </motion.div>
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center">
@@ -644,7 +660,7 @@ const Navbar = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
+      </div>
 
       {/* Search Bar */}
       <AnimatePresence>
