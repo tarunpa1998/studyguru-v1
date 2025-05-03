@@ -21,7 +21,7 @@ const FeaturedNewsItem = ({
 }: FeaturedNewsItemProps) => {
   return (
     <Link href={`/news/${slug}`}>
-      <a className="block group">
+      <div className="group cursor-pointer">
         <motion.div 
           className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
           whileHover={{ y: -5 }}
@@ -47,7 +47,7 @@ const FeaturedNewsItem = ({
             <p className="text-slate-600">{summary}</p>
           </div>
         </motion.div>
-      </a>
+      </div>
     </Link>
   );
 };

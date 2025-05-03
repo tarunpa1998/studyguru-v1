@@ -49,9 +49,11 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
       width="24"
       height="24"
       viewBox="0 0 24 24"
+      initial="closed"
       animate={isOpen ? "open" : "closed"}
     >
       <Path
+        initial={{ opacity: 1 }}
         variants={{
           closed: { d: "M3 6h18", opacity: 1 },
           open: { d: "M6 6L18 18", opacity: 1 }
@@ -59,13 +61,15 @@ const MenuIcon = ({ isOpen }: { isOpen: boolean }) => {
         transition={{ duration: 0.2 }}
       />
       <Path
+        initial={{ opacity: 1 }}
         variants={{
           closed: { d: "M3 12h18", opacity: 1 },
-          open: { opacity: 0 }
+          open: { opacity: 0, d: "M3 12h18" }
         }}
         transition={{ duration: 0.2 }}
       />
       <Path
+        initial={{ opacity: 1 }}
         variants={{
           closed: { d: "M3 18h18", opacity: 1 },
           open: { d: "M6 18L18 6", opacity: 1 }
@@ -526,6 +530,7 @@ const Navbar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              style={{ opacity: 0 }} // Initial style to prevent animation warning
               transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
@@ -541,6 +546,7 @@ const Navbar = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              style={{ opacity: 0 }} // Initial style to prevent animation warning
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className="container mx-auto px-4 pt-4 pb-6">
@@ -642,6 +648,7 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
+            style={{ opacity: 0, height: 0 }} // Initial style to prevent animation warning
             transition={{ duration: 0.3 }}
           >
             <div className="container mx-auto">

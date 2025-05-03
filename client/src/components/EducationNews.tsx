@@ -5,13 +5,24 @@ import FeaturedNewsItem from "./FeaturedNewsItem";
 import NewsCard from "./NewsCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface NewsItem {
+  id: string | number;
+  title: string;
+  summary: string;
+  slug: string;
+  publishDate: string;
+  image: string;
+  category: string;
+  isFeatured: boolean;
+}
+
 const EducationNews = () => {
-  const { data: newsItems = [], isLoading } = useQuery({
+  const { data: newsItems = [], isLoading } = useQuery<NewsItem[]>({
     queryKey: ['/api/news'],
   });
   
-  const featuredNews = newsItems.find((news: any) => news.isFeatured);
-  const regularNews = newsItems.filter((news: any) => !news.isFeatured).slice(0, 2);
+  const featuredNews = newsItems.find((news) => news.isFeatured);
+  const regularNews = newsItems.filter((news) => !news.isFeatured).slice(0, 2);
 
   return (
     <section className="py-12 bg-white">
@@ -19,10 +30,10 @@ const EducationNews = () => {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Education News</h2>
           <Link href="/news">
-            <a className="text-primary-600 hover:text-primary-700 font-medium flex items-center">
+            <div className="text-primary-600 hover:text-primary-700 font-medium flex items-center cursor-pointer">
               View all
               <ChevronRight className="h-5 w-5 ml-1" />
-            </a>
+            </div>
           </Link>
         </div>
 
@@ -75,7 +86,7 @@ const EducationNews = () => {
               </div>
             )}
             <div className="space-y-6">
-              {regularNews.map((news: any) => (
+              {regularNews.map((news) => (
                 <NewsCard
                   key={news.id}
                   title={news.title}
