@@ -77,7 +77,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
-              Discover scholarships, universities, and expert advice for studying abroad. Join thousands of students who found their path with Study Guru.
+              Discover scholarships, universities, and expert advice for studying abroad. Join thousands of students who found their path with  studyguruindia.com.
             </motion.p>
             
             {/* Search box */}
