@@ -7,24 +7,23 @@ import LatestArticles from "@/components/LatestArticles";
 import EducationNews from "@/components/EducationNews";
 import Testimonials from "@/components/Testimonials";
 import CTASection from "@/components/CTASection";
-import { DevTools } from "@/components/DevTools";
 
-const Home = () => {
+const StudyGuru = () => {
   return (
     <>
       <Helmet>
-        <title>StudyGlobal - Your Guide to International Education</title>
+        <title>Study Guru - Your Guide to International Education</title>
         <meta 
           name="description" 
-          content="Discover scholarships, universities, and resources for studying abroad with StudyGlobal - the premier education resource for international students."
+          content="Discover scholarships, universities, and resources for studying abroad with Study Guru - the premier education resource for international students."
         />
-        <meta property="og:title" content="StudyGlobal - Your Guide to International Education" />
+        <meta property="og:title" content="Study Guru - Your Guide to International Education" />
         <meta 
           property="og:description" 
           content="Find scholarships, universities, and expert advice for your international education journey."
         />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://studyglobal.com" />
+        <meta property="og:url" content="https://studyguruindia.com" />
       </Helmet>
       
       <Hero />
@@ -35,13 +34,10 @@ const Home = () => {
       <EducationNews />
       <Testimonials />
       <CTASection />
-      {import.meta.env.DEV && (
-        <div className="container mx-auto mb-8">
-          <DevTools />
-        </div>
-      )}
     </>
   );
 };
 
-export default Home;
+export default StudyGuru;
+
+

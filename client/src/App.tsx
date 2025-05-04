@@ -39,7 +39,12 @@ import { useEffect } from "react";
 function Router() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
-
+  
+  // Add this effect to scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+  
   return (
     <Switch>
       {/* Public routes */}
@@ -109,20 +114,6 @@ function App() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
 
-  // Seed initial data on first app load
-  useEffect(() => {
-    const seedData = async () => {
-      try {
-        await fetch('/api/seed', { method: 'POST' });
-        console.log('Initial data seeded successfully');
-      } catch (error) {
-        console.error('Error seeding initial data:', error);
-      }
-    };
-    
-    seedData();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
@@ -146,3 +137,4 @@ function App() {
 }
 
 export default App;
+

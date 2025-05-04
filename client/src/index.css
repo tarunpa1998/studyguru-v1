@@ -2,53 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 30 20% 99%;
-  --foreground: 24 10% 10%;
-  --muted: 30 10% 96%;
-  --muted-foreground: 24 5% 45%;
-  --popover: 30 20% 99%;
-  --popover-foreground: 24 10% 10%;
-  --card: 30 20% 99%;
-  --card-foreground: 24 10% 10%;
-  --border: 24 5% 90%;
-  --input: 24 5% 90%;
-  --primary: 20 90% 50%;
-  --primary-foreground: 30 100% 99%;
-  --secondary: 30 10% 96%;
-  --secondary-foreground: 24 9% 10%;
-  --accent: 30 10% 92%;
-  --accent-foreground: 24 9% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 60 9% 98%;
-  --ring: 24 5% 64%;
-  --radius: 0.5rem;
-}
-
-.dark {
-  --background: 24 10% 8%;
-  --foreground: 30 10% 98%;
-  --muted: 24 10% 20%;
-  --muted-foreground: 24 5% 70%;
-  --popover: 24 10% 8%;
-  --popover-foreground: 30 10% 98%;
-  --card: 24 10% 10%;
-  --card-foreground: 30 10% 98%;
-  --border: 24 10% 20%;
-  --input: 24 10% 20%;
-  --primary: 20 90% 45%;
-  --primary-foreground: 30 100% 98%;
-  --secondary: 24 10% 20%;
-  --secondary-foreground: 30 10% 98%;
-  --accent: 24 10% 25%;
-  --accent-foreground: 30 10% 98%;
-  --destructive: 0 70% 40%;
-  --destructive-foreground: 30 10% 98%;
-  --ring: 24 10% 40%;
-  --radius: 0.5rem;
-}
-
 @layer base {
+  :root {
+    --background: 30 20% 99%;
+    --foreground: 24 10% 10%;
+    --muted: 30 10% 96%;
+    --muted-foreground: 24 5% 45%;
+    --popover: 30 20% 99%;
+    --popover-foreground: 24 10% 10%;
+    --card: 30 20% 99%;
+    --card-foreground: 24 10% 10%;
+    --border: 24 5% 90%;
+    --input: 24 5% 90%;
+    --primary: 20 90% 50%;
+    --primary-foreground: 30 100% 99%;
+    --secondary: 30 10% 96%;
+    --secondary-foreground: 24 9% 10%;
+    --accent: 30 10% 92%;
+    --accent-foreground: 24 9% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 60 9% 98%;
+    --ring: 24 5% 64%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 24 10% 8%;
+    --foreground: 30 10% 98%;
+    --muted: 24 10% 20%;
+    --muted-foreground: 24 5% 70%;
+    --popover: 24 10% 8%;
+    --popover-foreground: 30 10% 98%;
+    --card: 24 10% 10%;
+    --card-foreground: 30 10% 98%;
+    --border: 24 10% 20%;
+    --input: 24 10% 20%;
+    --primary: 20 90% 45%;
+    --primary-foreground: 30 100% 98%;
+    --secondary: 24 10% 20%;
+    --secondary-foreground: 30 10% 98%;
+    --accent: 24 10% 25%;
+    --accent-foreground: 30 10% 98%;
+    --destructive: 0 70% 40%;
+    --destructive-foreground: 30 10% 98%;
+    --ring: 24 10% 40%;
+    --radius: 0.5rem;
+  }
+
   * {
     @apply border-border;
   }
@@ -78,4 +78,57 @@ section.from-primary-700.via-primary-600.to-primary-500 {
     hsl(var(--primary) / 0.8) 100%
   );
 }
+
+/* Add these styles to ensure consistent button styling */
+@layer components {
+  .nav-button {
+    @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+  
+  .nav-button-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  
+  .nav-button-secondary {
+    @apply bg-accent text-accent-foreground hover:bg-accent/80;
+  }
+  
+  .nav-button-outline {
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .nav-button-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .nav-button-destructive {
+    @apply bg-destructive/10 text-destructive hover:bg-destructive/20;
+  }
+  
+  /* Mobile menu specific styles */
+  .mobile-menu-item {
+    @apply block px-4 py-3 rounded-md text-sm font-medium transition-colors duration-200 flex items-center border border-border;
+  }
+
+  .mobile-menu-item-active {
+    @apply bg-accent/50 text-primary;
+  }
+
+  .mobile-menu-item-inactive {
+    @apply bg-background text-foreground hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .mobile-menu-dropdown {
+    @apply overflow-hidden rounded-md shadow-sm mb-3 border border-border;
+  }
+
+  .mobile-menu-dropdown-header {
+    @apply w-full text-left flex justify-between items-center px-4 py-3 text-sm font-medium transition-colors duration-200;
+  }
+
+  .mobile-menu-dropdown-item {
+    @apply block px-4 py-3 text-sm font-medium transition-colors duration-200 border-b border-border last:border-b-0;
+  }
+}
+
 

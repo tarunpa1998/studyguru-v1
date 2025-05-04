@@ -36,7 +36,7 @@ const SearchResults = () => {
   return (
     <>
       <Helmet>
-        <title>Search Results for "{query}" | StudyGlobal</title>
+        <title>Search Results for "{query}" | Study Guru</title>
         <meta 
           name="description" 
           content={`Search results for "${query}" - find scholarships, universities, countries, articles and news.`}

@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import CountryCard from "./CountryCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 // Define the Country type
 interface Country {
@@ -24,12 +25,12 @@ const PopularDestinations = () => {
   };
 
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Popular Study Destinations</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">Popular Study Destinations</h2>
           <motion.div 
-            className="text-primary-600 hover:text-primary-700 font-medium flex items-center cursor-pointer"
+            className="text-primary hover:text-primary/90 font-medium flex items-center cursor-pointer"
             onClick={handleViewAll}
             whileHover={{ x: 3 }}
             whileTap={{ scale: 0.98 }}
@@ -42,7 +43,7 @@ const PopularDestinations = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-slate-50 rounded-xl shadow-sm overflow-hidden">
+              <div key={i} className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                 <Skeleton className="h-48 w-full" />
                 <div className="p-5">
                   <Skeleton className="h-7 w-3/4 mb-2" />
@@ -75,3 +76,4 @@ const PopularDestinations = () => {
 };
 
 export default PopularDestinations;
+

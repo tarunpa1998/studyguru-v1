@@ -23,7 +23,7 @@ const FeaturedNewsItem = ({
     <Link href={`/news/${slug}`}>
       <div className="group cursor-pointer">
         <motion.div 
-          className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
+          className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-border"
           whileHover={{ y: -5 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
@@ -36,15 +36,15 @@ const FeaturedNewsItem = ({
           </div>
           <div className="p-6">
             <div className="flex items-center mb-3">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 {category}
               </span>
-              <span className="text-slate-500 text-xs ml-2">{formatDate(publishDate)}</span>
+              <span className="text-muted-foreground text-xs ml-2">{formatDate(publishDate)}</span>
             </div>
-            <h3 className="text-xl md:text-2xl font-semibold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors duration-300">
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
               {title}
             </h3>
-            <p className="text-slate-600">{summary}</p>
+            <p className="text-muted-foreground">{summary}</p>
           </div>
         </motion.div>
       </div>
@@ -53,3 +53,4 @@ const FeaturedNewsItem = ({
 };
 
 export default FeaturedNewsItem;
+

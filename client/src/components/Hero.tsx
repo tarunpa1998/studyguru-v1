@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { GraduationCap, Globe, BookOpen, Search, ArrowRight, MapPin, School } from "lucide-react";
+import { Link } from "wouter";
 
 const Hero = () => {
   return (
@@ -44,7 +45,7 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0 }}
@@ -76,7 +77,7 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
-              Discover scholarships, universities, and expert advice for studying abroad. Join thousands of students who found their path with StudyGlobal.
+              Discover scholarships, universities, and expert advice for studying abroad. Join thousands of students who found their path with Study Guru.
             </motion.p>
             
             {/* Search box */}
@@ -148,24 +149,26 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.5 }}
             >
-              <motion.div 
-                onClick={() => window.location.href = "/scholarships"}
-                className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-2xl text-primary-700 dark:text-primary-950 bg-white dark:bg-primary-100 hover:bg-primary-50 dark:hover:bg-primary-200 focus:outline-none shadow-lg transition-colors duration-200 cursor-pointer"
-                whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <GraduationCap className="mr-2 h-5 w-5" />
-                Find Scholarships
-              </motion.div>
-              <motion.div 
-                onClick={() => window.location.href = "/countries"}
-                className="inline-flex justify-center items-center px-6 py-3.5 border border-white/30 text-base font-medium rounded-2xl text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm focus:outline-none transition-colors duration-200 cursor-pointer"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Globe className="mr-2 h-5 w-5" />
-                Explore Countries
-              </motion.div>
+              <Link href="/scholarships">
+                <motion.button
+                  className="w-full inline-flex justify-center items-center px-6 py-3.5 rounded-full bg-white dark:bg-slate-800 text-base font-medium text-slate-800 dark:text-slate-200 hover:bg-white/90 dark:hover:bg-slate-700 focus:outline-none shadow-lg transition-colors duration-200"
+                  whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <GraduationCap className="mr-2 h-5 w-5 text-primary-600 dark:text-primary-400" />
+                  Find Scholarships
+                </motion.button>
+              </Link>
+              <Link href="/countries">
+                <motion.button
+                  className="w-full inline-flex justify-center items-center px-6 py-3.5 rounded-full bg-white dark:bg-slate-800 text-base font-medium text-slate-800 dark:text-slate-200 hover:bg-white/90 dark:hover:bg-slate-700 focus:outline-none shadow-lg transition-colors duration-200"
+                  whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Globe className="mr-2 h-5 w-5 text-primary-600 dark:text-primary-400" />
+                  Explore Countries
+                </motion.button>
+              </Link>
             </motion.div>
             
             {/* Stats badges - visible on all screens */}
@@ -295,3 +298,15 @@ const Hero = () => {
 };
 
 export default Hero;
+
+
+
+
+
+
+
+
+
+
+
+

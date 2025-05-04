@@ -64,24 +64,24 @@ const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
         <div className="flex items-center space-x-3 mb-2">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
-            <AvatarFallback className="text-sm bg-primary-100 text-primary-800">
+            <AvatarFallback className="text-sm bg-primary/10 text-primary">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium text-primary-700">{user.fullName || 'User'}</p>
-            <p className="text-xs text-slate-500">{user.email || ''}</p>
+            <p className="font-medium text-foreground">{user.fullName || 'User'}</p>
+            <p className="text-xs text-muted-foreground">{user.email || ''}</p>
           </div>
         </div>
         <div className="flex space-x-2 mt-1">
           <Link href="/profile" className="flex-1" onClick={closeMobileMenu}>
-            <button className="w-full py-2 px-3 bg-white rounded-lg shadow-sm text-primary-600 border border-primary-100 text-sm font-medium flex items-center justify-center">
+            <button className="w-full py-2 px-3 bg-accent text-accent-foreground rounded-md shadow-sm text-sm font-medium flex items-center justify-center hover:bg-accent/80 transition-colors duration-200">
               <UserCircle className="h-4 w-4 mr-2" />
               Profile
             </button>
           </Link>
           <button 
-            className="flex-1 py-2 px-3 bg-white rounded-lg shadow-sm text-red-600 border border-red-100 text-sm font-medium flex items-center justify-center"
+            className="flex-1 py-2 px-3 bg-destructive/10 text-destructive rounded-md shadow-sm text-sm font-medium flex items-center justify-center hover:bg-destructive/20 transition-colors duration-200"
             onClick={() => {
               logout();
               closeMobileMenu();
@@ -99,12 +99,12 @@ const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
   return (
     <div className="flex space-x-3">
       <Link href="/login" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-3 text-primary-600 bg-white border border-primary-200 rounded-lg shadow-sm text-sm font-medium hover:bg-primary-50 transition-colors duration-200">
+        <button className="w-full py-2 px-3 bg-accent text-accent-foreground rounded-md shadow-sm text-sm font-medium hover:bg-accent/80 transition-colors duration-200">
           Login
         </button>
       </Link>
       <Link href="/register" className="flex-1" onClick={closeMobileMenu}>
-        <button className="w-full py-3 text-white bg-primary-600 rounded-lg shadow-md text-sm font-medium hover:bg-primary-700 transition-colors duration-200">
+        <button className="w-full py-2 px-3 bg-primary text-primary-foreground rounded-md shadow-sm text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
           Sign Up
         </button>
       </Link>
@@ -116,6 +116,18 @@ const MobileAuthArea: React.FC<MobileAuthAreaProps> = ({ closeMobileMenu }) => {
 const AuthButtons = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
+  
+  // Helper function to handle subcategory navigation
+  const handleSubcategoryClick = (url: string) => {
+    // Check if this is a subcategory URL pattern
+    const parts = url.split('/');
+    if (parts.length === 3 && ['scholarships', 'articles', 'universities'].includes(parts[1])) {
+      // Convert to filter URL instead of detail page
+      navigate(`/${parts[1]}?tag=${encodeURIComponent(parts[2])}`);
+      return true;
+    }
+    return false;
+  };
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -142,12 +154,12 @@ const AuthButtons = () => {
     return (
       <div className="relative" ref={dropdownRef}>
         <button
-          className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors duration-200"
+          className="flex items-center space-x-2 px-3 py-1.5 rounded-md bg-accent/50 text-foreground hover:bg-accent transition-colors duration-200"
           onClick={() => setShowDropdown(!showDropdown)}
         >
           <Avatar className="h-7 w-7">
             <AvatarImage src={user.profileImage} alt={user.fullName || 'User'} />
-            <AvatarFallback className="text-xs bg-primary-100 text-primary-800">
+            <AvatarFallback className="text-xs bg-primary/10 text-primary">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
@@ -159,17 +171,17 @@ const AuthButtons = () => {
 
         {showDropdown && (
           <div
-            className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-md shadow-lg overflow-hidden z-50"
           >
             <div className="py-2">
               <Link href="/profile">
-                <div className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600">
+                <div className="flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground">
                   <UserCircle className="h-4 w-4 mr-2" />
                   Profile
                 </div>
               </Link>
               <button
-                className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                className="w-full text-left flex items-center px-4 py-2 text-sm text-destructive hover:bg-destructive/10"
                 onClick={() => {
                   logout();
                   setShowDropdown(false);
@@ -190,12 +202,12 @@ const AuthButtons = () => {
   return (
     <div className="flex items-center space-x-2">
       <Link href="/login">
-        <button className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200">
+        <button className="inline-flex h-9 items-center justify-center rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
           Login
         </button>
       </Link>
       <Link href="/register">
-        <button className="px-4 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-colors duration-200">
+        <button className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
           Sign Up
         </button>
       </Link>
@@ -210,6 +222,26 @@ const Navbar = () => {
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<{[key: number]: boolean}>({});
   const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
+  
+  // Helper function to handle subcategory navigation
+  const handleSubcategoryClick = (url: string) => {
+    // Check if this is a subcategory URL pattern
+    const parts = url.split('/');
+    if (parts.length === 3 && ['scholarships', 'articles', 'universities', 'news'].includes(parts[1])) {
+      // Get the category name from the URL
+      const category = parts[2];
+      // Convert to filter URL instead of detail page
+      navigate(`/${parts[1]}?category=${encodeURIComponent(category)}`);
+      return true;
+    }
+    return false;
+  };
+  
+  // Function to close mobile menu
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
   
   // Fetch menu data from MongoDB
   const { data: menuItems = [] as MenuItem[], isLoading } = useQuery<MenuItem[]>({
@@ -277,212 +309,232 @@ const Navbar = () => {
   return (
     <header 
       className={cn(
-        "sticky top-0 bg-background z-50 transition-shadow duration-300",
+        "sticky top-0 bg-background z-50 transition-shadow duration-300 w-full",
         isScrolled || isMobileMenuOpen || isSearchOpen ? "shadow-md" : "shadow-sm"
       )}
     >
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center">
-            <Link href="/">
-              <span className="text-primary-600 font-bold text-xl md:text-2xl">
-                StudyGlobal
-              </span>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            {/* Menu Items */}
-            <div className="flex items-center space-x-4 lg:space-x-6">
-              {menuItems.map((item: MenuItem) => (
-                item.children && item.children.length > 0 ? (
-                  <div key={item.id} className="relative group">
-                    <button 
-                      className={cn(
-                        "text-slate-700 hover:text-primary-600 font-medium inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                        location.startsWith(item.url) && "text-primary-600 bg-primary-50/60"
-                      )}
-                    >
-                      {getMenuIcon(item.title)}
-                      {item.title}
-                      <ChevronDown className="h-4 w-4 ml-1 group-hover:rotate-180 transition-transform duration-200" />
-                    </button>
-                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100">
-                      <div className="py-2">
-                        {item.children.map((child) => (
-                          <Link 
-                            key={child.id} 
-                            href={child.url}
-                          >
-                            <div className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200">
-                              {child.title}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={item.id}>
-                    <Link href={item.url}>
-                      <div className={cn(
-                        "text-slate-700 hover:text-primary-600 font-medium relative inline-flex items-center py-1 px-2 rounded-md transition-colors duration-200",
-                        location === item.url && "text-primary-600 bg-primary-50/60"
-                      )}>
-                        {getMenuIcon(item.title)}
-                        {item.title}
-                        {location === item.url && (
-                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600" />
-                        )}
-                      </div>
-                    </Link>
-                  </div>
-                )
-              ))}
+      <nav className="border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <img 
+                  src="/logo.svg" 
+                  alt="Study Guru Logo" 
+                  className="h-8 w-8 mr-2"
+                />
+                <span className="text-xl font-bold text-foreground">STUDY GURU</span>
+              </Link>
             </div>
 
-            {/* Spacer to push auth buttons and search to the end */}
-            <div className="flex-grow"></div>
-
-            {/* Authentication buttons */}
-            <AuthButtons />
-            
-            {/* Theme Toggle - Desktop */}
-            <ThemeToggle />
-
-            {/* Search Button - Desktop */}
-            <button 
-              className="p-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700" 
-              aria-label="Search"
-              onClick={toggleSearch}
-            >
-              <Search className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center">
-            <button 
-              className="p-2 ml-2 rounded-full text-slate-700 hover:text-primary-600 focus:outline-none bg-slate-100 hover:bg-slate-200 transition-colors duration-200" 
-              aria-label="Search"
-              onClick={toggleSearch}
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            <button 
-              className={cn(
-                "p-2 ml-2 rounded-full focus:outline-none transition-colors duration-200", 
-                isMobileMenuOpen 
-                  ? "bg-primary-600 text-white hover:bg-primary-700" 
-                  : "bg-slate-100 text-slate-700 hover:text-primary-600 hover:bg-slate-200"
-              )}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              onClick={toggleMobileMenu}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            
-            {/* Menu Content */}
-            <div 
-              ref={menuRef}
-              className="md:hidden fixed inset-x-0 top-16 bg-background shadow-lg z-40 max-h-[80vh] overflow-y-auto"
-            >
-              <div className="container mx-auto px-4 pt-4 pb-6">
-                <div className="space-y-3">
-                  {menuItems.map((item: MenuItem) => (
-                    <div key={item.id} className="touch-manipulation">
-                      {item.children && item.children.length > 0 ? (
-                        <div className="mobile-dropdown overflow-hidden rounded-2xl shadow-md mb-3 border border-slate-200 bg-white">
-                          <button 
-                            className="w-full text-left flex justify-between items-center px-4 py-3.5 rounded-t-2xl text-base font-medium bg-gradient-to-r from-primary-50 to-white text-primary-700 hover:from-primary-100 hover:to-primary-50 transition-colors duration-200"
-                            onClick={() => toggleMobileDropdown(item.id)}
-                            aria-expanded={mobileDropdownOpen[item.id] ? "true" : "false"}
-                          >
-                            <span className="flex items-center">
-                              {getMenuIcon(item.title)}
-                              {item.title}
-                            </span>
-                            <div className={cn("text-primary-500", mobileDropdownOpen[item.id] && "transform rotate-180")}>
-                              <ChevronDown className="h-5 w-5" />
-                            </div>
-                          </button>
-                          
-                          {mobileDropdownOpen[item.id] && (
-                            <div className="bg-white border-t border-slate-100">
-                              {item.children.map((child) => (
-                                <Link 
-                                  key={child.id} 
-                                  href={child.url}
-                                >
-                                  <div className="block px-5 py-3.5 text-base font-medium text-slate-800 hover:bg-primary-50 hover:text-primary-600 border-b border-slate-100 last:border-b-0 transition-colors duration-200">
-                                    <span className="text-current">{child.title}</span>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          )}
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex md:flex-1 items-center justify-end space-x-4">
+              {/* Menu Items */}
+              <div className="flex items-center space-x-1 lg:space-x-2 mr-4">
+                {menuItems.map((item: MenuItem) => (
+                  item.children && item.children.length > 0 ? (
+                    <div key={item.id} className="relative group px-1">
+                      <button 
+                        className={cn(
+                          "inline-flex h-10 items-center justify-center rounded-md px-2 lg:px-3 py-2 text-sm font-medium transition-colors",
+                          "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none",
+                          location.startsWith(item.url) 
+                            ? "bg-accent/50 text-primary" 
+                            : "text-foreground"
+                        )}
+                      >
+                        {getMenuIcon(item.title)}
+                        <span className="mx-1">{item.title}</span>
+                        <ChevronDown className="h-3 w-3 transition duration-200 group-hover:rotate-180" aria-hidden="true" />
+                      </button>
+                      <div className="absolute left-0 mt-2 w-56 bg-popover border border-border rounded-md shadow-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top scale-95 group-hover:scale-100 z-50">
+                        <div className="py-2">
+                          {item.children.map((child) => (
+                            <Link 
+                              key={child.id} 
+                              href={child.url}
+                              onClick={(e) => {
+                                if (handleSubcategoryClick(child.url)) {
+                                  e.preventDefault();
+                                }
+                              }}
+                            >
+                              <div className="block px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200">
+                                {child.title}
+                              </div>
+                            </Link>
+                          ))}
                         </div>
-                      ) : (
-                        <Link href={item.url}>
-                          <div className={cn(
-                            "block px-4 py-3.5 mb-3 rounded-2xl text-base shadow-md transition-all duration-200 flex items-center",
-                            location === item.url 
-                              ? "bg-primary-600 text-white font-bold" 
-                              : "bg-white text-slate-800 hover:bg-primary-50 hover:text-primary-600 font-medium"
-                          )}>
-                            {getMenuIcon(item.title)}
-                            <span className="text-current">{item.title}</span>
-                          </div>
-                        </Link>
-                      )}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  ) : (
+                    <div key={item.id} className="px-1">
+                      <Link href={item.url}>
+                        <div className={cn(
+                          "inline-flex h-10 items-center justify-center rounded-md px-2 lg:px-3 py-2 text-sm font-medium transition-colors",
+                          "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none",
+                          location === item.url 
+                            ? "bg-accent/50 text-primary" 
+                            : "text-foreground"
+                        )}>
+                          {getMenuIcon(item.title)}
+                          <span className="mx-1">{item.title}</span>
+                        </div>
+                      </Link>
+                    </div>
+                  )
+                ))}
+              </div>
+
+              {/* Authentication buttons */}
+              <div className="flex items-center">
+                <AuthButtons />
                 
-                {/* Mobile Theme Toggle */}
-                <div className="mt-6 pt-4 border-t border-slate-200">
-                  <div className="flex justify-center">
-                    <div className="flex items-center gap-2">
-                      <Sun className="h-5 w-5 text-amber-500" />
-                      <ThemeToggle />
-                      <Moon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
-                    </div>
-                  </div>
+                {/* Theme Toggle - Desktop */}
+                <div className="ml-2">
+                  <ThemeToggle />
                 </div>
 
-                {/* Mobile Auth Buttons */}
-                <div className="mt-6 pt-6 border-t border-slate-200">
-                  <div className="p-3 bg-white rounded-xl shadow-sm dark:bg-slate-800">
-                    <MobileAuthArea 
-                      closeMobileMenu={() => setIsMobileMenuOpen(false)}
-                    />
+                {/* Search Button - Desktop */}
+                <button 
+                  className="ml-2 p-2 rounded-md text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none transition-colors duration-200" 
+                  aria-label="Search"
+                  onClick={toggleSearch}
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center space-x-2">
+              {/* Theme Toggle - Mobile */}
+              <ThemeToggle />
+              
+              {/* Search button */}
+              <button 
+                className="p-2 rounded-md text-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                onClick={toggleSearch}
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              
+              {/* Hamburger/Close button */}
+              <button 
+                onClick={toggleMobileMenu}
+                className="p-2 rounded-md flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation - Fixed to prevent stretching */}
+          {isMobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <div
+                className="md:hidden fixed inset-0 top-16 bg-black/30 backdrop-blur-sm z-30"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              
+              {/* Menu Content */}
+              <div 
+                ref={menuRef}
+                className="md:hidden fixed inset-x-0 top-16 bg-background shadow-lg z-40 max-h-[80vh] overflow-y-auto"
+              >
+                <div className="container mx-auto px-4 pt-4 pb-6">
+                  <div className="space-y-3">
+                    {menuItems.map((item: MenuItem) => (
+                      <div key={item.id} className="touch-manipulation">
+                        {item.children && item.children.length > 0 ? (
+                          <div className="mobile-dropdown overflow-hidden rounded-md shadow-sm mb-3 border border-border">
+                            <button 
+                              className={cn(
+                                "w-full text-left flex justify-between items-center px-4 py-3 text-sm font-medium transition-colors duration-200",
+                                location.startsWith(item.url)
+                                  ? "bg-accent/50 text-primary"
+                                  : "bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                              )}
+                              onClick={() => toggleMobileDropdown(item.id)}
+                              aria-expanded={mobileDropdownOpen[item.id] ? "true" : "false"}
+                            >
+                              <span className="flex items-center">
+                                {getMenuIcon(item.title)}
+                                <span className="ml-2">{item.title}</span>
+                              </span>
+                              <div className={cn("transition-transform duration-200", mobileDropdownOpen[item.id] && "transform rotate-180")}>
+                                <ChevronDown className="h-4 w-4" />
+                              </div>
+                            </button>
+                            
+                            {mobileDropdownOpen[item.id] && (
+                              <div className="bg-background border-t border-border">
+                                {item.children.map((child) => (
+                                  <Link 
+                                    key={child.id} 
+                                    href={child.url}
+                                    onClick={(e) => {
+                                      if (handleSubcategoryClick(child.url)) {
+                                        e.preventDefault();
+                                      }
+                                      closeMobileMenu();
+                                    }}
+                                  >
+                                    <div className={cn(
+                                      "block px-4 py-3 text-sm font-medium transition-colors duration-200 border-b border-border last:border-b-0",
+                                      location === child.url
+                                        ? "bg-accent/30 text-primary"
+                                        : "text-foreground hover:bg-accent/20 hover:text-accent-foreground"
+                                    )}>
+                                      <span className="ml-6">{child.title}</span>
+                                    </div>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <Link href={item.url}>
+                            <div className={cn(
+                              "block px-4 py-3 mb-3 rounded-md text-sm font-medium transition-colors duration-200 flex items-center border border-border",
+                              location === item.url 
+                                ? "bg-accent/50 text-primary" 
+                                : "bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                            )}>
+                              {getMenuIcon(item.title)}
+                              <span className="ml-2">{item.title}</span>
+                            </div>
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mobile Auth Buttons */} 
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <div className="p-3 bg-card rounded-md shadow-sm">
+                      <MobileAuthArea 
+                        closeMobileMenu={() => setIsMobileMenuOpen(false)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </nav>
 
       {/* Search Bar */}
       {isSearchOpen && (
-        <div className="bg-white border-t border-slate-100 py-4 px-4 shadow-inner">
+        <div className="bg-background border-t border-border py-4 px-4 shadow-inner">
           <div className="container mx-auto">
             <SearchBar onSearch={() => setIsSearchOpen(false)} />
           </div>
@@ -493,3 +545,14 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+
+
+
+
+
+
+
+
+

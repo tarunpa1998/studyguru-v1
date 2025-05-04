@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { Helmet } from "react-helmet";
@@ -45,6 +46,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { motion } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Interface for University
 interface University {
@@ -90,6 +92,7 @@ interface Scholarship {
 }
 
 const UniversityDetail = () => {
+  const { theme } = useTheme();
   const { slug } = useParams();
   
   const { data: university, isLoading: universityLoading } = useQuery<University>({
@@ -111,23 +114,23 @@ const UniversityDetail = () => {
     <>
       {university && (
         <Helmet>
-          <title>{university.name} | StudyGlobal</title>
+          <title>{university.name} | Study Guru</title>
           <meta name="description" content={university.overview || university.description} />
-          <meta property="og:title" content={`${university.name} | StudyGlobal`} />
+          <meta property="og:title" content={`${university.name} | Study Guru`} />
           <meta property="og:description" content={university.overview || university.description} />
           <meta property="og:type" content="article" />
           {university.image && <meta property="og:image" content={university.image} />}
         </Helmet>
       )}
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+        <div className="mb-4 md:mb-6">
           <Button 
             variant="ghost" 
             className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium p-0 h-auto"
             onClick={() => window.location.href = '/universities'}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2 mt-0" />
             Back to Universities
           </Button>
         </div>
@@ -164,7 +167,7 @@ const UniversityDetail = () => {
                   <img 
                     src={university.logo} 
                     alt={university.name + " logo"} 
-                    className="h-32 w-auto object-contain rounded-lg bg-white p-2 border border-slate-200" 
+                    className="h-32 w-auto object-contain rounded-lg bg-white p-2 border border-border" 
                   />
                 ) : university.image ? (
                   <img 
@@ -173,32 +176,32 @@ const UniversityDetail = () => {
                     className="h-32 w-32 object-cover rounded-lg" 
                   />
                 ) : (
-                  <div className="h-32 w-32 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <span className="text-3xl font-bold text-slate-400">{university.name.charAt(0)}</span>
+                  <div className="h-32 w-32 bg-muted rounded-lg flex items-center justify-center">
+                    <span className="text-3xl font-bold text-muted-foreground">{university.name.charAt(0)}</span>
                   </div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-800 mb-2">{university.name}</h1>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{university.name}</h1>
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <div className="flex items-center">
-                      <MapPin className="h-4 w-4 text-slate-500 mr-1" />
-                      <span className="text-slate-600">{university.location || university.country}</span>
+                      <MapPin className="h-4 w-4 text-muted-foreground mr-1" />
+                      <span className="text-muted-foreground">{university.location || university.country}</span>
                     </div>
                     {university.foundedYear > 0 && (
                       <>
-                        <div className="w-1 h-1 bg-slate-300 rounded-full mx-1"></div>
+                        <div className="w-1 h-1 bg-border rounded-full mx-1"></div>
                         <div className="flex items-center">
-                          <Calendar className="h-4 w-4 text-slate-500 mr-1" />
-                          <span className="text-slate-600">Est. {university.foundedYear}</span>
+                          <Calendar className="h-4 w-4 text-muted-foreground mr-1" />
+                          <span className="text-muted-foreground">Est. {university.foundedYear}</span>
                         </div>
                       </>
                     )}
                     {university.ranking && (
                       <>
-                        <div className="w-1 h-1 bg-slate-300 rounded-full mx-1"></div>
+                        <div className="w-1 h-1 bg-border rounded-full mx-1"></div>
                         <div className="flex items-center">
-                          <Award className="h-4 w-4 text-amber-500 mr-1" />
-                          <span className="text-slate-600">#{university.ranking} Globally</span>
+                          <Award className="h-4 w-4 text-amber-500 dark:text-amber-400 mr-1" />
+                          <span className="text-muted-foreground">#{university.ranking} Globally</span>
                         </div>
                       </>
                     )}
@@ -206,7 +209,7 @@ const UniversityDetail = () => {
                   {university.features && university.features.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {university.features.slice(0, 4).map((feature: string, index: number) => (
-                        <Badge key={index} variant="outline" className="bg-slate-50">
+                        <Badge key={index} variant="outline" className="bg-background dark:bg-card">
                           {feature}
                         </Badge>
                       ))}
@@ -217,7 +220,7 @@ const UniversityDetail = () => {
                       href={university.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium mt-2"
+                      className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium mt-2"
                     >
                       <LinkIcon className="h-4 w-4 mr-1" />
                       Official Website
@@ -227,12 +230,12 @@ const UniversityDetail = () => {
               </div>
 
               {/* Overview section */}
-              <div className="bg-primary-50 border border-primary-100 rounded-xl p-6 mb-8">
-                <h2 className="text-xl font-semibold text-primary-900 mb-3 flex items-center">
-                  <School className="h-5 w-5 mr-2 text-primary-600" />
+              <div className="bg-primary-50 dark:bg-primary-950/30 border border-primary-100 dark:border-primary-900 rounded-xl p-6 mb-8">
+                <h2 className="text-xl font-semibold text-primary-900 dark:text-primary-100 mb-3 flex items-center">
+                  <School className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                   About {university.name}
                 </h2>
-                <p className="text-slate-700 leading-relaxed">
+                <p className="text-foreground leading-relaxed">
                   {university.overview || university.description}
                 </p>
               </div>
@@ -255,38 +258,38 @@ const UniversityDetail = () => {
                         <CardTitle className="text-lg">Key Statistics</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex justify-between border-b pb-2">
+                        <div className="flex justify-between border-b border-border pb-2">
                           <div className="flex items-center">
-                            <Users className="h-4 w-4 text-primary-500 mr-2" />
-                            <span className="text-slate-600">Student Population</span>
+                            <Users className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                            <span className="text-muted-foreground">Student Population</span>
                           </div>
-                          <span className="font-medium">
+                          <span className="font-medium text-foreground">
                             {university.studentPopulation ? university.studentPopulation.toLocaleString() : 'N/A'}
                           </span>
                         </div>
                         
-                        <div className="flex justify-between border-b pb-2">
+                        <div className="flex justify-between border-b border-border pb-2">
                           <div className="flex items-center">
-                            <Globe className="h-4 w-4 text-primary-500 mr-2" />
-                            <span className="text-slate-600">International Students</span>
+                            <Globe className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                            <span className="text-muted-foreground">International Students</span>
                           </div>
-                          <span className="font-medium">{university.internationalStudents || 'N/A'}</span>
+                          <span className="font-medium text-foreground">{university.internationalStudents || 'N/A'}</span>
                         </div>
                         
-                        <div className="flex justify-between border-b pb-2">
+                        <div className="flex justify-between border-b border-border pb-2">
                           <div className="flex items-center">
-                            <GraduationCap className="h-4 w-4 text-primary-500 mr-2" />
-                            <span className="text-slate-600">Acceptance Rate</span>
+                            <GraduationCap className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                            <span className="text-muted-foreground">Acceptance Rate</span>
                           </div>
-                          <span className="font-medium">{university.acceptanceRate || 'N/A'}</span>
+                          <span className="font-medium text-foreground">{university.acceptanceRate || 'N/A'}</span>
                         </div>
                         
                         <div className="flex justify-between">
                           <div className="flex items-center">
-                            <Calendar className="h-4 w-4 text-primary-500 mr-2" />
-                            <span className="text-slate-600">Academic Calendar</span>
+                            <Calendar className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                            <span className="text-muted-foreground">Academic Calendar</span>
                           </div>
-                          <span className="font-medium">{university.academicCalendar || 'N/A'}</span>
+                          <span className="font-medium text-foreground">{university.academicCalendar || 'N/A'}</span>
                         </div>
                       </CardContent>
                     </Card>
@@ -307,27 +310,27 @@ const UniversityDetail = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}
                               >
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span className="text-slate-700">{facility}</span>
+                                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                                <span className="text-foreground">{facility}</span>
                               </motion.li>
                             ))
                           ) : (
                             <>
                               <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                                <span className="text-slate-700">Modern research facilities</span>
+                                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5" />
+                                <span className="text-foreground">Modern research facilities</span>
                               </li>
                               <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                                <span className="text-slate-700">Extensive library resources</span>
+                                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5" />
+                                <span className="text-foreground">Extensive library resources</span>
                               </li>
                               <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                                <span className="text-slate-700">Student accommodation</span>
+                                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5" />
+                                <span className="text-foreground">Student accommodation</span>
                               </li>
                               <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                                <span className="text-slate-700">Sports and recreational facilities</span>
+                                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mr-2 mt-0.5" />
+                                <span className="text-foreground">Sports and recreational facilities</span>
                               </li>
                             </>
                           )}
@@ -338,16 +341,16 @@ const UniversityDetail = () => {
                   
                   {/* Notable Alumni */}
                   {university.notableAlumni && university.notableAlumni.length > 0 && (
-                    <div className="bg-slate-50 rounded-xl border border-slate-200 p-6">
-                      <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                        <Briefcase className="h-5 w-5 mr-2 text-slate-600" />
+                    <div className="bg-muted dark:bg-muted/30 rounded-xl border border-border p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                        <Briefcase className="h-5 w-5 mr-2 text-muted-foreground" />
                         Notable Alumni
                       </h3>
                       <ul className="space-y-2">
                         {university.notableAlumni.map((alumnus: string, index: number) => (
                           <li key={index} className="flex items-start">
-                            <Star className="h-4 w-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span className="text-slate-700">{alumnus}</span>
+                            <Star className="h-4 w-4 text-amber-500 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
+                            <span className="text-foreground">{alumnus}</span>
                           </li>
                         ))}
                       </ul>
@@ -368,29 +371,29 @@ const UniversityDetail = () => {
                           university.programsOffered.map((program: string, index: number) => (
                             <div 
                               key={index} 
-                              className="bg-slate-50 rounded-lg p-3 flex items-center"
+                              className="bg-muted dark:bg-muted/30 rounded-lg p-3 flex items-center"
                             >
-                              <BookOpen className="h-4 w-4 text-primary-500 mr-2 flex-shrink-0" />
-                              <span className="text-slate-700">{program}</span>
+                              <BookOpen className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2 flex-shrink-0" />
+                              <span className="text-foreground">{program}</span>
                             </div>
                           ))
                         ) : (
                           <>
-                            <div className="bg-slate-50 rounded-lg p-3 flex items-center">
-                              <BookOpen className="h-4 w-4 text-primary-500 mr-2" />
-                              <span className="text-slate-700">Undergraduate Programs</span>
+                            <div className="bg-muted dark:bg-muted/30 rounded-lg p-3 flex items-center">
+                              <BookOpen className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                              <span className="text-foreground">Undergraduate Programs</span>
                             </div>
-                            <div className="bg-slate-50 rounded-lg p-3 flex items-center">
-                              <BookOpen className="h-4 w-4 text-primary-500 mr-2" />
-                              <span className="text-slate-700">Graduate Programs</span>
+                            <div className="bg-muted dark:bg-muted/30 rounded-lg p-3 flex items-center">
+                              <BookOpen className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                              <span className="text-foreground">Graduate Programs</span>
                             </div>
-                            <div className="bg-slate-50 rounded-lg p-3 flex items-center">
-                              <BookOpen className="h-4 w-4 text-primary-500 mr-2" />
-                              <span className="text-slate-700">Doctoral Programs</span>
+                            <div className="bg-muted dark:bg-muted/30 rounded-lg p-3 flex items-center">
+                              <BookOpen className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                              <span className="text-foreground">Doctoral Programs</span>
                             </div>
-                            <div className="bg-slate-50 rounded-lg p-3 flex items-center">
-                              <BookOpen className="h-4 w-4 text-primary-500 mr-2" />
-                              <span className="text-slate-700">Professional Certification</span>
+                            <div className="bg-muted dark:bg-muted/30 rounded-lg p-3 flex items-center">
+                              <BookOpen className="h-4 w-4 text-primary-500 dark:text-primary-400 mr-2" />
+                              <span className="text-foreground">Professional Certification</span>
                             </div>
                           </>
                         )}
@@ -421,49 +424,49 @@ const UniversityDetail = () => {
                         {university.admissionRequirements && university.admissionRequirements.length > 0 ? (
                           university.admissionRequirements.map((requirement: string, index: number) => (
                             <li key={index} className="flex items-start">
-                              <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                              <span className="text-slate-700">{requirement}</span>
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                              <span className="text-foreground">{requirement}</span>
                             </li>
                           ))
                         ) : (
                           <>
                             <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                              <span className="text-slate-700">Academic transcripts</span>
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
+                              <span className="text-foreground">Academic transcripts</span>
                             </li>
                             <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                              <span className="text-slate-700">English proficiency (IELTS/TOEFL)</span>
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
+                              <span className="text-foreground">English proficiency (IELTS/TOEFL)</span>
                             </li>
                             <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                              <span className="text-slate-700">Letters of recommendation</span>
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
+                              <span className="text-foreground">Letters of recommendation</span>
                             </li>
                             <li className="flex items-start">
-                              <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
-                              <span className="text-slate-700">Statement of purpose</span>
+                              <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
+                              <span className="text-foreground">Statement of purpose</span>
                             </li>
                           </>
                         )}
                       </ul>
                       
-                      <div className="mt-6 pt-4 border-t border-slate-100">
-                        <h4 className="font-medium mb-2 text-slate-800">Application Deadlines</h4>
-                        <p className="text-slate-700">{university.applicationDeadlines || "Please check the university website for current application deadlines."}</p>
+                      <div className="mt-6 pt-4 border-t border-border">
+                        <h4 className="font-medium mb-2 text-foreground">Application Deadlines</h4>
+                        <p className="text-muted-foreground">{university.applicationDeadlines || "Please check the university website for current application deadlines."}</p>
                       </div>
                       
-                      <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
                         <div className="flex items-center">
-                          <DollarSign className="h-5 w-5 text-amber-500 mr-2" />
-                          <h4 className="font-medium text-slate-800">Tuition Fees</h4>
+                          <DollarSign className="h-5 w-5 text-amber-500 dark:text-amber-400 mr-2" />
+                          <h4 className="font-medium text-foreground">Tuition Fees</h4>
                         </div>
-                        <span className="font-semibold">{university.tuitionFees || "Varies by program"}</span>
+                        <span className="font-semibold text-foreground">{university.tuitionFees || "Varies by program"}</span>
                       </div>
                       
-                      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
                         <div className="flex items-center">
                           <GraduationCap className="h-5 w-5 text-primary-500 mr-2" />
-                          <h4 className="font-medium text-slate-800">Scholarships Available</h4>
+                          <h4 className="font-medium text-foreground">Scholarships Available</h4>
                         </div>
                         <Badge variant={university.scholarshipsAvailable ? "default" : "outline"}>
                           {university.scholarshipsAvailable ? "Yes" : "Limited"}
@@ -485,20 +488,20 @@ const UniversityDetail = () => {
                     </div>
                   )}
                   
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                    <h3 className="text-xl font-semibold mb-4 flex items-center">
-                      <HomeIcon className="h-5 w-5 mr-2 text-primary-600" />
+                  <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center text-foreground">
+                      <HomeIcon className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                       Campus Life
                     </h3>
-                    <p className="text-slate-700 leading-relaxed mb-6">
+                    <p className="text-foreground leading-relaxed mb-6">
                       {university.campusLife || "The university offers a vibrant campus environment with various facilities and opportunities for students to engage in extracurricular activities, clubs, and social events."}
                     </p>
                     
                     <Accordion type="single" collapsible>
                       <AccordionItem value="facilities">
-                        <AccordionTrigger className="text-slate-800">Campus Facilities</AccordionTrigger>
+                        <AccordionTrigger className="text-foreground">Campus Facilities</AccordionTrigger>
                         <AccordionContent>
-                          <ul className="space-y-2 pl-6 list-disc text-slate-700">
+                          <ul className="space-y-2 pl-6 list-disc text-muted-foreground">
                             {university.facilities && university.facilities.length > 0 ? (
                               university.facilities.map((facility: string, index: number) => (
                                 <li key={index}>{facility}</li>
@@ -517,12 +520,12 @@ const UniversityDetail = () => {
                       </AccordionItem>
                       
                       <AccordionItem value="student-life">
-                        <AccordionTrigger className="text-slate-800">Student Life</AccordionTrigger>
+                        <AccordionTrigger className="text-foreground">Student Life</AccordionTrigger>
                         <AccordionContent>
-                          <p className="text-slate-700 mb-2">
+                          <p className="text-muted-foreground mb-2">
                             Students at {university.name} can participate in a wide range of extracurricular activities, including:
                           </p>
-                          <ul className="space-y-2 pl-6 list-disc text-slate-700">
+                          <ul className="space-y-2 pl-6 list-disc text-muted-foreground">
                             <li>Student clubs and organizations</li>
                             <li>Cultural events and festivals</li>
                             <li>Sports teams and competitions</li>
@@ -533,12 +536,12 @@ const UniversityDetail = () => {
                       </AccordionItem>
                       
                       <AccordionItem value="support">
-                        <AccordionTrigger className="text-slate-800">Student Support Services</AccordionTrigger>
+                        <AccordionTrigger className="text-foreground">Student Support Services</AccordionTrigger>
                         <AccordionContent>
-                          <p className="text-slate-700 mb-2">
+                          <p className="text-muted-foreground mb-2">
                             {university.name} offers comprehensive support services for all students, including:
                           </p>
-                          <ul className="space-y-2 pl-6 list-disc text-slate-700">
+                          <ul className="space-y-2 pl-6 list-disc text-muted-foreground">
                             <li>Academic advising</li>
                             <li>Career counseling and job placement</li>
                             <li>Health and wellness services</li>
@@ -556,7 +559,7 @@ const UniversityDetail = () => {
               {relevantScholarships.length > 0 && (
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-slate-800">Available Scholarships</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Available Scholarships</h2>
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -589,19 +592,19 @@ const UniversityDetail = () => {
               <Card className="sticky top-20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <School className="h-5 w-5 text-primary-500" />
+                    <School className="h-5 w-5 text-primary-500 dark:text-primary-400" />
                     Key Information
                   </CardTitle>
                   <CardDescription>Fast facts about {university.name}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="flex items-center">
-                    <div className="bg-primary-100 p-2 rounded-full mr-3">
-                      <Award className="h-5 w-5 text-primary-600" />
+                    <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-full mr-3">
+                      <Award className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Global Ranking</p>
-                      <p className="font-semibold">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Global Ranking</p>
+                      <p className="font-semibold text-foreground">
                         {university.ranking 
                           ? `#${university.ranking}` 
                           : "Not ranked"
@@ -611,22 +614,22 @@ const UniversityDetail = () => {
                   </div>
                   
                   <div className="flex items-center">
-                    <div className="bg-blue-100 p-2 rounded-full mr-3">
-                      <Calendar className="h-5 w-5 text-blue-600" />
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full mr-3">
+                      <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Founded</p>
-                      <p className="font-semibold">{university.foundedYear || "N/A"}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Founded</p>
+                      <p className="font-semibold text-foreground">{university.foundedYear || "N/A"}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center">
-                    <div className="bg-amber-100 p-2 rounded-full mr-3">
-                      <Users className="h-5 w-5 text-amber-600" />
+                    <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full mr-3">
+                      <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Student Population</p>
-                      <p className="font-semibold">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Student Population</p>
+                      <p className="font-semibold text-foreground">
                         {university.studentPopulation 
                           ? university.studentPopulation.toLocaleString()
                           : "N/A"
@@ -636,39 +639,39 @@ const UniversityDetail = () => {
                   </div>
                   
                   <div className="flex items-center">
-                    <div className="bg-green-100 p-2 rounded-full mr-3">
-                      <GraduationCap className="h-5 w-5 text-green-600" />
+                    <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full mr-3">
+                      <GraduationCap className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Acceptance Rate</p>
-                      <p className="font-semibold">{university.acceptanceRate || "N/A"}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Acceptance Rate</p>
+                      <p className="font-semibold text-foreground">{university.acceptanceRate || "N/A"}</p>
                     </div>
                   </div>
                   
-                  <div className="pt-4 border-t border-slate-100">
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="flex justify-between items-center mb-1">
-                      <h3 className="font-medium text-sm">Tuition Fees</h3>
+                      <h3 className="font-medium text-sm text-foreground">Tuition Fees</h3>
                       <Badge variant="outline">USD</Badge>
                     </div>
-                    <p className="text-slate-700">{university.tuitionFees || "Varies by program"}</p>
+                    <p className="text-muted-foreground dark:text-gray-400">{university.tuitionFees || "Varies by program"}</p>
                   </div>
                   
-                  <div className="pt-4 border-t border-slate-100">
-                    <h3 className="font-medium text-sm mb-2">Website</h3>
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 className="font-medium text-sm mb-2 text-foreground">Website</h3>
                     <div className="flex items-center gap-2">
-                      <LinkIcon className="h-4 w-4 text-primary-500" />
+                      <LinkIcon className="h-4 w-4 text-primary-500 dark:text-primary-400" />
                       <a 
                         href={university.website || '#'} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:underline truncate"
+                        className="text-muted-foreground dark:text-gray-400 hover:underline truncate"
                       >
                         {university.website || `www.${university.name.toLowerCase().replace(/\s+/g, '')}.edu`}
                       </a>
                     </div>
                   </div>
                   
-                  <div className="space-y-3 mt-4 pt-4 border-t border-slate-100">
+                  <div className="space-y-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <Button 
                       className="w-full"
                       onClick={() => window.location.href = `/scholarships?country=${encodeURIComponent(university.country)}`}
@@ -688,9 +691,9 @@ const UniversityDetail = () => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-slate-800 mb-4">University Not Found</h1>
-            <p className="text-slate-600 mb-6">We couldn't find the university you're looking for.</p>
+          <div className="text-center py-6">
+            <h1 className="text-2xl font-bold text-foreground mb-4">University Not Found</h1>
+            <p className="text-muted-foreground mb-6">We couldn't find the university you're looking for.</p>
             <Button onClick={() => window.location.href = '/universities'}>
               Back to Universities
             </Button>
@@ -702,3 +705,5 @@ const UniversityDetail = () => {
 };
 
 export default UniversityDetail;
+
+

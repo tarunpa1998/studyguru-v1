@@ -53,7 +53,7 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Join thousands of students who've found their path to success with StudyGlobal's comprehensive resources and expert guidance.
+            Join thousands of students who've found their path to success with Study Guru's comprehensive resources and expert guidance.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -82,7 +82,7 @@ const Footer = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
             >
-              <h3 className="text-2xl font-bold mb-4 text-white">StudyGlobal</h3>
+              <h3 className="text-2xl font-bold mb-4 text-white">Study Guru</h3>
               <p className="text-slate-300 mb-6 text-sm">
                 Your comprehensive resource for international education opportunities, scholarships, and expert advice for the next generation of global leaders.
               </p>
@@ -288,7 +288,7 @@ const Footer = () => {
               <ul className="space-y-3 text-slate-300">
                 <li className="flex items-center">
                   <Mail className="h-5 w-5 mr-3 text-primary-400" />
-                  <span>contact@studyglobal.com</span>
+                  <span>contact@studyguruindia.com</span>
                 </li>
                 <li className="flex items-center">
                   <Phone className="h-5 w-5 mr-3 text-primary-400" />
@@ -305,7 +305,7 @@ const Footer = () => {
         
         {/* Bottom section */}
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-slate-400 text-sm">&copy; {new Date().getFullYear()} StudyGlobal. All rights reserved.</p>
+          <p className="text-slate-400 text-sm">&copy; {new Date().getFullYear()} Study Guru. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-6 mt-4 md:mt-0">
             <motion.div 
               className="text-slate-400 hover:text-white text-sm cursor-pointer"

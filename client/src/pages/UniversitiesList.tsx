@@ -17,41 +17,55 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
+
+// Define University interface
+interface University {
+  id: string | number;
+  name: string;
+  description: string;
+  country: string;
+  ranking?: number;
+  image?: string;
+  slug: string;
+  features?: string[];
+}
 
 const UniversitiesList = () => {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCountry, setFilterCountry] = useState("");
+  const [filterCountry, setFilterCountry] = useState("all");
 
-  const { data: universities = [], isLoading } = useQuery({
+  const { data: universities = [], isLoading } = useQuery<University[]>({
     queryKey: ['/api/universities']
   });
 
   // Apply filters
-  const filteredUniversities = universities.filter((university: any) => {
+  const filteredUniversities = universities.filter((university) => {
     const matchesSearch = university.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           university.description.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesCountry = filterCountry ? university.country === filterCountry : true;
+    const matchesCountry = filterCountry === "all" ? true : university.country === filterCountry;
     
     return matchesSearch && matchesCountry;
   });
 
   // Extract unique countries for filters
-  const uniqueCountries = Array.from(new Set(universities.map((u: any) => u.country)));
+  const uniqueCountries = Array.from(new Set(universities.map((u) => u.country)));
 
   return (
     <>
       <Helmet>
-        <title>Universities | StudyGlobal</title>
+        <title>Universities | Study Guru</title>
         <meta 
           name="description" 
           content="Explore top universities and colleges worldwide for international students. Find rankings, programs, and admission information."
         />
       </Helmet>
 
-      <div className="bg-primary-600 py-16">
+      <div className="bg-primary-600 py-16 pt-6 pb-0">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Universities</h1>
+          <h1 className="text-3xl font-bold text-dark dark:text-white mb-4">Universities</h1>
           <p className="text-primary-100 max-w-2xl">
             Discover top universities and colleges around the world. Compare rankings, programs, and find the perfect institution for your educational journey.
           </p>
@@ -59,10 +73,10 @@ const UniversitiesList = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+        <div className="bg-card shadow-sm rounded-lg p-6 mb-8 border">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Filter Universities</h2>
-            <Filter className="h-5 w-5 text-slate-400" />
+            <Filter className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -75,7 +89,7 @@ const UniversitiesList = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+                <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
               </div>
             </div>
             <div>
@@ -120,16 +134,16 @@ const UniversitiesList = () => {
         ) : (
           <>
             <div className="mb-6">
-              <p className="text-slate-600">{filteredUniversities.length} universities found</p>
+              <p className="text-muted-foreground">{filteredUniversities.length} universities found</p>
             </div>
             {filteredUniversities.length === 0 ? (
               <div className="text-center py-12">
-                <h3 className="text-xl font-medium text-slate-800 mb-2">No universities found</h3>
-                <p className="text-slate-600">Try adjusting your filters to find more results.</p>
+                <h3 className="text-xl font-medium mb-2">No universities found</h3>
+                <p className="text-muted-foreground">Try adjusting your filters to find more results.</p>
               </div>
             ) : (
               <div className="space-y-6">
-                {filteredUniversities.map((university: any) => (
+                {filteredUniversities.map((university) => (
                   <motion.div 
                     key={university.id}
                     whileHover={{ y: -5 }}
@@ -145,13 +159,13 @@ const UniversitiesList = () => {
                               className="h-32 w-32 object-cover rounded-lg flex-shrink-0" 
                             />
                           ) : (
-                            <div className="h-32 w-32 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-xl font-bold text-slate-400">{university.name.charAt(0)}</span>
+                            <div className="h-32 w-32 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl font-bold text-muted-foreground">{university.name.charAt(0)}</span>
                             </div>
                           )}
                           <div className="flex-grow">
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-                              <h3 className="text-xl font-bold text-slate-800">{university.name}</h3>
+                              <h3 className="text-xl font-bold">{university.name}</h3>
                               {university.ranking && (
                                 <Badge variant="outline" className="ml-0 md:ml-2">
                                   Ranking: #{university.ranking}
@@ -164,15 +178,15 @@ const UniversitiesList = () => {
                               </Badge>
                               {university.features && university.features.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
-                                  {university.features.slice(0, 2).map((feature: string, index: number) => (
-                                    <Badge key={index} variant="outline" className="bg-slate-50">
+                                  {university.features.slice(0, 2).map((feature, index) => (
+                                    <Badge key={index} variant="outline" className="bg-muted">
                                       {feature}
                                     </Badge>
                                   ))}
                                 </div>
                               )}
                             </div>
-                            <p className="text-slate-600 mb-4">{university.description.substring(0, 150)}...</p>
+                            <p className="text-muted-foreground mb-4">{university.description.substring(0, 150)}...</p>
                             <Link href={`/universities/${university.slug}`}>
                               <Button variant="outline" size="sm">
                                 View Details
@@ -194,3 +208,6 @@ const UniversitiesList = () => {
 };
 
 export default UniversitiesList;
+
+
+

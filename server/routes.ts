@@ -248,12 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(results);
   }));
 
-  // Seed initial data (just for demonstration)
-  app.post("/api/seed", errorHandler(async (req, res) => {
-    // Seed some initial data
-    await seedInitialData();
-    res.json({ message: "Initial data seeded successfully" });
-  }));
+
   
   // API endpoint to trigger data migration (only when needed)
   app.post("/api/migrate", errorHandler(async (req, res) => {

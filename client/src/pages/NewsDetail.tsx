@@ -42,6 +42,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Define the News type
 interface NewsItem {
@@ -79,13 +80,14 @@ interface NewsItem {
 
 // Related news card component
 const RelatedNewsCard = ({ newsItem }: { newsItem: NewsItem }) => {
+  const { theme } = useTheme();
   const handleClick = () => {
     window.location.href = `/news/${newsItem.slug}`;
   };
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer"
+      className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer"
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       onClick={handleClick}
@@ -100,9 +102,9 @@ const RelatedNewsCard = ({ newsItem }: { newsItem: NewsItem }) => {
         </div>
       )}
       <div className="p-4">
-        <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2">{newsItem.title}</h3>
-        <p className="text-sm text-slate-600 line-clamp-2 mb-3">{newsItem.summary}</p>
-        <div className="flex justify-between items-center text-xs text-slate-500">
+        <h3 className="font-semibold text-foreground mb-2 line-clamp-2">{newsItem.title}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{newsItem.summary}</p>
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
           <div className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
             <span>{formatDate(newsItem.publishDate)}</span>
@@ -120,6 +122,7 @@ const RelatedNewsCard = ({ newsItem }: { newsItem: NewsItem }) => {
 };
 
 const NewsDetail = () => {
+  const { theme } = useTheme();
   const { slug } = useParams();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showTableOfContents, setShowTableOfContents] = useState(false);
@@ -240,9 +243,9 @@ const NewsDetail = () => {
     <>
       {newsItem && (
         <Helmet>
-          <title>{newsItem.seo?.metaTitle || `${newsItem.title} | StudyGlobal News`}</title>
+          <title>{newsItem.seo?.metaTitle || `${newsItem.title} | Study Guru News`}</title>
           <meta name="description" content={newsItem.seo?.metaDescription || newsItem.summary} />
-          <meta property="og:title" content={newsItem.seo?.metaTitle || `${newsItem.title} | StudyGlobal News`} />
+          <meta property="og:title" content={newsItem.seo?.metaTitle || `${newsItem.title} | Study Guru News`} />
           <meta property="og:description" content={newsItem.seo?.metaDescription || newsItem.summary} />
           <meta property="og:type" content="article" />
           {newsItem.image && <meta property="og:image" content={newsItem.image} />}
@@ -298,11 +301,11 @@ const NewsDetail = () => {
         )}
       </AnimatePresence>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+        <div className="mb-4">
           <Button 
             variant="ghost" 
-            className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium p-0 h-auto"
+            className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium p-0 h-auto"
             onClick={() => window.location.href = '/news'}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -350,20 +353,20 @@ const NewsDetail = () => {
 
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
                       {newsItem.category}
                     </span>
                     {newsItem.isFeatured && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100">
                         Featured
                       </span>
                     )}
                   </div>
 
-                  <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{newsItem.title}</h1>
+                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">{newsItem.title}</h1>
 
                   {/* Article meta */}
-                  <div className="flex flex-wrap items-center text-slate-500 gap-y-2 gap-x-4">
+                  <div className="flex flex-wrap items-center text-muted-foreground gap-y-2 gap-x-4">
                     <div className="flex items-center">
                       <Calendar className="h-5 w-5 mr-2" />
                       <span>{formatDate(newsItem.publishDate)}</span>
@@ -401,14 +404,14 @@ const NewsDetail = () => {
 
               {/* Summary */}
               <div className="mb-8">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
-                  <h2 className="text-lg font-semibold mb-2">Summary</h2>
-                  <p className="text-slate-700">{newsItem.summary}</p>
+                <div className="bg-muted dark:bg-muted/30 border border-border rounded-xl p-5">
+                  <h2 className="text-lg font-semibold mb-2 text-foreground">Summary</h2>
+                  <p className="text-foreground">{newsItem.summary}</p>
                 </div>
               </div>
 
               {/* Main news content */}
-              <div className="article-content prose prose-blue max-w-none mb-8">
+              <div className="article-content prose prose-blue dark:prose-invert max-w-none mb-8">
                 {newsItem.tableOfContents && newsItem.tableOfContents.length > 0 ? (
                   // Content with headers from table of contents
                   newsItem.content.split('\n\n').map((paragraph, index) => {
@@ -423,7 +426,7 @@ const NewsDetail = () => {
                         <h2 
                           key={index} 
                           id={headerMatch.id}
-                          className="text-xl font-bold text-slate-800 mt-8 mb-4 scroll-mt-24"
+                          className="text-xl font-bold text-foreground mt-8 mb-4 scroll-mt-24"
                         >
                           {headerMatch.title}
                         </h2>
@@ -431,7 +434,7 @@ const NewsDetail = () => {
                     } else {
                       // Regular paragraph
                       return (
-                        <p key={index} className="mb-4 text-slate-700 leading-relaxed">
+                        <p key={index} className="mb-4 text-foreground leading-relaxed">
                           {paragraph}
                         </p>
                       );
@@ -440,7 +443,7 @@ const NewsDetail = () => {
                 ) : (
                   // Regular content without table of contents
                   newsItem.content.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-slate-700 leading-relaxed">
+                    <p key={index} className="mb-4 text-foreground leading-relaxed">
                       {paragraph}
                     </p>
                   ))
@@ -448,10 +451,10 @@ const NewsDetail = () => {
               </div>
 
               {/* Interaction section: Helpful + Share */}
-              <div className="border-t border-b border-slate-200 py-6 my-8">
+              <div className="border-t border-b border-border py-6 my-8">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div className="flex items-center">
-                    <span className="mr-3 text-slate-700">Was this article helpful?</span>
+                    <span className="mr-3 text-foreground">Was this article helpful?</span>
                     <div className="flex gap-2">
                       <TooltipProvider>
                         <Tooltip>
@@ -460,7 +463,7 @@ const NewsDetail = () => {
                               variant={helpfulVote === 'yes' ? 'default' : 'outline'}
                               size="sm"
                               className={`py-1 px-2 h-auto ${
-                                helpfulVote === 'yes' ? 'bg-green-600 hover:bg-green-700' : ''
+                                helpfulVote === 'yes' ? 'bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600' : ''
                               }`}
                               onClick={() => handleHelpfulVote('yes')}
                             >
@@ -481,7 +484,7 @@ const NewsDetail = () => {
                               variant={helpfulVote === 'no' ? 'default' : 'outline'}
                               size="sm"
                               className={`py-1 px-2 h-auto ${
-                                helpfulVote === 'no' ? 'bg-red-600 hover:bg-red-700' : ''
+                                helpfulVote === 'no' ? 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600' : ''
                               }`}
                               onClick={() => handleHelpfulVote('no')}
                             >
@@ -524,14 +527,14 @@ const NewsDetail = () => {
               {/* FAQ Section */}
               {newsItem.faqs && newsItem.faqs.length > 0 && (
                 <div className="my-10">
-                  <h2 className="text-2xl font-bold text-slate-800 mb-6">Frequently Asked Questions</h2>
-                  <Accordion type="single" collapsible className="bg-slate-50 border border-slate-200 rounded-xl px-4">
+                  <h2 className="text-2xl font-bold text-foreground mb-6">Frequently Asked Questions</h2>
+                  <Accordion type="single" collapsible className="bg-muted dark:bg-muted/30 border border-border rounded-xl px-4">
                     {newsItem.faqs.map((faq, index) => (
-                      <AccordionItem value={`faq-${index}`} key={index} className="border-b border-slate-200 last:border-0">
-                        <AccordionTrigger className="hover:text-primary-600">
+                      <AccordionItem value={`faq-${index}`} key={index} className="border-b border-border last:border-0">
+                        <AccordionTrigger className="hover:text-primary-600 dark:hover:text-primary-400 text-foreground">
                           {faq.question}
                         </AccordionTrigger>
-                        <AccordionContent className="text-slate-700">
+                        <AccordionContent className="text-foreground">
                           {faq.answer}
                         </AccordionContent>
                       </AccordionItem>
@@ -544,11 +547,11 @@ const NewsDetail = () => {
               {relatedNewsData.length > 0 && (
                 <div className="my-10">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-slate-800">Related News</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Related News</h2>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-primary-600"
+                      className="text-primary-600 dark:text-primary-400"
                       onClick={() => window.location.href = `/news?category=${encodeURIComponent(newsItem.category)}`}
                     >
                       View All
@@ -575,7 +578,7 @@ const NewsDetail = () => {
                   <Card className="hidden md:block">
                     <CardHeader>
                       <CardTitle className="flex items-center">
-                        <List className="h-5 w-5 mr-2 text-primary-600" />
+                        <List className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                         Table of Contents
                       </CardTitle>
                     </CardHeader>
@@ -586,8 +589,8 @@ const NewsDetail = () => {
                             key={item.id}
                             className={`pl-${(item.level - 1) * 4} py-2 border-l-2 ${
                               activeSection === item.id 
-                                ? 'border-primary-600 text-primary-600 font-medium' 
-                                : 'border-transparent hover:border-slate-300 text-slate-700'
+                                ? 'border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 font-medium' 
+                                : 'border-transparent hover:border-border text-foreground'
                             } cursor-pointer transition-colors duration-200`}
                             onClick={() => scrollToSection(item.id)}
                             whileHover={{ x: 3 }}
@@ -605,7 +608,7 @@ const NewsDetail = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center">
-                        <Search className="h-5 w-5 mr-2 text-primary-600" />
+                        <Search className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                         Keywords
                       </CardTitle>
                     </CardHeader>
@@ -614,7 +617,7 @@ const NewsDetail = () => {
                         {newsItem.seo.keywords.map((keyword, index) => (
                           <div 
                             key={index}
-                            className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs hover:bg-primary-100 hover:text-primary-700 transition-colors duration-200 cursor-pointer"
+                            className="bg-muted dark:bg-muted/50 text-foreground px-3 py-1 rounded-full text-xs hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-200 cursor-pointer"
                             onClick={() => window.location.href = `/search?q=${encodeURIComponent(keyword)}`}
                           >
                             {keyword}
@@ -628,16 +631,16 @@ const NewsDetail = () => {
                 {/* Search news card */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Search News</CardTitle>
+                    <CardTitle className="text-foreground">Search News</CardTitle>
                     <CardDescription>Find the latest educational news</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <input 
                         type="text" 
                         placeholder="Search news..." 
-                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-background text-foreground"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             const value = (e.target as HTMLInputElement).value;
@@ -662,13 +665,13 @@ const NewsDetail = () => {
                 {/* Latest News Card */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Latest News</CardTitle>
+                    <CardTitle className="text-foreground">Latest News</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {allNews.slice(0, 3).map((news) => (
                       <div 
                         key={news.id} 
-                        className="flex gap-3 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors duration-200"
+                        className="flex gap-3 cursor-pointer hover:bg-muted/80 dark:hover:bg-muted/20 p-2 rounded-lg transition-colors duration-200"
                         onClick={() => window.location.href = `/news/${news.slug}`}
                       >
                         {news.image && (
@@ -679,8 +682,8 @@ const NewsDetail = () => {
                           />
                         )}
                         <div>
-                          <h4 className="font-medium text-sm line-clamp-2">{news.title}</h4>
-                          <div className="flex items-center text-xs text-slate-500 mt-1">
+                          <h4 className="font-medium text-sm line-clamp-2 text-foreground">{news.title}</h4>
+                          <div className="flex items-center text-xs text-muted-foreground mt-1">
                             <Calendar className="h-3 w-3 mr-1" />
                             <span>{formatDate(news.publishDate)}</span>
                           </div>
@@ -694,8 +697,8 @@ const NewsDetail = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-slate-800 mb-4">News Article Not Found</h1>
-            <p className="text-slate-600 mb-6">We couldn't find the news article you're looking for.</p>
+            <h1 className="text-2xl font-bold text-foreground mb-4">News Article Not Found</h1>
+            <p className="text-muted-foreground mb-6">We couldn't find the news article you're looking for.</p>
             <Button onClick={() => window.location.href = '/news'}>
               Back to News
             </Button>
@@ -707,3 +710,12 @@ const NewsDetail = () => {
 };
 
 export default NewsDetail;
+
+
+
+
+
+
+
+
+

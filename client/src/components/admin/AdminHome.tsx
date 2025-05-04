@@ -82,7 +82,7 @@ const AdminHome = () => {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-slate-500 mt-2">
-          Welcome to the StudyGlobal admin dashboard! Manage all your content from here.
+          Welcome to the Study Guru admin dashboard! Manage all your content from here.
         </p>
       </div>
 

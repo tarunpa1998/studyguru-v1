@@ -5,32 +5,45 @@ import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import CountryCard from "@/components/CountryCard";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const CountriesList = () => {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: countries = [], isLoading } = useQuery({
+  // Define Country interface
+  interface Country {
+    id: string | number;
+    name: string;
+    description: string;
+    universities: number;
+    acceptanceRate: string;
+    image: string;
+    slug: string;
+  }
+
+  const { data: countries = [], isLoading } = useQuery<Country[]>({
     queryKey: ['/api/countries']
   });
 
   // Apply filters
-  const filteredCountries = countries.filter((country: any) => {
+  const filteredCountries = countries.filter((country) => {
     return country.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
     <>
       <Helmet>
-        <title>Study Destinations | StudyGlobal</title>
+        <title>Study Destinations | Study Guru</title>
         <meta 
           name="description" 
           content="Explore popular study abroad destinations for international students. Find information about universities, scholarships, and education systems."
         />
       </Helmet>
 
-      <div className="bg-primary-600 py-16">
+      <div className="bg-primary-600 py-16 pb-0 pt-6">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Study Destinations</h1>
+        <h1 className="text-3xl font-bold text-dark dark:text-white mb-4">Study Destinations</h1>
           <p className="text-primary-100 max-w-2xl">
             Explore popular countries for international education, compare key factors, and find detailed information about each destination.
           </p>
@@ -38,7 +51,7 @@ const CountriesList = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+        <div className="bg-card shadow-sm rounded-lg p-6 mb-8 border">
           <div className="relative">
             <Input 
               placeholder="Search countries..." 
@@ -46,14 +59,14 @@ const CountriesList = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
           </div>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-slate-50 rounded-xl shadow-sm overflow-hidden">
+              <div key={i} className="bg-card rounded-xl shadow-sm overflow-hidden border">
                 <Skeleton className="h-48 w-full" />
                 <div className="p-5">
                   <Skeleton className="h-7 w-3/4 mb-2" />
@@ -69,16 +82,16 @@ const CountriesList = () => {
         ) : (
           <>
             <div className="mb-6">
-              <p className="text-slate-600">{filteredCountries.length} destinations found</p>
+              <p className="text-muted-foreground">{filteredCountries.length} destinations found</p>
             </div>
             {filteredCountries.length === 0 ? (
               <div className="text-center py-12">
-                <h3 className="text-xl font-medium text-slate-800 mb-2">No countries found</h3>
-                <p className="text-slate-600">Try adjusting your search to find more results.</p>
+                <h3 className="text-xl font-medium mb-2">No countries found</h3>
+                <p className="text-muted-foreground">Try adjusting your search to find more results.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredCountries.map((country: any) => (
+                {filteredCountries.map((country) => (
                   <CountryCard
                     key={country.id}
                     name={country.name}
@@ -98,3 +111,6 @@ const CountriesList = () => {
 };
 
 export default CountriesList;
+
+
+

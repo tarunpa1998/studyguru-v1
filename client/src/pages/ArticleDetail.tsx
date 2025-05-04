@@ -43,6 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Define the Article type
 interface Article {
@@ -83,13 +84,15 @@ interface Article {
 
 // Related article card component
 const RelatedArticleCard = ({ article }: { article: Article }) => {
+  const { theme } = useTheme();
+  
   const handleClick = () => {
     window.location.href = `/articles/${article.slug}`;
   };
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer"
+      className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer"
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       onClick={handleClick}
@@ -104,9 +107,9 @@ const RelatedArticleCard = ({ article }: { article: Article }) => {
         </div>
       )}
       <div className="p-4">
-        <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2">{article.title}</h3>
-        <p className="text-sm text-slate-600 line-clamp-2 mb-3">{article.summary}</p>
-        <div className="flex justify-between items-center text-xs text-slate-500">
+        <h3 className="font-semibold text-foreground mb-2 line-clamp-2">{article.title}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{article.summary}</p>
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
           <div className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
             <span>{formatDate(article.publishDate)}</span>
@@ -124,6 +127,7 @@ const RelatedArticleCard = ({ article }: { article: Article }) => {
 };
 
 const ArticleDetail = () => {
+  const { theme } = useTheme();
   const { slug } = useParams();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showTableOfContents, setShowTableOfContents] = useState(false);
@@ -231,8 +235,8 @@ const ArticleDetail = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Article</h1>
-        <p className="text-slate-600 mb-6">We couldn't load this article. Please try again later.</p>
+        <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Error Loading Article</h1>
+        <p className="text-muted-foreground mb-6">We couldn't load this article. Please try again later.</p>
         <Button variant="outline" onClick={() => window.location.href = '/articles'}>
           Back to Articles
         </Button>
@@ -244,9 +248,9 @@ const ArticleDetail = () => {
     <>
       {article && (
         <Helmet>
-          <title>{article.seo?.metaTitle || `${article.title} | StudyGlobal`}</title>
+          <title>{article.seo?.metaTitle || `${article.title} | Study Guru`}</title>
           <meta name="description" content={article.seo?.metaDescription || article.summary} />
-          <meta property="og:title" content={article.seo?.metaTitle || `${article.title} | StudyGlobal`} />
+          <meta property="og:title" content={article.seo?.metaTitle || `${article.title} | Study Guru`} />
           <meta property="og:description" content={article.seo?.metaDescription || article.summary} />
           <meta property="og:type" content="article" />
           {article.image && <meta property="og:image" content={article.image} />}
@@ -265,7 +269,7 @@ const ArticleDetail = () => {
             onClick={() => setShowTableOfContents(false)}
           >
             <motion.div
-              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto"
+              className="absolute bottom-0 left-0 right-0 bg-card rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -289,7 +293,7 @@ const ArticleDetail = () => {
                     className={`pl-${(item.level - 1) * 4} py-2 border-l-2 ${
                       activeSection === item.id 
                         ? 'border-primary-600 text-primary-600 font-medium' 
-                        : 'border-transparent hover:border-slate-300 text-slate-700'
+                        : 'border-transparent hover:border-border text-foreground'
                     } cursor-pointer transition-colors duration-200`}
                     onClick={() => scrollToSection(item.id)}
                   >
@@ -302,7 +306,7 @@ const ArticleDetail = () => {
         )}
       </AnimatePresence>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -348,55 +352,55 @@ const ArticleDetail = () => {
 
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
                       {article.category}
                     </span>
                     {article.isFeatured && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100">
                         Featured
                       </span>
                     )}
                   </div>
 
-                  <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{article.title}</h1>
+                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">{article.title}</h1>
 
                   {/* Article meta */}
-                  <div className="flex flex-wrap justify-between items-center text-slate-500 gap-y-3">
+                  <div className="flex flex-wrap justify-between items-center text-muted-foreground gap-y-3">
                     <div className="flex items-center">
                       {article.authorImage ? (
                         <img 
                           src={article.authorImage} 
                           alt={article.author} 
-                          className="h-10 w-10 rounded-full mr-2 border-2 border-white shadow-sm" 
+                          className="h-10 w-10 rounded-full mr-2 border-2 border-border shadow-sm" 
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-full mr-2 bg-primary-100 flex items-center justify-center text-primary-600">
+                        <div className="h-10 w-10 rounded-full mr-2 bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400">
                           <User className="h-5 w-5" />
                         </div>
                       )}
                       <div>
-                        <div className="font-medium text-slate-900">{article.author}</div>
+                        <div className="font-medium text-foreground">{article.author}</div>
                         {article.authorTitle && (
-                          <div className="text-xs text-slate-500">{article.authorTitle}</div>
+                          <div className="text-xs text-muted-foreground">{article.authorTitle}</div>
                         )}
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-4 text-xs sm:text-sm">
-                      <div className="flex items-center text-slate-500">
+                      <div className="flex items-center text-muted-foreground">
                         <Calendar className="h-4 w-4 mr-1" />
                         <span>{formatDate(article.publishDate)}</span>
                       </div>
                       
                       {article.readingTime && (
-                        <div className="flex items-center text-slate-500">
+                        <div className="flex items-center text-muted-foreground">
                           <Clock className="h-4 w-4 mr-1" />
                           <span>{article.readingTime}</span>
                         </div>
                       )}
                       
                       {article.views !== undefined && (
-                        <div className="flex items-center text-slate-500">
+                        <div className="flex items-center text-muted-foreground">
                           <Eye className="h-4 w-4 mr-1" />
                           <span>{article.views.toLocaleString()} views</span>
                         </div>
@@ -421,14 +425,14 @@ const ArticleDetail = () => {
 
               {/* Summary */}
               <div className="mb-8">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                <div className="bg-muted border border-border rounded-xl p-5">
                   <h2 className="text-lg font-semibold mb-2">Summary</h2>
-                  <p className="text-slate-700">{article.summary}</p>
+                  <p className="text-foreground">{article.summary}</p>
                 </div>
               </div>
 
               {/* Main article content */}
-              <div className="article-content prose prose-blue max-w-none mb-8">
+              <div className="article-content prose prose-blue dark:prose-invert max-w-none mb-8">
                 {article.tableOfContents && article.tableOfContents.length > 0 ? (
                   // Content with headers from table of contents
                   article.content.split('\n\n').map((paragraph, index) => {
@@ -443,7 +447,7 @@ const ArticleDetail = () => {
                         <h2 
                           key={index} 
                           id={headerMatch.id}
-                          className="text-xl font-bold text-slate-800 mt-8 mb-4 scroll-mt-24"
+                          className="text-xl font-bold text-foreground mt-8 mb-4 scroll-mt-24"
                         >
                           {headerMatch.title}
                         </h2>
@@ -451,7 +455,7 @@ const ArticleDetail = () => {
                     } else {
                       // Regular paragraph
                       return (
-                        <p key={index} className="mb-4 text-slate-700 leading-relaxed">
+                        <p key={index} className="mb-4 text-foreground leading-relaxed">
                           {paragraph}
                         </p>
                       );
@@ -460,7 +464,7 @@ const ArticleDetail = () => {
                 ) : (
                   // Regular content without table of contents
                   article.content.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-slate-700 leading-relaxed">
+                    <p key={index} className="mb-4 text-foreground leading-relaxed">
                       {paragraph}
                     </p>
                   ))
@@ -468,10 +472,10 @@ const ArticleDetail = () => {
               </div>
 
               {/* Interaction section: Helpful + Share */}
-              <div className="border-t border-b border-slate-200 py-6 my-8">
+              <div className="border-t border-b border-border py-6 my-8">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                   <div className="flex items-center">
-                    <span className="mr-3 text-slate-700">Was this article helpful?</span>
+                    <span className="mr-3 text-foreground">Was this article helpful?</span>
                     <div className="flex gap-2">
                       <TooltipProvider>
                         <Tooltip>
@@ -480,7 +484,7 @@ const ArticleDetail = () => {
                               variant={helpfulVote === 'yes' ? 'default' : 'outline'}
                               size="sm"
                               className={`py-1 px-2 h-auto ${
-                                helpfulVote === 'yes' ? 'bg-green-600 hover:bg-green-700' : ''
+                                helpfulVote === 'yes' ? 'bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white' : ''
                               }`}
                               onClick={() => handleHelpfulVote('yes')}
                             >
@@ -501,7 +505,7 @@ const ArticleDetail = () => {
                               variant={helpfulVote === 'no' ? 'default' : 'outline'}
                               size="sm"
                               className={`py-1 px-2 h-auto ${
-                                helpfulVote === 'no' ? 'bg-red-600 hover:bg-red-700' : ''
+                                helpfulVote === 'no' ? 'bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white' : ''
                               }`}
                               onClick={() => handleHelpfulVote('no')}
                             >
@@ -544,14 +548,18 @@ const ArticleDetail = () => {
               {/* FAQ Section */}
               {article.faqs && article.faqs.length > 0 && (
                 <div className="my-10">
-                  <h2 className="text-2xl font-bold text-slate-800 mb-6">Frequently Asked Questions</h2>
-                  <Accordion type="single" collapsible className="bg-slate-50 border border-slate-200 rounded-xl px-4">
+                  <h2 className="text-2xl font-bold text-foreground mb-6">Frequently Asked Questions</h2>
+                  <Accordion type="single" collapsible className="bg-muted border border-border rounded-xl px-4">
                     {article.faqs.map((faq, index) => (
-                      <AccordionItem value={`faq-${index}`} key={index} className="border-b border-slate-200 last:border-0">
-                        <AccordionTrigger className="hover:text-primary-600">
+                      <AccordionItem 
+                        value={`faq-${index}`} 
+                        key={index} 
+                        className="border-b dark:border-gray-500 border-border last:border-0 data-[state=open]:pb-2"
+                      >
+                        <AccordionTrigger className="hover:text-primary-600 dark:hover:text-primary-400">
                           {faq.question}
                         </AccordionTrigger>
-                        <AccordionContent className="text-slate-700">
+                        <AccordionContent className="text-foreground">
                           {faq.answer}
                         </AccordionContent>
                       </AccordionItem>
@@ -564,11 +572,11 @@ const ArticleDetail = () => {
               {relatedArticlesData.length > 0 && (
                 <div className="my-10">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-slate-800">Related Articles</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Related Articles</h2>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-primary-600"
+                      className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
                       onClick={() => window.location.href = `/articles?category=${encodeURIComponent(article.category)}`}
                     >
                       View All
@@ -595,7 +603,7 @@ const ArticleDetail = () => {
                   <Card className="hidden md:block">
                     <CardHeader>
                       <CardTitle className="flex items-center">
-                        <List className="h-5 w-5 mr-2 text-primary-600" />
+                        <List className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                         Table of Contents
                       </CardTitle>
                     </CardHeader>
@@ -606,8 +614,8 @@ const ArticleDetail = () => {
                             key={item.id}
                             className={`pl-${(item.level - 1) * 4} py-2 border-l-2 ${
                               activeSection === item.id 
-                                ? 'border-primary-600 text-primary-600 font-medium' 
-                                : 'border-transparent hover:border-slate-300 text-slate-700'
+                                ? 'border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400 font-medium' 
+                                : 'border-transparent hover:border-border text-foreground'
                             } cursor-pointer transition-colors duration-200`}
                             onClick={() => scrollToSection(item.id)}
                             whileHover={{ x: 3 }}
@@ -624,7 +632,7 @@ const ArticleDetail = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <User className="h-5 w-5 mr-2 text-primary-600" />
+                      <User className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                       About the Author
                     </CardTitle>
                   </CardHeader>
@@ -633,17 +641,17 @@ const ArticleDetail = () => {
                       <img 
                         src={article.authorImage} 
                         alt={article.author} 
-                        className="h-16 w-16 rounded-full mr-4 border-2 border-white shadow-sm" 
+                        className="h-16 w-16 rounded-full mr-4 border-2 border-border shadow-sm" 
                       />
                     ) : (
-                      <div className="h-16 w-16 rounded-full mr-4 bg-primary-100 flex items-center justify-center text-primary-600">
+                      <div className="h-16 w-16 rounded-full mr-4 bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400">
                         <User className="h-8 w-8" />
                       </div>
                     )}
                     <div>
-                      <div className="font-medium text-lg text-slate-900">{article.author}</div>
+                      <div className="font-medium text-lg text-foreground">{article.author}</div>
                       {article.authorTitle && (
-                        <div className="text-sm text-slate-500">{article.authorTitle}</div>
+                        <div className="text-sm text-muted-foreground">{article.authorTitle}</div>
                       )}
                     </div>
                   </CardContent>
@@ -654,7 +662,7 @@ const ArticleDetail = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center">
-                        <Search className="h-5 w-5 mr-2 text-primary-600" />
+                        <Search className="h-5 w-5 mr-2 text-primary-600 dark:text-primary-400" />
                         Keywords
                       </CardTitle>
                     </CardHeader>
@@ -663,7 +671,7 @@ const ArticleDetail = () => {
                         {article.seo.keywords.map((keyword, index) => (
                           <div 
                             key={index}
-                            className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs hover:bg-primary-100 hover:text-primary-700 transition-colors duration-200 cursor-pointer"
+                            className="bg-muted text-foreground px-3 py-1 rounded-full text-xs hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900 dark:hover:text-primary-300 transition-colors duration-200 cursor-pointer"
                             onClick={() => window.location.href = `/search?q=${encodeURIComponent(keyword)}`}
                           >
                             {keyword}
@@ -682,11 +690,11 @@ const ArticleDetail = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <input 
                         type="text" 
                         placeholder="Search articles..." 
-                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             const value = (e.target as HTMLInputElement).value;
@@ -727,3 +735,8 @@ const ArticleDetail = () => {
 };
 
 export default ArticleDetail;
+
+
+
+
+

@@ -27,7 +27,7 @@ const NewsCard = ({
   if (layout === "horizontal") {
     return (
       <motion.div 
-        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden cursor-pointer group"
+        className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden cursor-pointer group border border-border"
         whileHover={{ y: -5 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300 }}
@@ -43,15 +43,15 @@ const NewsCard = ({
           </div>
           <div className="p-4 sm:w-2/3 lg:w-full">
             <div className="flex items-center mb-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 {category}
               </span>
-              <span className="text-slate-500 text-xs ml-2">{formatDate(publishDate)}</span>
+              <span className="text-muted-foreground text-xs ml-2">{formatDate(publishDate)}</span>
             </div>
-            <h3 className="text-lg font-semibold text-slate-800 mb-1 group-hover:text-primary-600 transition-colors duration-300">
+            <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors duration-300">
               {title}
             </h3>
-            <p className="text-slate-600 text-sm">{summary}</p>
+            <p className="text-muted-foreground text-sm">{summary}</p>
           </div>
         </div>
       </motion.div>
@@ -60,7 +60,7 @@ const NewsCard = ({
 
   return (
     <motion.div 
-      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden h-full cursor-pointer group"
+      className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden h-full cursor-pointer group border border-border"
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300 }}
@@ -75,18 +75,19 @@ const NewsCard = ({
       </div>
       <div className="p-6">
         <div className="flex items-center mb-3">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
             {category}
           </span>
-          <span className="text-slate-500 text-xs ml-2">{formatDate(publishDate)}</span>
+          <span className="text-muted-foreground text-xs ml-2">{formatDate(publishDate)}</span>
         </div>
-        <h3 className="text-lg font-semibold text-slate-800 mb-2 group-hover:text-primary-600 transition-colors duration-300">
+        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
           {title}
         </h3>
-        <p className="text-slate-600 text-sm">{summary}</p>
+        <p className="text-muted-foreground text-sm">{summary}</p>
       </div>
     </motion.div>
   );
 };
 
 export default NewsCard;
+

@@ -62,7 +62,7 @@ const Login = () => {
       localStorage.setItem('adminToken', responseData.token);
       toast({
         title: 'Login Successful',
-        description: 'Welcome to the StudyGlobal admin dashboard',
+        description: 'Welcome to the Study Guru admin dashboard',
       });
       setLocation('/admin/dashboard');
     } catch (error) {
@@ -79,7 +79,7 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Login | StudyGlobal</title>
+        <title>Admin Login | Study Guru</title>
       </Helmet>
       <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -87,7 +87,7 @@ const Login = () => {
             <div className="bg-primary-100 p-3 rounded-full mb-2">
               <GraduationCap className="h-10 w-10 text-primary-600" />
             </div>
-            <CardTitle className="text-2xl font-bold">StudyGlobal Admin</CardTitle>
+            <CardTitle className="text-2xl font-bold">Study Guru Admin</CardTitle>
             <CardDescription>Sign in to access the admin dashboard</CardDescription>
           </CardHeader>
           <CardContent>
@@ -155,7 +155,7 @@ const Login = () => {
           className="mt-4 text-slate-500"
           onClick={() => setLocation('/')}
         >
-          Return to StudyGlobal
+          Return to Study Guru
         </Button>
       </div>
     </>

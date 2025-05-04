@@ -111,8 +111,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           {/* Sidebar header */}
           <div className="flex h-16 items-center justify-between px-4">
             <div className="flex items-center">
-              <img src="/logo.svg" alt="StudyGlobal" className="h-8 w-8" />
-              <h1 className="ml-2 text-xl font-bold">StudyGlobal</h1>
+              <img src="/logo.svg" alt="Study Guru" className="h-8 w-8" />
+              <h1 className="ml-2 text-xl font-bold">Study Guru</h1>
             </div>
             {isMobile && (
               <button

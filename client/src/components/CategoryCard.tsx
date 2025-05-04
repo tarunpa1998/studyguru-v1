@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CategoryCardProps {
   title: string;
@@ -66,18 +67,18 @@ const CategoryCard = ({ title, description, icon: Icon, href }: CategoryCardProp
       aria-label={`View ${title} category`}
     >
       <motion.div 
-        className="bg-white p-6 rounded-xl shadow border border-slate-100 flex flex-col items-center text-center h-full"
+        className="bg-card p-6 rounded-xl shadow border border-border flex flex-col items-center text-center h-full"
         variants={cardVariants}
       >
         <motion.div 
-          className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-all duration-300"
+          className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/30 transition-all duration-300"
           variants={iconVariants}
         >
-          <Icon className="h-8 w-8 text-primary-600" />
+          <Icon className="h-8 w-8 text-primary" />
         </motion.div>
         
         <motion.h3 
-          className="font-semibold text-lg text-slate-800 group-hover:text-primary-600 transition-colors duration-300"
+          className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors duration-300"
           variants={{
             hover: { scale: 1.05 }
           }}
@@ -86,7 +87,7 @@ const CategoryCard = ({ title, description, icon: Icon, href }: CategoryCardProp
         </motion.h3>
         
         <motion.p 
-          className="mt-2 text-sm text-slate-600"
+          className="mt-2 text-sm text-muted-foreground"
           variants={{
             initial: { opacity: 0 },
             animate: { opacity: 1, transition: { delay: 0.2 } }
@@ -96,7 +97,7 @@ const CategoryCard = ({ title, description, icon: Icon, href }: CategoryCardProp
         </motion.p>
         
         <motion.div 
-          className="mt-4 w-0 h-0.5 bg-primary-500 group-hover:w-1/2 transition-all duration-300"
+          className="mt-4 w-0 h-0.5 bg-primary group-hover:w-1/2 transition-all duration-300"
           variants={{
             hover: { width: "50%" }
           }}
@@ -107,3 +108,4 @@ const CategoryCard = ({ title, description, icon: Icon, href }: CategoryCardProp
 };
 
 export default CategoryCard;
+

@@ -134,7 +134,7 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard | StudyGlobal</title>
+        <title>Admin Dashboard | Study Guru</title>
       </Helmet>
       <div className="flex h-screen overflow-hidden bg-slate-100">
         {/* Desktop Sidebar */}

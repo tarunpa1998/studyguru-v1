@@ -15,7 +15,7 @@ const TestimonialCard = ({
 }: TestimonialCardProps) => {
   return (
     <motion.div 
-      className="bg-white rounded-xl shadow-sm p-6"
+      className="bg-card rounded-xl shadow-sm p-6 border border-border"
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
@@ -29,18 +29,18 @@ const TestimonialCard = ({
         </div>
       </div>
       <blockquote className="mb-4">
-        <p className="text-slate-700 italic">{quote}</p>
+        <p className="text-foreground italic">{quote}</p>
       </blockquote>
       <div className="flex items-center">
         <img 
-          className="h-10 w-10 rounded-full" 
+          className="h-10 w-10 rounded-full border border-border" 
           src={studentImage} 
           alt={studentName} 
         />
         <div className="ml-3">
-          <p className="text-sm font-medium text-slate-900">{studentName}</p>
+          <p className="text-sm font-medium text-foreground">{studentName}</p>
           <div className="flex items-center">
-            <p className="text-xs text-slate-500">{studentInfo}</p>
+            <p className="text-xs text-muted-foreground">{studentInfo}</p>
           </div>
         </div>
       </div>
@@ -49,3 +49,4 @@ const TestimonialCard = ({
 };
 
 export default TestimonialCard;
+

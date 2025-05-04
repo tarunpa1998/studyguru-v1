@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import CategoryCard from "./CategoryCard";
+import { cn } from "@/lib/utils";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -47,7 +48,7 @@ const CategorySection = () => {
   ];
 
   return (
-    <section className="py-10 md:py-16 bg-slate-50">
+    <section className="py-10 md:py-16 bg-background border-y border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="mb-8 text-center"
@@ -55,8 +56,8 @@ const CategorySection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Explore StudyGlobal</h2>
-          <p className="mt-2 text-slate-600 max-w-2xl mx-auto">Your comprehensive guide to international education opportunities</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">Explore Study Guru</h2>
+          <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">Your comprehensive guide to international education opportunities</p>
         </motion.div>
         
         <motion.div 
@@ -82,3 +83,4 @@ const CategorySection = () => {
 };
 
 export default CategorySection;
+
